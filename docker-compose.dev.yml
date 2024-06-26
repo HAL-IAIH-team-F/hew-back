@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: "hew"
+    volumes:
+      - type: volume
+        source: db-data
+        target: /var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: '3'
+    healthcheck:
+      test: [ "CMD", "pg_isready","-q","-U","postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    ports:
+      - target: 5432
+        published: 5433
+volumes:
+  db-data:
+  venv:
+  rye:
