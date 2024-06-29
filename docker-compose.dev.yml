@@ -1,5 +1,5 @@
 services:
-  postgres:
+  postgres-dev:
     image: postgres:14
     environment:
       POSTGRES_USER: 'postgres'
@@ -25,5 +25,3 @@ services:
         published: 5433
 volumes:
   db-data:
-  venv:
-  rye:
