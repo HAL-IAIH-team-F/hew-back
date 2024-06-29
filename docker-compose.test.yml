@@ -15,12 +15,12 @@ services:
         max-size: 1m
         max-file: '3'
     healthcheck:
-      test: [ "CMD", "pg_isready","-q","-U","postgres" ]
+      test: "pg_isready -q -U postgres"
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
       start_period: 30s
-#########################################################
+  #########################################################
   init-rsync:
     image: secoresearch/rsync
     user: root:root
@@ -40,7 +40,7 @@ services:
       - type: volume
         source: app-data
         target: /app
-#########################################################
+  #########################################################
   backend-test:
     image: python:3.12-bookworm
     depends_on:
@@ -62,6 +62,20 @@ services:
         pip install -r requirements-dev.lock
         python -c "import sys; print(sys.version)"
         pytest
+  #########################################################
+#  ping:
+#    image: bash
+#    command:
+#      - bash
+#      - -c
+#      - |
+#        while true
+#    healthcheck:
+#      test: ping init-rsync -n 1 || ping backend-test -n 1
+#      interval: 10s
+#      timeout: 109s
+#      retries: 3
+#      start_period: 30s
 volumes:
   app-data:
   db-data:
