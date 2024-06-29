@@ -1,0 +1,32 @@
+name: test
+
+on: [push]
+
+jobs:
+  front:
+    strategy:
+      matrix:
+        conf:
+          - nodeVer: "21.x"
+            preTestCmd: docker compose -f generate-openapi.yml -p icha up --abort-on-container-exit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.conf.nodeVer }}
+      - run: npm ci
+      - name: pre test cmd
+        run: ${{ matrix.conf.preTestCmd }}
+        if: ${{ matrix.conf.preTestCmd }}
+      - run: npm run build
+  back:
+    strategy:
+      matrix:
+        conf:
+          - pythonVer: "3.12"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose -f generate-openapi.yml -p icha up --abort-on-container-exit

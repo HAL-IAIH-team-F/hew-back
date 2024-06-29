@@ -1,0 +1,67 @@
+services:
+  postgres-test:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: "hew"
+    volumes:
+      - type: volume
+        source: db-data
+        target: /var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: '3'
+    healthcheck:
+      test: [ "CMD", "pg_isready","-q","-U","postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+#########################################################
+  init-rsync:
+    image: secoresearch/rsync
+    user: root:root
+    command:
+      - rsync
+      - --delete
+      - -av
+      - /src/
+      - /app
+      - --exclude
+      - .venv
+    working_dir: /src
+    volumes:
+      - type: bind
+        source: .
+        target: /src
+      - type: volume
+        source: app-data
+        target: /app
+#########################################################
+  backend-test:
+    image: python:3.12-bookworm
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      init-rsync:
+        condition: service_completed_successfully
+    links:
+      - postgres-test:postgres
+    volumes:
+      - type: volume
+        source: app-data
+        target: /app
+    working_dir: /app
+    command:
+      - bash
+      - -c
+      - |
+        pip install -r requirements-dev.lock
+        python -c "import sys; print(sys.version)"
+        pytest
+volumes:
+  app-data:
+  db-data:
