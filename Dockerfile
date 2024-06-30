@@ -7,4 +7,5 @@ COPY ./src ./
 #COPY ./alembic.ini ./alembic.ini
 
 ENTRYPOINT ["bash", "-c"]
-CMD ["alembic upgrade head && uvicorn hew_back:app --host 0.0.0.0 --port 80"]
+# alembic upgrade head &&
+CMD ["uvicorn hew_back:app --host 0.0.0.0 --port 80"]
