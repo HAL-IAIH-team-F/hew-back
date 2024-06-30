@@ -13,7 +13,7 @@ jobs:
         conf:
           - name: hew-back
             dockerFile: Dockerfile
-            manifestFile: ./hew-dev-back/backend.yml
+            manifestFile: ./hew-dev/backend.yml
             repository: HAL-IAIH-team-F/k8s-hew
     runs-on: ubuntu-latest
 
