@@ -52,7 +52,7 @@ jobs:
 
       - name: Update YAML File
         run: |
-          yq -i '.spec.template.spec.containers[0].image = "harbor.kigawa.net/private/${{ matrix.conf.repo }}:${{ github.ref_name }}-${{ github.run_number }}"' \
+          yq -i '.spec.template.spec.containers[0].image = "harbor.kigawa.net/private/${{ matrix.conf.name }}:${{ github.ref_name }}-${{ github.run_number }}"' \
           ${{ matrix.conf.manifestFile }}
 
       - name: push
