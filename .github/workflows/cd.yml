@@ -33,13 +33,14 @@ jobs:
           username: robot$hew-back
           password: ${{ secrets.HARBOR_PASS }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags:
-            harbor.kigawa.net/private/${{ matrix.conf.name }}:${{ github.ref_name }}-${{ github.sha }}
-          file: ${{ matrix.conf.dockerFile }}
+      - name: BuildAndPushImageOnHarbor
+        run: |
+          ${{ matrix.conf.preDockerBuildCmd }}
+          docker build -t harbor.kigawa.net/private/${{ matrix.conf.name }}:${{ github.ref_name }}-${{ github.sha }} \
+           -f ${{ matrix.conf.dockerFile }} \
+          ${{ matrix.conf.dockerOpt }} \
+          ./ 
+          docker push harbor.kigawa.net/private/${{ matrix.conf.repo }}:${{ github.ref_name }}-${{ github.run_number }}
 
       # argo
       - name: checkout manifest repository
