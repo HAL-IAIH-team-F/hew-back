@@ -40,7 +40,7 @@ jobs:
            -f ${{ matrix.conf.dockerFile }} \
           ${{ matrix.conf.dockerOpt }} \
           ./ 
-          docker push harbor.kigawa.net/private/${{ matrix.conf.repo }}:${{ github.ref_name }}-${{ github.run_number }}
+          docker push harbor.kigawa.net/private/${{ matrix.conf.name }}:${{ github.ref_name }}-${{ github.sha }}
 
       # argo
       - name: checkout manifest repository
