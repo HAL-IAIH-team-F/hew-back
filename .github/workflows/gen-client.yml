@@ -1,23 +1,14 @@
-name: gen-client
-
 on:
   push:
-    branches:
-      - "develop"
-
 jobs:
   cd:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - run: docker compose -f docker-compose.openapi.yml up openapi-generator
-
-      - name: push
-        run: |
+      - run: |
           git config user.name "$(git --no-pager log --format=format:'%an' -n 1)" && \
           git config user.email "$(git --no-pager log --format=format:'%ae' -n 1)" && \
-          git add -u && \
-          git add . && \
+          git add api_clients && \
           (git commit -m "client generated" || true) && \
           git push
