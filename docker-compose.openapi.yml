@@ -1,0 +1,88 @@
+version: "3.7"
+services:
+  postgres-openapi:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: "hew"
+    volumes:
+      - type: volume
+        source: db-data-openapi
+        target: /var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: '3'
+    healthcheck:
+      test: "pg_isready -q -U postgres"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  #########################################################
+  init-rsync-openapi:
+    image: secoresearch/rsync
+    user: root:root
+    command:
+      - rsync
+      - --delete
+      - -av
+      - /src/
+      - /app
+      - --exclude
+      - .venv
+    working_dir: /src
+    volumes:
+      - type: bind
+        source: .
+        target: /src
+      - type: volume
+        source: app-data-openapi
+        target: /app
+  #########################################################
+  backend-openapi:
+    image: python:3.12-bookworm
+    depends_on:
+      postgres-openapi:
+        condition: service_healthy
+      init-rsync-openapi:
+        condition: service_completed_successfully
+    volumes:
+      - type: volume
+        source: app-data-openapi
+        target: /app
+    working_dir: /app/src
+    command:
+      - bash
+      - -c
+      - |
+        pip install -r ../requirements-dev.lock
+        python -c "import sys; print(sys.version)"
+        python -m uvicorn hew_back:app --host 0.0.0.0
+    healthcheck:
+      test: [ "CMD-SHELL", "curl http://localhost:8000/health || exit 1" ]
+      start_period: "10s"
+      retries: 50
+      timeout: "5s"
+      interval: "5s"
+  #########################################################
+  openapi-generator:
+    image: node:22-bookworm
+    volumes:
+      - ./:/src
+    command:
+      - bash
+      - -c
+      - |
+        mkdir -p /src/api_clients/
+        npx openapi-zod-client http://backend-openapi:8000/openapi.json -o /src/api_clients/client.ts
+        chmod 777 -R /src/api_clients
+    depends_on:
+      backend-openapi:
+        condition: service_healthy
+    user: "${UID}:${GID}"
+volumes:
+  app-data-openapi:
+  db-data-openapi:

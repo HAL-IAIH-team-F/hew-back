@@ -3,7 +3,7 @@ from datetime import timedelta, timezone, datetime
 
 import pytest
 
-import hew_back.app as main
+from hew_back import main
 from test.base import Client
 
 
