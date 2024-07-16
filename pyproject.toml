@@ -30,4 +30,4 @@ allow-direct-references = true
 packages = ["src/hew_back"]
 
 [project.scripts]
-hew-back = 'hew_back:main'
+run = 'hew_back:main'
