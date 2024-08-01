@@ -7,6 +7,7 @@ on:
 
 jobs:
   cd:
+
     strategy:
       matrix:
         conf:
@@ -15,6 +16,8 @@ jobs:
             manifestFile: ./hew-dev/backend.yml
             repository: HAL-IAIH-team-F/k8s-hew
     runs-on: ubuntu-latest
+    env:
+      harborUser: robot$hew
 
     steps:
       # checkout
@@ -30,7 +33,7 @@ jobs:
       - uses: docker/login-action@v3
         with:
           registry: harbor.kigawa.net
-          username: robot$hew-back
+          username: ${{ env.harborUser }}
           password: ${{ secrets.HARBOR_PASS }}
 
       - name: BuildAndPushImageOnHarbor
