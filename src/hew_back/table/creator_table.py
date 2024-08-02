@@ -10,8 +10,4 @@ class CreatorTable(Base):
     contact_address = Column(String(64), nullable=False)
     transfer_target = Column(String(64), nullable=False)
 
-# データベースエンジンの作成とテーブルの作成
-from sqlalchemy import create_engine
 
-engine = create_engine('sqlite:///creators.db')
-Base.metadata.create_all(engine)

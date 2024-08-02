@@ -16,8 +16,4 @@ class UserTable(Base):
     user_mail = Column(String(64), nullable=False, unique=False)
 
 
-# データベースエンジンの作成とテーブルの作成
-from sqlalchemy import create_engine
 
-engine = create_engine('sqlite:///users.db')
-Base.metadata.create_all(engine)

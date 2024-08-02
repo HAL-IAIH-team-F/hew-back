@@ -11,8 +11,4 @@ class UserTable(Base):
     product_id = Column(String(64), ForeignKey('TBL_PRODUCT.product_id'), primary_key=True)
 
 
-# データベースエンジンの作成とテーブルの作成
-from sqlalchemy import create_engine
 
-engine = create_engine('sqlite:///user_products.db')
-Base.metadata.create_all(engine)
