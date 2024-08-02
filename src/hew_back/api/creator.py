@@ -1,17 +1,13 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 
-# データモデルを定義します
-class PostCreatorModel(BaseModel):
-    user: int
-    contact_address: str
-    transfer_target: float
+from hew_back import app
+from hew_back.request_model import PostCreatorBody
 
 # FastAPIアプリケーションを作成します
-app = FastAPI()
+
 
 # POSTリクエストを受け取るエンドポイントを定義します
-@app.post("/PostCreatorModel/")
-async def create_item(item: PostCreatorModel):
+@app.post("/creator")
+async def post_creator(creator_box: PostCreatorBody):
     # 受け取ったデータをそのまま返します
-    return item
+    return creator_box.user_id

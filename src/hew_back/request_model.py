@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 
 class PostCreatorBody(BaseModel):
-
-    user:int
-    contact_address:str
+    user_id: int
+    contact_address: str
     transfer_target: str
