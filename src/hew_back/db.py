@@ -6,7 +6,7 @@ from hew_back.env import ENV
 
 class Db:
     def __init__(self):
-        self.engine = create_async_engine(ENV.db_url, echo=False, pool_pre_ping=True)
+        self.engine = create_async_engine(ENV.database.db_url, echo=False, pool_pre_ping=True)
         self.session_maker = async_sessionmaker(
             autocommit=False, autoflush=False, bind=self.engine, class_=AsyncSession
         )

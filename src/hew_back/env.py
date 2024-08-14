@@ -3,13 +3,16 @@ import os
 import dotenv
 
 
-class Env:
+class Token:
     def __init__(self):
-        dotenv.load_dotenv("./.env.local")
-        dotenv.load_dotenv()
-
-        self.cors_list = os.getenv("CORS_LIST")
         self.secret_key = os.getenv("SECRET_KEY")
+        self.algorithm = os.getenv("ALGORITHM")
+        self.refresh_token_expire_minutes = os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES")
+        self.access_token_expire_minutes = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+
+
+class Database:
+    def __init__(self):
         self.db_url = os.getenv("DB_URL")
         self.db_user = os.getenv("DB_USER")
         self.db_pass = os.getenv("DB_PASS")
@@ -33,6 +36,16 @@ class Env:
             self.db_name = "hew-back"
         if self.db_url is None:
             self.db_url = f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}/{self.db_name}"
+
+
+class Env:
+    def __init__(self):
+        dotenv.load_dotenv("./.env.local")
+        dotenv.load_dotenv()
+
+        self.cors_list = os.getenv("CORS_LIST")
+        self.token = Token()
+        self.database = Database()
 
 
 ENV = Env()
