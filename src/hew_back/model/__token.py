@@ -16,10 +16,6 @@ class TokenType(str, Enum):
     refresh = "refresh"
 
 
-class IJwtTokenData(metaclass=abc.ABCMeta):
-    pass
-
-
 class JwtTokenData(BaseModel):
     exp: datetime
     token_type: TokenType

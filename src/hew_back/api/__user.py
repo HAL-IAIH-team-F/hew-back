@@ -1,6 +1,6 @@
 from hew_back import app
 
 
-@app.get("/api")
+@app.post("/api/users")
 async def health():
-    return {"ok": True}
+    return
