@@ -1,4 +1,3 @@
-import abc
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 
@@ -14,10 +13,6 @@ from hew_back.token import oauth2_scheme
 class TokenType(str, Enum):
     access = "access"
     refresh = "refresh"
-
-
-class IJwtTokenData(metaclass=abc.ABCMeta):
-    pass
 
 
 class JwtTokenData(BaseModel):
@@ -79,3 +74,23 @@ class TokenInfo(BaseModel):
             user_id, TokenType.access,
             timedelta(minutes=ENV.token.access_token_expire_minutes)
         )
+
+
+class TokenRes(BaseModel):
+    access: TokenInfo
+    refresh: TokenInfo
+
+    @staticmethod
+    def create(access: TokenInfo, refresh: TokenInfo):
+        return TokenRes(access=access, refresh=refresh)
+
+    @staticmethod
+    def create_by_user_id(user_id: int):
+        return TokenRes.create(
+            TokenInfo.create_access_token(user_id),
+            TokenInfo.create_refresh_token(user_id)
+        )
+
+
+class PostTokenBody(BaseModel):
+    keycloak_token: str
