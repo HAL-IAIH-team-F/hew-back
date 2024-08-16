@@ -4,6 +4,13 @@ import { z } from "zod";
 const endpoints = makeApi([
   {
     method: "get",
+    path: "/api",
+    alias: "health_api_get",
+    requestFormat: "json",
+    response: z.unknown(),
+  },
+  {
+    method: "get",
     path: "/health",
     alias: "health_health_get",
     requestFormat: "json",
