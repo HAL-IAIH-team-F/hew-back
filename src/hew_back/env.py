@@ -4,11 +4,22 @@ import dotenv
 
 
 class Token:
+    refresh_token_expire_minutes: int | float
+    access_token_expire_minutes: int | float
+
     def __init__(self):
         self.secret_key = os.getenv("SECRET_KEY")
         self.algorithm = os.getenv("ALGORITHM")
-        self.refresh_token_expire_minutes = os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES")
-        self.access_token_expire_minutes = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+        refresh_token_expire_minutes = os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES")
+        access_token_expire_minutes = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+        if refresh_token_expire_minutes is None:
+            self.refresh_token_expire_minutes = 60 * 24 * 14
+        else:
+            self.refresh_token_expire_minutes = float(refresh_token_expire_minutes)
+        if access_token_expire_minutes is None:
+            self.access_token_expire_minutes = 15
+        else:
+            self.access_token_expire_minutes = float(access_token_expire_minutes)
 
 
 class Database:
@@ -19,9 +30,6 @@ class Database:
         self.db_host = os.getenv("DB_HOST")
         self.db_port = os.getenv("DB_PORT")
         self.db_name = os.getenv("DB_NAME")
-        self.validate()
-
-    def validate(self):
         if self.db_url is not None:
             return
         if self.db_user is None:
@@ -33,7 +41,7 @@ class Database:
         if self.db_port is not None:
             self.db_host = f"{self.db_host}:{self.db_port}"
         if self.db_name is None:
-            self.db_name = "hew-back"
+            self.db_name = "hew-dev"
         if self.db_url is None:
             self.db_url = f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}/{self.db_name}"
 
