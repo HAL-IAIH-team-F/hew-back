@@ -1,6 +1,7 @@
+from email.message import Message
 from http import client
-from http.client import HTTPResponse
-from typing import Final
+from typing import Final, Callable, Self
+from urllib.error import HTTPError
 
 from pydantic import BaseModel
 
@@ -13,31 +14,56 @@ class HttpResponse:
     """httpレスポンスを表すクラス
     """
     http_request: Final[HttpRequest]
-    response: Final[HTTPResponse]
+    headers: Final[Message]
+    read: Final[Callable[[], bytes]]
+    __enter__: Final[Callable[[], any]]
+    __exit__: Final[Callable[[any, any, any], any]]
+    status_code: int
 
-    def json_model[T: BaseModel](self, model: type[T]):
+    def __init__(
+            self, http_request: HttpRequest, headers: Message, read: Callable[[], bytes],
+            __enter__: Callable[[], any], __exit__: Callable[[any, any, any], any]
+    ):
+        self.http_request = http_request
+        self.headers = headers
+        self.read = read
+        self.__enter__ = __enter__
+        self.__exit__ = __exit__
+
+    @staticmethod
+    def from_response(request: HttpRequest, response: client.HTTPResponse):
+        return HttpResponse(
+            request, response.headers, lambda: response.read(), lambda: response.__enter__(),
+            lambda exc_type, exc_val, exc_tb: response.__exit__(exc_type, exc_val, exc_tb)
+        )
+
+    @staticmethod
+    def from_http_error(request: HttpRequest, error: HTTPError):
+        return HttpResponse(
+            request, error.headers, lambda: error.read(), lambda: error.__enter__(),
+            lambda exc_type, exc_val, exc_tb: error.__exit__(exc_type, exc_val, exc_tb)
+        )
+
+    def read(self) -> bytes:
+        return self.read()
+
+    def json_model[T: BaseModel](self, model: type[T]) -> T:
         """responseのbodyをjsonオブジェクトに変換する
         :return: jsonを表すディクショナリ
         """
         return model.model_validate_json(self.body())
 
     def body(self):
-        encoding = self.response.headers.get_content_charset('utf-8')
-        return self.response.read().decode(encoding)
-
-    def status_code(self):
-        """http status codeを取得します
-        :return: status codeの数字
-        """
-        return self.response.getcode()
-
-    def __init__(self, http_request: HttpRequest, response: client.HTTPResponse):
-        self.http_request = http_request
-        self.response = response
+        encoding = self.headers.get_content_charset('utf-8')
+        return self.read().decode(encoding)
 
     def __enter__(self):
-        self.response.__enter__()
+        self.__enter__()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.response.__exit__(exc_type, exc_val, exc_tb)
+        self.__exit__(exc_type, exc_val, exc_tb)
+
+    def on_status_code(self, expect: int, fn: Callable[[Self], any]):
+        if self.status_code == expect:
+            fn(self)
