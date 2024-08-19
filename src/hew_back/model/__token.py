@@ -42,7 +42,7 @@ class JwtTokenData(BaseModel):
         return token
 
     @staticmethod
-    def access_token_or_none(token=Depends(get_token_or_none)):
+    def get_access_token_or_none(token=Depends(get_token_or_none)):
         if token is None:
             return None
         if token.token_type != "access":
