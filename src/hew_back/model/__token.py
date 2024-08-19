@@ -1,4 +1,3 @@
-import abc
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 
@@ -19,11 +18,15 @@ class TokenType(str, Enum):
 class JwtTokenData(BaseModel):
     exp: datetime
     token_type: TokenType
-    user_id: int
+    profile: model.KeycloakUserProfileRes
 
     @staticmethod
-    def create(exp: datetime, token_type: TokenType, user_id: int):
-        return JwtTokenData(exp=exp, token_type=token_type, user_id=user_id)
+    def create(
+            exp: datetime, token_type: TokenType, profile: model.KeycloakUserProfileRes
+    ):
+        return JwtTokenData(
+            exp=exp, token_type=token_type, profile=profile,
+        )
 
     @staticmethod
     def get_token_or_none(token: str | None = Depends(oauth2_scheme)):
@@ -52,26 +55,51 @@ class TokenInfo(BaseModel):
     expire: datetime
 
     @staticmethod
-    def create_token(user_id: int, token_type: TokenType, expires_delta: timedelta | None = None):
+    def create_token(token_type: TokenType, res: model.KeycloakUserProfileRes,
+                     expires_delta: timedelta | None = None):
         expire = datetime.now(timezone.utc) + expires_delta
         encoded_jwt = jwt.encode(
-            JwtTokenData.create(exp=expire, user_id=user_id, token_type=token_type).model_dump(),
+            JwtTokenData.create(exp=expire, token_type=token_type, profile=res).model_dump(),
             ENV.token.secret_key,
             algorithm=ENV.token.algorithm
         )
         return TokenInfo(token=encoded_jwt, expire=expire)
 
     @staticmethod
-    def create_refresh_token(user_id: int):
+    def create_refresh_token(res: model.KeycloakUserProfileRes):
         return TokenInfo.create_token(
-            user_id,
-            TokenType.refresh,
+            TokenType.refresh, res,
             expires_delta=timedelta(minutes=ENV.token.refresh_token_expire_minutes)
         )
 
     @staticmethod
-    def create_access_token(user_id: int):
+    def create_access_token(res: model.KeycloakUserProfileRes):
         return TokenInfo.create_token(
-            user_id, TokenType.access,
-            timedelta(minutes=ENV.token.access_token_expire_minutes)
+            TokenType.access, res, timedelta(minutes=ENV.token.access_token_expire_minutes)
+        )
+
+
+class PostTokenBody(BaseModel):
+    keycloak_token: str
+
+
+class TokenRes(BaseModel):
+    access: TokenInfo
+    refresh: TokenInfo
+
+    @staticmethod
+    def create(access: TokenInfo, refresh: TokenInfo):
+        return TokenRes(access=access, refresh=refresh)
+
+    @staticmethod
+    def create_by_post_token_body(body: PostTokenBody):
+        return TokenRes.create_by_keycloak_user_profile_res(
+            model.KeycloakUserProfileRes.create_by_post_token_body(body)
+        )
+
+    @staticmethod
+    def create_by_keycloak_user_profile_res(res: model.KeycloakUserProfileRes):
+        return TokenRes.create(
+            TokenInfo.create_access_token(res),
+            TokenInfo.create_refresh_token(res)
         )

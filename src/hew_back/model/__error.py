@@ -11,14 +11,20 @@ class ErrorId(BaseModel):
     def create(message: str, status_code: int):
         return ErrorId(message=message, status_code=status_code)
 
+    def to_exception(self, message: str | None = None):
+        from hew_back import error
+        return error.ErrorIdException(self, message)
+
 
 class ErrorIds(Enum):
     INTERNAL_ERROR = ErrorId.create("server internal error", 500)
+    GET_PROFILE_FAILED = ErrorId.create("get profile failed", 500)
 
     PASSWORD_EMPTY = ErrorId.create("password is empty", 400)
     USER_NOT_FOUND = ErrorId.create("user not found", 400)
 
     UNAUTHORIZED = ErrorId.create("unauthorized", 401)
+    UNAUTHORIZED_TOKEN = ErrorId.create("unauthorized token", 401)
     NOT_PERMITTED = ErrorId.create("not permitted", 401)
 
     NOT_FOUND = ErrorId.create("404 not found", 404)

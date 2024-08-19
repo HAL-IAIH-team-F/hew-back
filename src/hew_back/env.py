@@ -2,14 +2,19 @@ import os
 
 import dotenv
 
+from hew_back.util import urls
+
+dotenv.load_dotenv("./.env.local")
+dotenv.load_dotenv()
+
 
 class Token:
     refresh_token_expire_minutes: int | float
     access_token_expire_minutes: int | float
+    secret_key = os.getenv("SECRET_KEY")
+    algorithm = os.getenv("ALGORITHM")
 
     def __init__(self):
-        self.secret_key = os.getenv("SECRET_KEY")
-        self.algorithm = os.getenv("ALGORITHM")
         refresh_token_expire_minutes = os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES")
         access_token_expire_minutes = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
         if refresh_token_expire_minutes is None:
@@ -23,13 +28,14 @@ class Token:
 
 
 class Database:
+    db_url = os.getenv("DB_URL")
+    db_user = os.getenv("DB_USER")
+    db_pass = os.getenv("DB_PASS")
+    db_host = os.getenv("DB_HOST")
+    db_port = os.getenv("DB_PORT")
+    db_name = os.getenv("DB_NAME")
+
     def __init__(self):
-        self.db_url = os.getenv("DB_URL")
-        self.db_user = os.getenv("DB_USER")
-        self.db_pass = os.getenv("DB_PASS")
-        self.db_host = os.getenv("DB_HOST")
-        self.db_port = os.getenv("DB_PORT")
-        self.db_name = os.getenv("DB_NAME")
         if self.db_url is not None:
             return
         if self.db_user is None:
@@ -46,14 +52,23 @@ class Database:
             self.db_url = f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}/{self.db_name}"
 
 
-class Env:
-    def __init__(self):
-        dotenv.load_dotenv("./.env.local")
-        dotenv.load_dotenv()
+class Keycloak:
+    base_url = os.getenv("KEYCLOAK_BASEURL")
+    realms = os.getenv("KEYCLOAK_REALMS")
+    realms_url: urls.URL
+    well_known_url: urls.URL
 
-        self.cors_list = os.getenv("CORS_LIST")
-        self.token = Token()
-        self.database = Database()
+    def __init__(self):
+        self.realms_url = urls.URL.by_str(self.base_url).join_path("realms").join_path(self.realms)
+        print(self.realms_url)
+        self.well_known_url = self.realms_url.join_path(".well-known/openid-configuration")
+
+
+class Env:
+    cors_list = os.getenv("CORS_LIST")
+    token = Token()
+    database = Database()
+    keycloak = Keycloak()
 
 
 ENV = Env()
