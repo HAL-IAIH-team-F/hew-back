@@ -12,7 +12,7 @@ class Token:
     refresh_token_expire_minutes: int | float
     access_token_expire_minutes: int | float
     secret_key = os.getenv("SECRET_KEY")
-    algorithm = os.getenv("ALGORITHM")
+    algorithm: str
 
     def __init__(self):
         refresh_token_expire_minutes = os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES")
@@ -25,6 +25,16 @@ class Token:
             self.access_token_expire_minutes = 15
         else:
             self.access_token_expire_minutes = float(access_token_expire_minutes)
+        algorithm = os.getenv("ALGORITHM")
+        if algorithm is None:
+            self.algorithm = "HS256"
+        else:
+            self.algorithm = algorithm
+        secret_key = os.getenv("SECRET_KEY")
+        if secret_key is None:
+            raise ValueError
+        else:
+            self.secret_key = secret_key
 
 
 class Database:
