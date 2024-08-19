@@ -9,6 +9,7 @@
 #   generate-hashes: false
 #   universal: false
 
+aiosqlite==0.20.0
 alembic==1.13.2
 annotated-types==0.7.0
     # via pydantic
@@ -103,6 +104,7 @@ starlette==0.37.2
 typer==0.12.3
     # via fastapi-cli
 typing-extensions==4.12.2
+    # via aiosqlite
     # via alembic
     # via fastapi
     # via pydantic

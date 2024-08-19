@@ -9,10 +9,10 @@ from hew_back import table, model
 class PostUserBody(BaseModel):
     user_name: str
 
-    async def new_record(
+    def new_record(
             self,
             session: AsyncSession,
-            profile: model.KeycloakUserProfileRes
+            profile: model.KeycloakUserProfile
     ):
         tbl = table.UserTable.new_record(
             session=session,
@@ -22,7 +22,6 @@ class PostUserBody(BaseModel):
             user_icon_uuid="",
             user_mail=profile.email,
         )
-        await session.refresh(tbl)
         return tbl
 
 

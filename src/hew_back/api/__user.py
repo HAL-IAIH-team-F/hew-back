@@ -12,5 +12,6 @@ async def post_user(
         token: model.JwtTokenData = Depends(model.JwtTokenData.get_access_token_or_none),
 ) -> model.UserRes:
     user_tbl = body.new_record(session, token.profile)
-    await session.flush()
-    return model.UserRes.create_by_user_table(await user_tbl)
+    await session.commit()
+    await session.refresh(user_tbl)
+    return model.UserRes.create_by_user_table( user_tbl)

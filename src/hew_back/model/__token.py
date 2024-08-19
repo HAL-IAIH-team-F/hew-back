@@ -18,11 +18,11 @@ class TokenType(str, Enum):
 class JwtTokenData(BaseModel):
     exp: datetime
     token_type: TokenType
-    profile: model.KeycloakUserProfileRes
+    profile: model.KeycloakUserProfile
 
     @staticmethod
     def create(
-            exp: datetime, token_type: TokenType, profile: model.KeycloakUserProfileRes
+            exp: datetime, token_type: TokenType, profile: model.KeycloakUserProfile
     ):
         return JwtTokenData(
             exp=exp, token_type=token_type, profile=profile,
@@ -55,7 +55,7 @@ class TokenInfo(BaseModel):
     expire: datetime
 
     @staticmethod
-    def create_token(token_type: TokenType, res: model.KeycloakUserProfileRes,
+    def create_token(token_type: TokenType, res: model.KeycloakUserProfile,
                      expires_delta: timedelta | None = None):
         expire = datetime.now(timezone.utc) + expires_delta
         encoded_jwt = jwt.encode(
@@ -66,14 +66,14 @@ class TokenInfo(BaseModel):
         return TokenInfo(token=encoded_jwt, expire=expire)
 
     @staticmethod
-    def create_refresh_token(res: model.KeycloakUserProfileRes):
+    def create_refresh_token(res: model.KeycloakUserProfile):
         return TokenInfo.create_token(
             TokenType.refresh, res,
             expires_delta=timedelta(minutes=ENV.token.refresh_token_expire_minutes)
         )
 
     @staticmethod
-    def create_access_token(res: model.KeycloakUserProfileRes):
+    def create_access_token(res: model.KeycloakUserProfile):
         return TokenInfo.create_token(
             TokenType.access, res, timedelta(minutes=ENV.token.access_token_expire_minutes)
         )
@@ -94,11 +94,11 @@ class TokenRes(BaseModel):
     @staticmethod
     def create_by_post_token_body(body: PostTokenBody):
         return TokenRes.create_by_keycloak_user_profile_res(
-            model.KeycloakUserProfileRes.create_by_post_token_body(body)
+            model.KeycloakUserProfile.create_by_post_token_body(body)
         )
 
     @staticmethod
-    def create_by_keycloak_user_profile_res(res: model.KeycloakUserProfileRes):
+    def create_by_keycloak_user_profile_res(res: model.KeycloakUserProfile):
         return TokenRes.create(
             TokenInfo.create_access_token(res),
             TokenInfo.create_refresh_token(res)

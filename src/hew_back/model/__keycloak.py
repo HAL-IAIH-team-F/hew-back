@@ -19,7 +19,7 @@ class WellKnownRes(BaseModel):
                 )
 
 
-class KeycloakUserProfileRes(BaseModel):
+class KeycloakUserProfile(BaseModel):
     sub: str
     email_verified: bool
     preferred_username: str
@@ -39,5 +39,5 @@ class KeycloakUserProfileRes(BaseModel):
                 .add_header("User-Agent", "Application")
                 .fetch()
                 .on_status_code(401, lambda s: model.ErrorIds.INVALID_TOKEN.value.to_exception().raise_self())
-                .json_model(model.KeycloakUserProfileRes)
+                .json_model(model.KeycloakUserProfile)
                 )

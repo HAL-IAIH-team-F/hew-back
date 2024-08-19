@@ -1,3 +1,4 @@
+import pydantic
 from fastapi import FastAPI
 from httpx import AsyncClient
 
@@ -13,18 +14,18 @@ class Client:
         result = await self.client.get(path, headers=headers)
         return result
 
-    async def post(self, path: str, json_data, token: str | None = None):
+    async def post(self, path: str, json_data: pydantic.BaseModel, token: str | None = None):
         headers = {}
         if token is not None:
             headers["Authorization"] = f"Bearer {token}"
-        result = await self.client.post(path, json=json_data, headers=headers)
+        result = await self.client.post(path, json=json_data.dict(), headers=headers)
         return result
 
-    async def put(self, path: str, json_data: dict, token: str | None = None):
+    async def put(self, path: str, json_data: pydantic.BaseModel, token: str | None = None):
         headers = {}
         if token is not None:
             headers["Authorization"] = f"Bearer {token}"
-        result = await self.client.put(path, json=json_data, headers=headers)
+        result = await self.client.put(path, json=json_data.dict(), headers=headers)
         return result
 
     async def delete(self, path: str, token: str | None = None):
