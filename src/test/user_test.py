@@ -21,7 +21,7 @@ async def test_create_gacha(session_maker, client, token_info,post_user_body):
     assert result.status_code == 200, f"invalid status code {result.json()}"
     body = result.json()
     assert body is not None
-    body = model.UserRes(**body)
+    body = model.SelfUserRes(**body)
     async with session_maker() as session:
         result = await session.execute(
             sqlalchemy.select(sqlalchemy.func.count())
