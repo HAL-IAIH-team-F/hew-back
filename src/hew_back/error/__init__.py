@@ -11,3 +11,6 @@ class ErrorIdException(Exception):
 
     def to_error_res(self):
         return model.ErrorRes.create(self.error_id.name, self.message)
+
+    def raise_self(self):
+        raise self
