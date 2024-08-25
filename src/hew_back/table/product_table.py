@@ -1,4 +1,4 @@
-from sqlalchemy import Column,  String, DateTime
+from sqlalchemy import Column,  String,Integer,uuid, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
 
@@ -8,8 +8,8 @@ Base = declarative_base()
 class ProductTable(Base):
     __tablename__ = 'TBL_PRODUCT'
 
-    product_id = Column(String(64), primary_key=False, autoincrement=False)
-    product_price = Column(String(64), nullable=False)
+    product_id = Column(uuid.UUID, primary_key=False, default=False)
+    product_price = Column(Integer, nullable=False)
     product_title = Column(String(64), nullable=False)
     product_text = Column(String(255), nullable=False)
     product_date = Column(DateTime, default=datetime.datetime.now)

@@ -1,9 +1,9 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, uuid, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
 class Ranking(Base):
     __tablename__ = 'TBL_RANKING'
-    score = Column(String(64), nullable=False)
-    user_id = Column(String(64), ForeignKey('user.id'), primary_key=False)
+    score = Column(uuid.UUID, nullable=False)
+    user_id = Column(uuid.UUID, ForeignKey('TBL_USER.id'), primary_key=False)
