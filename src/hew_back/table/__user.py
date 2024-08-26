@@ -41,8 +41,7 @@ class UserTable(BaseTable):
     @staticmethod
     async def find_one(session: AsyncSession, user_id: str) -> 'UserTable':
         res = await session.execute(
-            sqlalchemy.select(sqlalchemy.func.count())
-            .select_from(UserTable)
+            sqlalchemy.select(UserTable)
             .where(UserTable.user_id == user_id)
         )
         tbl = res.scalar_one_or_none()
