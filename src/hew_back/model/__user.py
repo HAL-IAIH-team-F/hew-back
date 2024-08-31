@@ -1,9 +1,11 @@
 import datetime
 
+from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import table, model
+from hew_back.db import DB
 
 
 class PostUserBody(BaseModel):
@@ -25,7 +27,7 @@ class PostUserBody(BaseModel):
         return tbl
 
 
-class UserRes(BaseModel):
+class SelfUserRes(BaseModel):
     user_id: str
     user_name: str
     user_screen_id: str
@@ -42,7 +44,7 @@ class UserRes(BaseModel):
             user_date: datetime.datetime,
             user_mail: str,
     ):
-        return UserRes(
+        return SelfUserRes(
             user_id=user_id,
             user_name=user_name,
             user_screen_id=user_screen_id,
@@ -53,7 +55,7 @@ class UserRes(BaseModel):
 
     @staticmethod
     def create_by_user_table(tbl: table.UserTable):
-        return UserRes.create(
+        return SelfUserRes.create(
             user_id=tbl.user_id,
             user_name=tbl.user_name,
             user_screen_id=tbl.user_screen_id,
@@ -61,3 +63,14 @@ class UserRes(BaseModel):
             user_date=tbl.user_date,
             user_mail=tbl.user_mail,
         )
+
+    @staticmethod
+    async def get_self_user_res(
+            session: AsyncSession = Depends(DB.get_session),
+            token: model.JwtTokenData = Depends(model.JwtTokenData.get_access_token_or_none),
+    ):
+        tbl = await table.UserTable.find_one(session, token.profile.sub)
+        tbl.user_mail = token.profile.email
+        tbl.user_screen_id = token.profile.preferred_username
+        await session.commit()
+        return tbl

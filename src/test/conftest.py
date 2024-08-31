@@ -45,7 +45,7 @@ def session_maker(app):
 @pytest.fixture
 def keycloak_user_profile() -> model.KeycloakUserProfile:
     return model.KeycloakUserProfile(
-        sub=uuid.uuid4().__str__(),
+        sub="7f4b560a-71f1-4c19-a003-3c42eb0899e3",
         email_verified=True,
         preferred_username="username",
         email="test@example.com",
