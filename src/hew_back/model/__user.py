@@ -65,6 +65,19 @@ class SelfUserRes(BaseModel):
         )
 
     @staticmethod
+    async def get_self_user_res_or_none(
+            session: AsyncSession = Depends(DB.get_session),
+            token: model.JwtTokenData = Depends(model.JwtTokenData.get_access_token_or_none),
+    ):
+        tbl = await table.UserTable.find_one_or_none(session, token.profile.sub)
+        if tbl is None:
+            return None
+        tbl.user_mail = token.profile.email
+        tbl.user_screen_id = token.profile.preferred_username
+        await session.commit()
+        return tbl
+
+    @staticmethod
     async def get_self_user_res(
             session: AsyncSession = Depends(DB.get_session),
             token: model.JwtTokenData = Depends(model.JwtTokenData.get_access_token_or_none),
