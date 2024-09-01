@@ -20,7 +20,7 @@ async def post_user(
 @app.get("/api/user/self")
 async def get_user(
         user: model.SelfUserRes = Depends(model.SelfUserRes.get_self_user_res_or_none),
-):
+) -> model.SelfUserRes:
     if user is None:
         raise error.ErrorIdException(model.ErrorIds.USER_NOT_FOUND)
     return await user
