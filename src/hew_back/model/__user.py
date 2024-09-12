@@ -16,6 +16,11 @@ class PostUserBody(BaseModel):
             session: AsyncSession,
             profile: model.KeycloakUserProfile
     ):
+        # UserTableクラスは、SQLAlchemy を使ってデータベース上のテーブルを定義しており、
+        # API から受け取ったデータをデータベースに保存したり、データベースからデータを取得して
+        # API に返すための処理を行う。
+
+        # new_record メソッドを使って、新しいユーザーをデータベースに追加
         tbl = table.UserTable.new_record(
             session=session,
             user_id=profile.sub,
