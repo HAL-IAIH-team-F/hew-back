@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import app, model
+from hew_back import app, model, error
 from hew_back.db import DB
 
 
@@ -19,6 +19,8 @@ async def post_user(
 
 @app.get("/api/user/self")
 async def get_user(
-        user: model.SelfUserRes = Depends(model.SelfUserRes.get_self_user_res),
-):
+        user: model.SelfUserRes = Depends(model.SelfUserRes.get_self_user_res_or_none),
+) -> model.SelfUserRes:
+    if user is None:
+        raise error.ErrorIdException(model.ErrorIds.USER_NOT_FOUND)
     return await user

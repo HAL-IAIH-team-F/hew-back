@@ -1,9 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="docker-compose.dev.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+  <configuration default="false" name="test" type="docker-deploy" factoryName="docker-compose.yml">
     <deployment type="docker-compose.yml">
       <settings>
+        <option name="containerName" value="" />
         <option name="envFilePath" value="" />
-        <option name="sourceFilePath" value="docker-compose.dev.yml" />
+        <option name="removeOrphansOnComposeDown" value="false" />
+        <option name="sourceFilePath" value="docker-compose.test.yml" />
         <option name="upAttachDependencies" value="true" />
         <option name="upDetach" value="false" />
       </settings>

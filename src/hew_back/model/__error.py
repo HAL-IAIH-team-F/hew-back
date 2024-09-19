@@ -21,7 +21,7 @@ class ErrorIds(Enum):
     GET_PROFILE_FAILED = ErrorId.create("get profile failed", 500)
 
     PASSWORD_EMPTY = ErrorId.create("password is empty", 400)
-    USER_NOT_FOUND = ErrorId.create("user not found", 400)
+    USER_NOT_FOUND = ErrorId.create("user not found", 404)
 
     UNAUTHORIZED = ErrorId.create("unauthorized", 401)
     UNAUTHORIZED_TOKEN = ErrorId.create("unauthorized token", 401)

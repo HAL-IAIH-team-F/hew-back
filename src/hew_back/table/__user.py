@@ -1,4 +1,5 @@
 import datetime
+from typing import Union
 
 import sqlalchemy
 from sqlalchemy import Column, String, DateTime
@@ -39,12 +40,17 @@ class UserTable(BaseTable):
         return tbl
 
     @staticmethod
-    async def find_one(session: AsyncSession, user_id: str) -> 'UserTable':
+    async def find_one_or_none(session: AsyncSession, user_id: str) -> Union['UserTable', None]:
         res = await session.execute(
             sqlalchemy.select(UserTable)
             .where(UserTable.user_id == user_id)
         )
         tbl = res.scalar_one_or_none()
+        return tbl
+
+    @staticmethod
+    async def find_one(session: AsyncSession, user_id: str) -> 'UserTable':
+        tbl = await UserTable.find_one_or_none(session, user_id)
         if tbl is None:
             raise error.ErrorIdException(model.ErrorIds.USER_NOT_FOUND)
         return tbl
