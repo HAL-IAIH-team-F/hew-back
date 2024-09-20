@@ -36,8 +36,8 @@ async def test_create_user(session_maker, client, token_info, post_user_body):
     async with session_maker() as session:
         result = await session.execute(
             sqlalchemy.select(sqlalchemy.func.count())
-            .select_from(table.UserTable)
-            .where(table.UserTable.user_id == body.user_id)
+            .select_from(table.CreatorProductTable)
+            .where(table.CreatorProductTable.user_id == body.user_id)
         )
         assert result.scalar_one() == 1, f"\n{body}\n"
 
