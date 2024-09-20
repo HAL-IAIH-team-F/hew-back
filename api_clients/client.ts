@@ -30,6 +30,11 @@ const TokenInfo = z
 const TokenRes = z
   .object({ access: TokenInfo, refresh: TokenInfo })
   .passthrough();
+const q = z.union([z.array(z.string()), z.null()]).optional();
+const post_by = z.union([z.array(z.string().uuid()), z.null()]).optional();
+const start_datetime = z.union([z.string(), z.null()]).optional();
+const following = z.union([z.boolean(), z.null()]).optional();
+const read_limit_number = z.union([z.number(), z.null()]).optional();
 
 export const schemas = {
   PostUserBody,
@@ -39,6 +44,11 @@ export const schemas = {
   PostTokenBody,
   TokenInfo,
   TokenRes,
+  q,
+  post_by,
+  start_datetime,
+  following,
+  read_limit_number,
 };
 
 const endpoints = makeApi([
@@ -97,6 +107,52 @@ const endpoints = makeApi([
     alias: "health_health_get",
     requestFormat: "json",
     response: z.unknown(),
+  },
+  {
+    method: "get",
+    path: "/products/",
+    alias: "read_products_products__get",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "q",
+        type: "Query",
+        schema: q,
+      },
+      {
+        name: "post_by",
+        type: "Query",
+        schema: post_by,
+      },
+      {
+        name: "start_datetime",
+        type: "Query",
+        schema: start_datetime,
+      },
+      {
+        name: "end_datetime",
+        type: "Query",
+        schema: start_datetime,
+      },
+      {
+        name: "following",
+        type: "Query",
+        schema: following,
+      },
+      {
+        name: "read_limit_number",
+        type: "Query",
+        schema: read_limit_number,
+      },
+    ],
+    response: z.unknown(),
+    errors: [
+      {
+        status: 422,
+        description: `Validation Error`,
+        schema: HTTPValidationError,
+      },
+    ],
   },
 ]);
 

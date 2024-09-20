@@ -1,6 +1,6 @@
 from .__user import *
 
-from .__creator_recrutor_table import *
+from .__creator_recruit_table import *
 
 from .__creator_table import *
 

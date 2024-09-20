@@ -10,7 +10,7 @@ from hew_back.db import BaseTable
 class NotificationPurchase(BaseTable):
     __tablename__ = 'TBL_NOTIFICATION_PURCHASE'
 
-    notification_id = Column(UUID(as_uuid=True), ForeignKey('TBL_NOTIFICATION.notification_id'), primary_key=True,
+    notification_id = Column(UUID(as_uuid=True), ForeignKey('TBL_NOTIFICATION.notification_id'),
                              nullable=False, default=uuid.uuid4)
     # 購入者
     purchase_user_id = Column(UUID(as_uuid=True), ForeignKey('TBL_USER.user_id'), nullable=False, default=uuid.uuid4)
