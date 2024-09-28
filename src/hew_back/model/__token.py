@@ -45,7 +45,15 @@ class JwtTokenData(BaseModel):
     def get_access_token_or_none(token=Depends(get_token_or_none)):
         if token is None:
             return None
-        if token.token_type != "access":
+        if token.token_type != TokenType.access:
+            raise error.ErrorIdException(model.ErrorIds.INVALID_TOKEN)
+        return token
+
+    @staticmethod
+    def get_refresh_token_or_none(token=Depends(get_token_or_none)):
+        if token is None:
+            return None
+        if token.token_type != TokenType.refresh:
             raise error.ErrorIdException(model.ErrorIds.INVALID_TOKEN)
         return token
 
@@ -98,8 +106,12 @@ class TokenRes(BaseModel):
         )
 
     @staticmethod
-    def create_by_keycloak_user_profile_res(res: model.KeycloakUserProfile):
+    def create_by_jwt_token_data(data: JwtTokenData):
+        return TokenRes.create_by_keycloak_user_profile_res(data.profile)
+
+    @staticmethod
+    def create_by_keycloak_user_profile_res(profile: model.KeycloakUserProfile):
         return TokenRes.create(
-            TokenInfo.create_access_token(res),
-            TokenInfo.create_refresh_token(res)
+            TokenInfo.create_access_token(profile),
+            TokenInfo.create_refresh_token(profile)
         )
