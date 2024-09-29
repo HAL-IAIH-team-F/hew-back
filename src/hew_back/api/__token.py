@@ -9,5 +9,7 @@ async def post_token(body: model.PostTokenBody) -> model.TokenRes:
 
 
 @app.get("/api/token/refresh")
-async def token_refresh(token: model.JwtTokenData = Depends(model.JwtTokenData.get_access_token_or_none)):
+async def token_refresh(
+        token: model.JwtTokenData = Depends(model.JwtTokenData.get_access_token_or_none)
+) -> model.TokenRes:
     return model.TokenRes.create_by_jwt_token_data(token)
