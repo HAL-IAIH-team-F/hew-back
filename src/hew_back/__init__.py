@@ -5,6 +5,8 @@ import logging
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from hew_back.env import ENV
+
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 logger.setLevel("INFO")
@@ -14,16 +16,13 @@ app = FastAPI()
 
 # logging.getLogger("uvicorn.access").addFilter(ExcludeFilter(["/health"]))
 
-# if cors_list is None:
-#     cors_list = "*"
-
 
 class Main:
     def __init__(self, fast_api: FastAPI):
         self.app = fast_api
         fast_api.add_middleware(
             CORSMiddleware,
-            # allow_origins=cors_list.split(","),
+            allow_origins=ENV.cors_list.split(","),
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
