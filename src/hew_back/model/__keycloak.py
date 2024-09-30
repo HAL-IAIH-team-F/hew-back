@@ -31,13 +31,12 @@ class KeycloakUserProfile(BaseModel):
         create KeycloakUserProfileRes by PostTokenBody
         :param body: model.PostTokenBody
         """
-        well_knowns = model.WellKnownRes
-
+        well_knowns = model.WellKnownRes.create()
         return (urls.URL.by_str(well_knowns.userinfo_endpoint)
                 .to_request()
                 .authorization(urls.BearerAuthorization(body.keycloak_token))
                 .add_header("User-Agent", "Application")
                 .fetch()
-                .on_status_code(401, lambda s: model.ErrorIds.INVALID_TOKEN.value.to_exception().raise_self())
+                .on_status_code(401, lambda s: model.ErrorIds.INVALID_KEYCLOAK_TOKEN.to_exception().raise_self())
                 .json_model(model.KeycloakUserProfile)
                 )

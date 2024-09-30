@@ -70,7 +70,6 @@ class Keycloak:
 
     def __init__(self):
         self.realms_url = urls.URL.by_str(self.base_url).join_path("realms").join_path(self.realms)
-        print(self.realms_url)
         self.well_known_url = self.realms_url.join_path(".well-known/openid-configuration")
 
 
@@ -82,3 +81,4 @@ class Env:
 
 
 ENV = Env()
+print(ENV.database.db_url)

@@ -1,4 +1,3 @@
-import os
 from typing import Self, Final
 from urllib import parse
 
@@ -28,8 +27,8 @@ class URL:
         """既存のurlにpathを追加します
         :param path: 追加するpath
         """
-        path = os.path.join(self.__parse_result.path, path)
-        return URL(self.__parse_result._replace(path=path))
+        new_path = self.__parse_result.path.removesuffix("/") + "/" + path.removeprefix("/")
+        return URL(self.__parse_result._replace(path=new_path))
 
     def join_query(self, query: dict[str, str]) -> Self:
         """join query parm

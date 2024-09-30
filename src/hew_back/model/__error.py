@@ -11,10 +11,6 @@ class ErrorId(BaseModel):
     def create(message: str, status_code: int):
         return ErrorId(message=message, status_code=status_code)
 
-    def to_exception(self, message: str | None = None):
-        from hew_back import error
-        return error.ErrorIdException(self, message)
-
 
 class ErrorIds(Enum):
     INTERNAL_ERROR = ErrorId.create("server internal error", 500)
@@ -37,9 +33,14 @@ class ErrorIds(Enum):
     TOKEN_CONFLICT = ErrorId.create("token conflict", 409)
     TOKEN_EXPIRED = ErrorId.create("token expired", 409)
     INVALID_TOKEN = ErrorId.create("token invalid", 409)
+    INVALID_KEYCLOAK_TOKEN = ErrorId.create("invalid keycloak token", 401)
     USER_LOGIN_FAILED = ErrorId.create("user login failed, invalid name or password", 409)
     ALL_GACHA_PULLED = ErrorId.create("all gacha were pulled", 409)
 
+
+    def to_exception(self, message: str | None = None):
+        from hew_back import error
+        return error.ErrorIdException(self, message)
 
 class ErrorRes(BaseModel):
     error_id: str
