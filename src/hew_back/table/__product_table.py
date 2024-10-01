@@ -1,20 +1,21 @@
 import uuid
 
-from sqlalchemy import Column,  String, DateTime, UUID, ForeignKey
+from sqlalchemy import Column, String, DateTime, UUID, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
 # from asyncpg.pgproto.pgproto import UUID
 from sqlalchemy.ext.declarative import declarative_base
 
-from sqlalchemy import select, join, or_
+from sqlalchemy import select, join, or_, func
 
 import datetime
 from typing import Union, List
 
 from hew_back.db import BaseTable
-from hew_back import table
 
-# from uuid import UUID
+import datetime
 
+
+# from hew_back import table
 
 
 class ProductTable(BaseTable):
@@ -31,7 +32,8 @@ class ProductTable(BaseTable):
     @staticmethod
     async def find_products_or_null(
             session: AsyncSession,
-            q: Union[List[str], None],
+            name: Union[List[str], None],
+            tag: Union[List[str], None],
             post_by: [List[UUID], None],
             start_datetime: Union[datetime, None],
             end_datetime: Union[datetime, None],
@@ -40,33 +42,47 @@ class ProductTable(BaseTable):
     ):
         # from hew_back.table import ProductTag
         # from hew_back.table import Tag
-        stmt = (
-            select(ProductTable)
-            # .select_from(
-            #     join(ProductTable, table.ProductTag, ProductTable.product_id == table.ProductTag.item_id)
-            #     .join(table.Tag, table.ProductTag.tag_id == table.Tag.tag_id)
-            # )
-            .where(
-                # table.Tag.tag_name.in_(q)
-                or_(*[ProductTable.product_title.like(f"{keyword}") for keyword in q])
+        from hew_back.table import ProductTag, Tag
+
+        stmt = select(ProductTable)
+
+        if name is not None and len(name) > 0:
+            stmt = stmt.where(
+                or_(*[ProductTable.product_title.like(f"%{keyword}%") for keyword in name])
             )
-        )
+
+        if tag is not None and len(tag) > 0:
+            tag_subquery = (
+                select(
+                    ProductTag.item_id.label("product_id")
+                )
+                .join(Tag, ProductTag.tag_id == Tag.tag_id)
+                .where(Tag.tag_name.in_(tag))
+                # ProductTag.item_idをgroup_byすることで、ProductTag テーブルの item_id（製品ID）ごとにグループ化
+                # →中間テーブルの特性上、その製品に関連付けられたタグ情報がまとめられる
+                .group_by(ProductTag.item_id)
+                # 各 item_id に関連するタグの数が指定した条件と一致したら
+                .having(func.count(ProductTag.tag_id) == len(tag))
+                .subquery()
+            )
+            # メインクエリにサブクエリを結合して、製品をフィルタリング
+            stmt = stmt.join(tag_subquery, ProductTable.product_id == tag_subquery.c.product_id)
+
+        if start_datetime is not None:
+            start_datetime = start_datetime.replace(tzinfo=None)
+            stmt = stmt.where(ProductTable.product_date >= start_datetime)
+
+        if end_datetime is not None:
+            end_datetime = end_datetime.replace(tzinfo=None)
+            stmt = stmt.where(ProductTable.product_date <= end_datetime)
+
 
         result = await session.execute(stmt)
 
         products = result.scalars().all()
         return products
 
-
-
-
-
-
         # return query
-
-
-
-
 
 # # データベースエンジンの作成とテーブルの作成
 # from sqlalchemy import create_engine

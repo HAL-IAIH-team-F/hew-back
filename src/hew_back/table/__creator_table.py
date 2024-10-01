@@ -13,6 +13,7 @@ class CreatorTable(BaseTable):
     user_id: Mapped[uuid.UUID]  = Column(UUID(as_uuid=True), ForeignKey('TBL_USER.user_id'), nullable=False)
     contact_address = Column(String(64), nullable=False)
     transfer_target = Column(String(64), nullable=False)
-    product_id = Column(UUID(as_uuid=True), ForeignKey('TBL_PRODUCT.product_id'), default=uuid.uuid4)
+    # 振込先
+
 
 
