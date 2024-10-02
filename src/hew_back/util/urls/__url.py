@@ -27,7 +27,7 @@ class URL:
         """既存のurlにpathを追加します
         :param path: 追加するpath
         """
-        new_path = self.__parse_result.path.removesuffix("/") + "/" + path.removeprefix("/")
+        new_path = str(self.__parse_result.path).removesuffix("/") + "/" + path.removeprefix("/")
         return URL(self.__parse_result._replace(path=new_path))
 
     def join_query(self, query: dict[str, str]) -> Self:
