@@ -34,7 +34,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           # キャッシュディレクトリを作成
-          mkdir -p ${{ env.PATH_CACHE }}
+          mkdir -p ./temp
           # イメージのキャッシュ（tar をキャッシュ・ディレクトリに出力）
           docker save --output ./temp/postgres.tar postgres
           docker save --output ./temp/python.tar python
