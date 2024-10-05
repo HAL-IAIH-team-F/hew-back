@@ -6,8 +6,8 @@ services:
       POSTGRES_PASSWORD: 'postgres'
       POSTGRES_DB: "hew"
     volumes:
-      - type: bind
-        source: ./temp/test/db-data
+      - type: volume
+        source: db-data
         target: /var/lib/postgresql/data
     logging:
       driver: json-file
@@ -20,11 +20,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    user: ${USER_ID}:${GROUP_ID}
   #########################################################
   init-rsync:
     image: secoresearch/rsync
-    user: ${USER_ID}:${GROUP_ID}
     command:
       - rsync
       - --delete
@@ -49,7 +47,6 @@ services:
         target: /app
   #########################################################
   backend-test:
-    user: ${USER_ID}:${GROUP_ID}
     image: python:3.12-bookworm
     depends_on:
       postgres-test:
@@ -77,3 +74,5 @@ services:
         pytest
   #########################################################
 
+volumes:
+  db-data:
