@@ -1,16 +1,24 @@
-from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
 
-from .. import tables, responses
+from pydantic import BaseModel
 
-
-@dataclass
-class CreatorModel:
-    creator: tables.CreatorTable
+from hew_back.util import keycloak
 
 
-@dataclass
-class UserModel:
-    user: tables.UserTable
+class TokenType(str, Enum):
+    access = "access"
+    refresh = "refresh"
 
-    def to_self_user_res(self):
-        return responses.SelfUserRes.create_by_user_table(self.user)
+class JwtTokenData(BaseModel):
+    exp: datetime
+    token_type: TokenType
+    profile: keycloak.KeycloakUserProfile
+
+    @staticmethod
+    def create(
+            exp: datetime, token_type: TokenType, profile: keycloak.KeycloakUserProfile
+    ):
+        return JwtTokenData(
+            exp=exp, token_type=token_type, profile=profile,
+        )

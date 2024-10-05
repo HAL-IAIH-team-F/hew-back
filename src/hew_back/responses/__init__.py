@@ -3,14 +3,11 @@ from datetime import datetime, timedelta, timezone
 from typing import Union
 from uuid import UUID
 
-from fastapi import Depends
 from jose import jwt
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tables, ENV, deps
-from hew_back.db import DB
-from hew_back.deps import TokenType, JwtTokenData
+from hew_back import tables, ENV, models
 from hew_back.util import keycloak
 
 
@@ -83,42 +80,17 @@ class SelfUserRes(BaseModel):
             user_mail=tbl.user_mail,
         )
 
-    @staticmethod
-    async def get_self_user_res_or_none(
-            session: AsyncSession = Depends(DB.get_session),
-            token: deps.JwtTokenData = Depends(deps.JwtTokenData.get_access_token_or_none),
-    ) -> Union['SelfUserRes', None]:
-        tbl = await tables.UserTable.find_one_or_none(session, token.profile.sub)
-        if tbl is None:
-            return None
-        tbl.user_mail = token.profile.email
-        tbl.user_screen_id = token.profile.preferred_username
-        res = SelfUserRes.create_by_user_table(tbl)
-        await session.commit()
-        return res
-
-    @staticmethod
-    async def get_self_user_res(
-            session: AsyncSession = Depends(DB.get_session),
-            token: deps.JwtTokenData = Depends(deps.JwtTokenData.get_access_token_or_none),
-    ):
-        tbl = await tables.UserTable.find_one(session, token.profile.sub)
-        tbl.user_mail = token.profile.email
-        tbl.user_screen_id = token.profile.preferred_username
-        await session.commit()
-        return tbl
-
 
 class TokenInfo(BaseModel):
     token: str
     expire: datetime
 
     @staticmethod
-    def create_token(token_type: TokenType, res: keycloak.KeycloakUserProfile,
+    def create_token(token_type: models.TokenType, res: keycloak.KeycloakUserProfile,
                      expires_delta: timedelta | None = None):
         expire = datetime.now(timezone.utc) + expires_delta
         encoded_jwt = jwt.encode(
-            JwtTokenData.create(exp=expire, token_type=token_type, profile=res).model_dump(),
+            models.JwtTokenData.create(exp=expire, token_type=token_type, profile=res).model_dump(),
             ENV.token.secret_key,
             algorithm=ENV.token.algorithm
         )
@@ -127,14 +99,14 @@ class TokenInfo(BaseModel):
     @staticmethod
     def create_refresh_token(res: keycloak.KeycloakUserProfile):
         return TokenInfo.create_token(
-            TokenType.refresh, res,
+            models.TokenType.refresh, res,
             expires_delta=timedelta(minutes=ENV.token.refresh_token_expire_minutes)
         )
 
     @staticmethod
     def create_access_token(res: keycloak.KeycloakUserProfile):
         return TokenInfo.create_token(
-            TokenType.access, res, timedelta(minutes=ENV.token.access_token_expire_minutes)
+            models.TokenType.access, res, timedelta(minutes=ENV.token.access_token_expire_minutes)
         )
 
 
@@ -145,10 +117,6 @@ class TokenRes(BaseModel):
     @staticmethod
     def create(access: TokenInfo, refresh: TokenInfo):
         return TokenRes(access=access, refresh=refresh)
-
-    @staticmethod
-    def create_by_jwt_token_data(data: JwtTokenData):
-        return TokenRes.create_by_keycloak_user_profile(data.profile)
 
     @staticmethod
     def create_by_keycloak_user_profile(profile: keycloak.KeycloakUserProfile):

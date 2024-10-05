@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import app, bodies, responses, deps
+from hew_back import app, bodies, responses, deps, models
 from hew_back.db import DB
 from hew_back.util import err
 
@@ -10,7 +10,7 @@ from hew_back.util import err
 async def post_user(
         body: bodies.PostUserBody,
         session: AsyncSession = Depends(DB.get_session),
-        token: deps.JwtTokenData = Depends(deps.JwtTokenData.get_access_token_or_none),
+        token: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_access_token_or_none),
 ) -> responses.SelfUserRes:
     model = await body.save_new(session, token.profile)
     return model.to_self_user_res()
@@ -18,8 +18,8 @@ async def post_user(
 
 @app.get("/api/user/self")
 async def get_user(
-        user: responses.SelfUserRes = Depends(responses.SelfUserRes.get_self_user_res_or_none),
+        user: deps.UserDeps = Depends(deps.UserDeps.get_self_user_res_or_none),
 ) -> responses.SelfUserRes:
     if user is None:
         raise err.ErrorIdException(err.ErrorIds.USER_NOT_FOUND)
-    return user
+    return user.to_self_user_res()
