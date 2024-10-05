@@ -1,13 +1,18 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="test" type="docker-deploy" factoryName="docker-compose.yml">
+  <configuration default="false" name="test" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
     <deployment type="docker-compose.yml">
       <settings>
-        <option name="containerName" value="" />
+        <option name="containerName" value="backend-test," />
         <option name="envFilePath" value="" />
         <option name="removeOrphansOnComposeDown" value="false" />
+        <option name="services">
+          <list>
+            <option value="backend-test" />
+          </list>
+        </option>
         <option name="sourceFilePath" value="docker-compose.test.yml" />
-        <option name="upAttachDependencies" value="true" />
         <option name="upDetach" value="false" />
+        <option name="upExitCodeFromService" value="backend-test" />
       </settings>
     </deployment>
     <method v="2" />

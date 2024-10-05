@@ -1,10 +1,18 @@
 name: test
 
-on: [push]
+on: [ push ]
 
 jobs:
   back:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache@v2
+        with:
+          path: ./temp
+          key: ${{ github.ref }}-${{ github.sha }} # キャッシュのキーを指定
+          restore-keys: |
+            ${{ github.ref }}
+            refs/head/develop
+
       - run: docker compose -f docker-compose.test.yml up backend-test --exit-code-from backend-test
