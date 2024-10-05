@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from hew_back import app, models, bodies, responses
+from hew_back import app, models, bodies, responses, deps
 
 
 @app.post("/api/token")
@@ -11,6 +11,6 @@ async def post_token(body: bodies.PostTokenBody) -> responses.TokenRes:
 
 @app.get("/api/token/refresh")
 async def token_refresh(
-        token: models.JwtTokenData = Depends(models.JwtTokenData.get_access_token_or_none)
+        token: deps.JwtTokenData = Depends(deps.JwtTokenData.get_access_token_or_none)
 ) -> responses.TokenRes:
     return responses.TokenRes.create_by_jwt_token_data(token)

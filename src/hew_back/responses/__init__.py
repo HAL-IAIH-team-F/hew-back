@@ -1,15 +1,16 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Union
 from uuid import UUID
 
 from fastapi import Depends
+from jose import jwt
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tables, models
+from hew_back import tables, ENV, deps
 from hew_back.db import DB
-from hew_back.models import TokenInfo, JwtTokenData
+from hew_back.deps import TokenType, JwtTokenData
 from hew_back.util import keycloak
 
 
@@ -43,26 +44,6 @@ class GetProductsResponse(BaseModel):
             read_limit_number=read_limit_number
         )
         return products_fr_tbl,  # name, start_datetime, end_datetime, following, read_limit_number, products_fr_tbl
-
-
-class TokenRes(BaseModel):
-    access: TokenInfo
-    refresh: TokenInfo
-
-    @staticmethod
-    def create(access: TokenInfo, refresh: TokenInfo):
-        return TokenRes(access=access, refresh=refresh)
-
-    @staticmethod
-    def create_by_jwt_token_data(data: JwtTokenData):
-        return TokenRes.create_by_keycloak_user_profile(data.profile)
-
-    @staticmethod
-    def create_by_keycloak_user_profile(profile: keycloak.KeycloakUserProfile):
-        return TokenRes.create(
-            TokenInfo.create_access_token(profile),
-            TokenInfo.create_refresh_token(profile)
-        )
 
 
 class SelfUserRes(BaseModel):
@@ -105,7 +86,7 @@ class SelfUserRes(BaseModel):
     @staticmethod
     async def get_self_user_res_or_none(
             session: AsyncSession = Depends(DB.get_session),
-            token: models.JwtTokenData = Depends(models.JwtTokenData.get_access_token_or_none),
+            token: deps.JwtTokenData = Depends(deps.JwtTokenData.get_access_token_or_none),
     ) -> Union['SelfUserRes', None]:
         tbl = await tables.UserTable.find_one_or_none(session, token.profile.sub)
         if tbl is None:
@@ -119,10 +100,59 @@ class SelfUserRes(BaseModel):
     @staticmethod
     async def get_self_user_res(
             session: AsyncSession = Depends(DB.get_session),
-            token: models.JwtTokenData = Depends(models.JwtTokenData.get_access_token_or_none),
+            token: deps.JwtTokenData = Depends(deps.JwtTokenData.get_access_token_or_none),
     ):
         tbl = await tables.UserTable.find_one(session, token.profile.sub)
         tbl.user_mail = token.profile.email
         tbl.user_screen_id = token.profile.preferred_username
         await session.commit()
         return tbl
+
+
+class TokenInfo(BaseModel):
+    token: str
+    expire: datetime
+
+    @staticmethod
+    def create_token(token_type: TokenType, res: keycloak.KeycloakUserProfile,
+                     expires_delta: timedelta | None = None):
+        expire = datetime.now(timezone.utc) + expires_delta
+        encoded_jwt = jwt.encode(
+            JwtTokenData.create(exp=expire, token_type=token_type, profile=res).model_dump(),
+            ENV.token.secret_key,
+            algorithm=ENV.token.algorithm
+        )
+        return TokenInfo(token=encoded_jwt, expire=expire)
+
+    @staticmethod
+    def create_refresh_token(res: keycloak.KeycloakUserProfile):
+        return TokenInfo.create_token(
+            TokenType.refresh, res,
+            expires_delta=timedelta(minutes=ENV.token.refresh_token_expire_minutes)
+        )
+
+    @staticmethod
+    def create_access_token(res: keycloak.KeycloakUserProfile):
+        return TokenInfo.create_token(
+            TokenType.access, res, timedelta(minutes=ENV.token.access_token_expire_minutes)
+        )
+
+
+class TokenRes(BaseModel):
+    access: TokenInfo
+    refresh: TokenInfo
+
+    @staticmethod
+    def create(access: TokenInfo, refresh: TokenInfo):
+        return TokenRes(access=access, refresh=refresh)
+
+    @staticmethod
+    def create_by_jwt_token_data(data: JwtTokenData):
+        return TokenRes.create_by_keycloak_user_profile(data.profile)
+
+    @staticmethod
+    def create_by_keycloak_user_profile(profile: keycloak.KeycloakUserProfile):
+        return TokenRes.create(
+            TokenInfo.create_access_token(profile),
+            TokenInfo.create_refresh_token(profile)
+        )

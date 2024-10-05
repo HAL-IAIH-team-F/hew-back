@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from .__token import *
 from .. import tables, responses
 
 

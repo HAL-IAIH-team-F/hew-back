@@ -12,7 +12,7 @@ dotenv.load_dotenv("./.env.test")
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from hew_back import main, models, ENV
+from hew_back import main, ENV, responses
 from hew_back.db import BaseTable, DB
 from test.base import Client
 
@@ -80,7 +80,7 @@ def keycloak_user_profile() -> keycloak.KeycloakUserProfile:
 
 
 @pytest.fixture
-def token_info(keycloak_user_profile, session) -> models.TokenInfo:
-    return models.TokenInfo.create_access_token(
+def token_info(keycloak_user_profile, session) -> responses.TokenInfo:
+    return responses.TokenInfo.create_access_token(
         keycloak_user_profile
     )
