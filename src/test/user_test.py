@@ -2,28 +2,29 @@ import pytest
 import sqlalchemy
 
 from hew_back import model, table
+from test.conftest import session
 
 
 @pytest.fixture
-def post_user_body(session_maker) -> model.PostUserBody:
+def post_user_body(session) -> model.PostUserBody:
     return model.PostUserBody(
         user_name="PostUserBody_user_name"
     )
 
 
 @pytest.fixture
-async def post_user_body_saved(session_maker, keycloak_user_profile) -> model.PostUserBody:
+async def post_user_body_saved(session, keycloak_user_profile) -> model.PostUserBody:
     tbl = model.PostUserBody(
         user_name="PostUserBody_user_name_saved"
     )
-    async with session_maker() as session:
+    async with session() as session:
         tbl.new_record(session, keycloak_user_profile)
         await session.commit()
     return tbl
 
 
 @pytest.mark.asyncio
-async def test_create_user(session_maker, client, token_info, post_user_body):
+async def test_create_user(session, client, token_info, post_user_body):
     result = await client.post(
         "/api/user",
         post_user_body,
@@ -33,17 +34,16 @@ async def test_create_user(session_maker, client, token_info, post_user_body):
     body = result.json()
     assert body is not None
     body = model.SelfUserRes(**body)
-    async with session_maker() as session:
-        result = await session.execute(
-            sqlalchemy.select(sqlalchemy.func.count())
-            .select_from(table.UserTable)
-            .where(table.UserTable.user_id == body.user_id)
-        )
-        assert result.scalar_one() == 1, f"\n{body}\n"
+    result = await session.execute(
+        sqlalchemy.select(sqlalchemy.func.count())
+        .select_from(table.UserTable)
+        .where(table.UserTable.user_id == body.user_id)
+    )
+    assert result.scalar_one() == 1, f"\n{body}\n"
 
 
 @pytest.mark.asyncio
-async def test_get_self(client, token_info, session_maker, post_user_body_saved, keycloak_user_profile):
+async def test_get_self(client, token_info, session, post_user_body_saved, keycloak_user_profile):
     result = await client.get(
         "/api/user/self",
         token_info.token

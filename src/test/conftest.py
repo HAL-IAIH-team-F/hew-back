@@ -1,45 +1,64 @@
 import asyncio
-import uuid
+from typing import Iterator
 
+import dotenv
+import pytest_asyncio
+from _pytest.fixtures import FixtureRequest
+from sqlalchemy import NullPool
+
+dotenv.load_dotenv("./.env.test")
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from hew_back import main, model
-from hew_back.db import BaseTable, DB
+from hew_back import main, model, ENV
+from hew_back.db import BaseTable
 from test.base import Client
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
+def event_loop(request: FixtureRequest) -> Iterator[asyncio.AbstractEventLoop]:
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    loop.__original_fixture_loop = True  # type: ignore[attr-defined]
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="session")
 def app():
     return main.app
+
+
+@pytest.fixture(scope="session")
+def engine(event_loop):
+    engine = create_async_engine(ENV.database.db_url, echo=False, poolclass=NullPool)
+    try:
+        yield engine
+    finally:
+        engine.sync_engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def create(engine):
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(BaseTable.metadata.create_all)
+        yield
+    finally:
+        async with engine.begin() as conn:
+            await conn.run_sync(BaseTable.metadata.drop_all)
+
+
+@pytest_asyncio.fixture
+async def session(engine, create):
+    session_maker = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    async with session_maker() as session:
+        yield session
 
 
 @pytest.fixture
 def client(app):
     return Client(app)
-
-
-@pytest.fixture(scope="function")
-def session_maker(app):
-    db_url = "sqlite+aiosqlite:///:memory:"
-    engine = create_async_engine(db_url, echo=False)
-
-    async def init_tables():
-        async with engine.begin() as conn:
-            await conn.run_sync(BaseTable.metadata.drop_all)
-            await conn.run_sync(BaseTable.metadata.create_all)
-
-    asyncio.run(init_tables())
-
-    session_maker = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-    async def override_get_db():
-        async with session_maker() as db_session:
-            yield db_session
-
-    app.dependency_overrides[DB.get_session] = override_get_db
-
-    yield session_maker
 
 
 @pytest.fixture
@@ -53,7 +72,7 @@ def keycloak_user_profile() -> model.KeycloakUserProfile:
 
 
 @pytest.fixture
-def token_info(session_maker, keycloak_user_profile) -> model.TokenInfo:
+def token_info(keycloak_user_profile, session) -> model.TokenInfo:
     return model.TokenInfo.create_access_token(
         keycloak_user_profile
     )

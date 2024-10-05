@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import app, model, error
+from hew_back import app, model, error, ENV
 from hew_back.db import DB
 
 
@@ -23,4 +23,4 @@ async def get_user(
 ) -> model.SelfUserRes:
     if user is None:
         raise error.ErrorIdException(model.ErrorIds.USER_NOT_FOUND)
-    return await user
+    return user
