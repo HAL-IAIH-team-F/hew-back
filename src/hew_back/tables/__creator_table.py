@@ -15,7 +15,7 @@ class CreatorTable(BaseTable):
     contact_address = Column(String(64), nullable=False)
     transfer_target = Column(String(64), nullable=False)
 
-    def save(self, session: AsyncSession):
+    def save_new(self, session: AsyncSession):
         session.add(self)
 
     @staticmethod
@@ -23,7 +23,7 @@ class CreatorTable(BaseTable):
             user: tables.UserTable,
             contact_address: str,
             transfer_target: str,
-    ):
+    )->'CreatorTable':
         return CreatorTable(
             user_id=user.user_id,
             contact_address=contact_address,

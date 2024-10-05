@@ -3,8 +3,7 @@ import uuid
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import ENV, tables, models, responses
-from hew_back.responses import SelfUserRes
+from hew_back import ENV, tables, models
 from hew_back.util import keycloak
 
 
@@ -31,13 +30,13 @@ class PostUserBody(BaseModel):
 
         # new_record メソッドを使って、新しいユーザーをデータベースに追加
         tbl = tables.UserTable.create(
-            session=session,
             user_id=profile.sub,
             user_name=self.user_name,
             user_screen_id=profile.preferred_username,
             user_icon_uuid=self.user_icon_uuid,
             user_mail=profile.email,
         )
+        tbl.save_new(session)
         await session.commit()
         await session.refresh(tbl)
         return models.UserModel(tbl)
@@ -48,9 +47,11 @@ class PostCreatorBody(BaseModel):
     contact_address: str
     transfer_target: str
 
-    def save(self, user: tables.UserTable, session: AsyncSession) -> models.CreatorModel:
-        creator_tbl = tables.CreatorTable.create(user, self.contact_address, self.transfer_target)
-        creator_tbl.save(session)
+    async def save_new(self, user: tables.UserTable, session: AsyncSession) -> models.CreatorModel:
+        creator_table = tables.CreatorTable.create(user, self.contact_address, self.transfer_target)
+        creator_table.save_new(session)
+        await session.commit()
+        await session.refresh(creator_table)
         return models.CreatorModel(
-            creator_tbl
+            creator_table
         )

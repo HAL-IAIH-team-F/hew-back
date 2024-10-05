@@ -25,7 +25,6 @@ class UserTable(BaseTable):
 
     @staticmethod
     def create(
-            session: AsyncSession,
             user_id: uuid.UUID,
             user_name: str,
             user_screen_id: str,
@@ -39,8 +38,10 @@ class UserTable(BaseTable):
             user_icon_uuid=user_icon_uuid,
             user_mail=user_mail,
         )
-        session.add(tbl)
         return tbl
+
+    def save_new(self, session: AsyncSession):
+        session.add(self)
 
     @staticmethod
     async def find_one_or_none(session: AsyncSession, user_id: uuid.UUID) -> Union['UserTable', None]:
