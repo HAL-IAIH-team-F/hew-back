@@ -81,4 +81,3 @@ class Env:
 
 
 ENV = Env()
-print(ENV.database.db_url)

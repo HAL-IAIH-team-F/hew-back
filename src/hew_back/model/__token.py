@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from enum import Enum
+from typing import Union, Optional
 
 from fastapi import Depends
 from jose import jwt
@@ -29,7 +30,7 @@ class JwtTokenData(BaseModel):
         )
 
     @staticmethod
-    def get_token_or_none(token: str | None = Depends(oauth2_scheme)):
+    def get_token_or_none(token: str | None = Depends(oauth2_scheme))->Optional['JwtTokenData']:
         if token is None:
             return None
         return JwtTokenData(**jwt.decode(token, ENV.token.secret_key, algorithms=[ENV.token.algorithm]))
@@ -42,7 +43,7 @@ class JwtTokenData(BaseModel):
         return token
 
     @staticmethod
-    def get_access_token_or_none(token=Depends(get_token_or_none)):
+    def get_access_token_or_none(token=Depends(get_token_or_none))->Optional['JwtTokenData']:
         if token is None:
             return None
         if token.token_type != TokenType.access:

@@ -9,18 +9,19 @@ from test.conftest import session
 @pytest.fixture
 def post_user_body(session) -> model.PostUserBody:
     return model.PostUserBody(
-        user_name="PostUserBody_user_name"
+        user_name="PostUserBody_user_name",
+        user_icon_uuid=None,
     )
 
 
 @pytest_asyncio.fixture
 async def post_user_body_saved(session, keycloak_user_profile) -> model.PostUserBody:
-    tbl = model.PostUserBody(
-        user_name="PostUserBody_user_name_saved"
+    body = model.PostUserBody(
+        user_name="PostUserBody_user_name_saved",
+        user_icon_uuid=None,
     )
-    tbl.new_record(session, keycloak_user_profile)
-    await session.commit()
-    return tbl
+    await body.to_self_user_res(session, keycloak_user_profile)
+    return body
 
 
 @pytest.mark.asyncio

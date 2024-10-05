@@ -1,7 +1,6 @@
 import datetime
-from typing import Union
-
 import uuid
+from typing import Union
 
 import sqlalchemy
 from sqlalchemy import Column, String, DateTime, UUID
@@ -13,7 +12,6 @@ from hew_back import error, model
 from hew_back.db import BaseTable
 
 
-
 class UserTable(BaseTable):
     __tablename__ = 'TBL_USER'
 
@@ -21,17 +19,17 @@ class UserTable(BaseTable):
     user_name = Column(String(64), nullable=False)
     # アットマーク
     user_screen_id = Column(String(64), nullable=False)
-    user_icon_uuid = Column(UUID(as_uuid=True), nullable=True)
+    user_icon_uuid: Mapped[uuid.UUID | None] = Column(UUID(as_uuid=True), nullable=True)
     user_date = Column(DateTime, default=datetime.datetime.now)
     user_mail = Column(String(64), nullable=False, unique=False)
 
     @staticmethod
-    def new_record(
+    def create(
             session: AsyncSession,
-            user_id: str,
+            user_id: uuid.UUID,
             user_name: str,
             user_screen_id: str,
-            user_icon_uuid: str,
+            user_icon_uuid: uuid.UUID | None,
             user_mail: str,
     ):
         tbl = UserTable(
@@ -45,7 +43,7 @@ class UserTable(BaseTable):
         return tbl
 
     @staticmethod
-    async def find_one_or_none(session: AsyncSession, user_id: str) -> Union['UserTable', None]:
+    async def find_one_or_none(session: AsyncSession, user_id: uuid.UUID) -> Union['UserTable', None]:
         res = await session.execute(
             sqlalchemy.select(UserTable)
             .where(UserTable.user_id == user_id)
@@ -54,7 +52,7 @@ class UserTable(BaseTable):
         return tbl
 
     @staticmethod
-    async def find_one(session: AsyncSession, user_id: str) -> 'UserTable':
+    async def find_one(session: AsyncSession, user_id: uuid.UUID) -> 'UserTable':
         tbl = await UserTable.find_one_or_none(session, user_id)
         if tbl is None:
             raise error.ErrorIdException(model.ErrorIds.USER_NOT_FOUND)

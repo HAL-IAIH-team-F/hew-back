@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from typing import Union
 
 from fastapi import Depends
@@ -9,44 +10,20 @@ from hew_back import table, model
 from hew_back.db import DB
 
 
-class PostUserBody(BaseModel):
-    user_name: str
-
-    def new_record(
-            self,
-            session: AsyncSession,
-            profile: model.KeycloakUserProfile
-    ):
-        # UserTableクラスは、SQLAlchemy を使ってデータベース上のテーブルを定義しており、
-        # API から受け取ったデータをデータベースに保存したり、データベースからデータを取得して
-        # API に返すための処理を行う。
-
-        # new_record メソッドを使って、新しいユーザーをデータベースに追加
-        tbl = table.UserTable.new_record(
-            session=session,
-            user_id=profile.sub,
-            user_name=self.user_name,
-            user_screen_id=profile.preferred_username,
-            user_icon_uuid="",
-            user_mail=profile.email,
-        )
-        return tbl
-
-
 class SelfUserRes(BaseModel):
-    user_id: str
+    user_id: uuid.UUID
     user_name: str
     user_screen_id: str
-    user_icon_uuid: str
+    user_icon_uuid: uuid.UUID | None
     user_date: datetime.datetime
     user_mail: str
 
     @staticmethod
     def create(
-            user_id: str,
+            user_id: uuid.UUID,
             user_name: str,
             user_screen_id: str,
-            user_icon_uuid: str,
+            user_icon_uuid: uuid.UUID | None,
             user_date: datetime.datetime,
             user_mail: str,
     ):
@@ -94,3 +71,30 @@ class SelfUserRes(BaseModel):
         tbl.user_screen_id = token.profile.preferred_username
         await session.commit()
         return tbl
+
+
+class PostUserBody(BaseModel):
+    user_name: str
+    user_icon_uuid: uuid.UUID | None
+
+    async def to_self_user_res(
+            self,
+            session: AsyncSession,
+            profile: model.KeycloakUserProfile
+    ) -> SelfUserRes:
+        # UserTableクラスは、SQLAlchemy を使ってデータベース上のテーブルを定義しており、
+        # API から受け取ったデータをデータベースに保存したり、データベースからデータを取得して
+        # API に返すための処理を行う。
+
+        # new_record メソッドを使って、新しいユーザーをデータベースに追加
+        tbl = table.UserTable.create(
+            session=session,
+            user_id=profile.sub,
+            user_name=self.user_name,
+            user_screen_id=profile.preferred_username,
+            user_icon_uuid=self.user_icon_uuid,
+            user_mail=profile.email,
+        )
+        await session.commit()
+        await session.refresh(tbl)
+        return model.SelfUserRes.create_by_user_table(tbl)

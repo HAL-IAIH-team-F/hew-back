@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+import uuid
+
+from pydantic import BaseModel, field_serializer
 
 from hew_back import model
 from hew_back.env import ENV
@@ -20,10 +22,14 @@ class WellKnownRes(BaseModel):
 
 
 class KeycloakUserProfile(BaseModel):
-    sub: str
+    sub: uuid.UUID
     email_verified: bool
     preferred_username: str
     email: str
+
+    @field_serializer("sub")
+    def serialize_date(self, sub: uuid.UUID) -> str:
+        return str(sub)
 
     @staticmethod
     def create_by_post_token_body(body):
