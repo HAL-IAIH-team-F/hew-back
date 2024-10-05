@@ -37,10 +37,9 @@ class ErrorIds(Enum):
     USER_LOGIN_FAILED = ErrorId.create("user login failed, invalid name or password", 409)
     ALL_GACHA_PULLED = ErrorId.create("all gacha were pulled", 409)
 
+    def to_exception(self, message: str | None = None) -> 'ErrorIdException':
+        return ErrorIdException(self, message)
 
-    def to_exception(self, message: str | None = None):
-        from hew_back import error
-        return error.ErrorIdException(self, message)
 
 class ErrorRes(BaseModel):
     error_id: str
@@ -56,3 +55,17 @@ class ErrorRes(BaseModel):
             error_id=error_ids.name,
             message=e.__str__()
         )
+
+class ErrorIdException(Exception):
+    def __init__(self, error_id, message: str | None = None):
+        error_id: ErrorIds
+        if message is None:
+            message = error_id.value.message
+        self.error_id: ErrorIds = error_id
+        self.message = message
+
+    def to_error_res(self):
+        return ErrorRes.create(self.error_id.name, self.message)
+
+    def raise_self(self):
+        raise self

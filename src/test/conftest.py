@@ -6,11 +6,13 @@ import pytest_asyncio
 from _pytest.fixtures import FixtureRequest
 from sqlalchemy import NullPool
 
+from hew_back.util import keycloak
+
 dotenv.load_dotenv("./.env.test")
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from hew_back import main, model, ENV
+from hew_back import main, models, ENV
 from hew_back.db import BaseTable, DB
 from test.base import Client
 
@@ -49,7 +51,7 @@ async def create(engine):
 
 
 @pytest_asyncio.fixture
-async def session(engine, create,app):
+async def session(engine, create, app):
     session_maker = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
     async def override_get_db():
@@ -68,8 +70,8 @@ def client(app):
 
 
 @pytest.fixture
-def keycloak_user_profile() -> model.KeycloakUserProfile:
-    return model.KeycloakUserProfile(
+def keycloak_user_profile() -> keycloak.KeycloakUserProfile:
+    return keycloak.KeycloakUserProfile(
         sub="7f4b560a-71f1-4c19-a003-3c42eb0899e3",
         email_verified=True,
         preferred_username="username",
@@ -78,7 +80,7 @@ def keycloak_user_profile() -> model.KeycloakUserProfile:
 
 
 @pytest.fixture
-def token_info(keycloak_user_profile, session) -> model.TokenInfo:
-    return model.TokenInfo.create_access_token(
+def token_info(keycloak_user_profile, session) -> models.TokenInfo:
+    return models.TokenInfo.create_access_token(
         keycloak_user_profile
     )

@@ -1,7 +1,7 @@
 from fastapi import Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import app, model, error
+from hew_back import app, models
 from hew_back.db import DB
 
 from typing import Union, List
@@ -32,7 +32,7 @@ async def read_products(
 
     if start_datetime and end_datetime and start_datetime > end_datetime:
         raise HTTPException(status_code=405, detail="start_datetime cannot be greater than end_datetime")
-    product_service = model.GetProductsResponse(session=session)  # インスタンス化
+    product_service = models.GetProductsResponse(session=session)  # インスタンス化
     search_products = await product_service.get_products(
         session=session,
         # self,

@@ -8,8 +8,8 @@ from sqlalchemy import Column, String, DateTime, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped
 
-from hew_back import error, model
 from hew_back.db import BaseTable
+from hew_back.util import err
 
 
 class UserTable(BaseTable):
@@ -55,5 +55,5 @@ class UserTable(BaseTable):
     async def find_one(session: AsyncSession, user_id: uuid.UUID) -> 'UserTable':
         tbl = await UserTable.find_one_or_none(session, user_id)
         if tbl is None:
-            raise error.ErrorIdException(model.ErrorIds.USER_NOT_FOUND)
+            raise err.ErrorIdException(err.ErrorIds.USER_NOT_FOUND)
         return tbl

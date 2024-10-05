@@ -1,13 +1,16 @@
-from fastapi import FastAPI
+from fastapi import Depends
 
-from hew_back import app
-from hew_back.request_model import PostCreatorBody
+from hew_back import app, tbls, bodies
+
 
 # FastAPIアプリケーションを作成します
 
 
 # POSTリクエストを受け取るエンドポイントを定義します
 @app.post("/creator")
-async def post_creator(creator_box: PostCreatorBody):
-    # 受け取ったデータをそのまま返します
-    return creator_box.user_id
+async def post_creator(
+        body: bodies.PostCreatorBody,
+        user_tbl: tbls.UserTable = Depends(tbls.CreatorTable)
+):
+    body
+    return body.user_id
