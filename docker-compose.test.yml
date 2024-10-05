@@ -36,6 +36,8 @@ services:
       - .git
       - --exclude
       - /temp
+      - --exclude
+      - .gitignore
     working_dir: /src
     volumes:
       - type: bind

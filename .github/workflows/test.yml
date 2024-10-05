@@ -16,3 +16,5 @@ jobs:
             refs/head/develop
 
       - run: docker compose -f docker-compose.test.yml up backend-test --exit-code-from backend-test
+      - run: docker compose -f docker-compose.test.yml logs
+        if: always()
