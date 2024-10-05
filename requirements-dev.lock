@@ -6,8 +6,6 @@
 #   features: []
 #   all-features: false
 #   with-sources: false
-#   generate-hashes: false
-#   universal: false
 
 aiosqlite==0.20.0
 alembic==1.13.2

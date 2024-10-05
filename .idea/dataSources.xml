@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="postgres@postgres-svc.develop.svc.cluster.local" uuid="9b7b9f8f-e9a1-47d0-9a35-8bafc8deec24">
+    <data-source source="LOCAL" name="hew@localhost" uuid="b384b778-6645-4b36-89b7-89b3b5b8e047">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://postgres-svc.develop.svc.cluster.local:5432/postgres</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5433/hew</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="postgres@localhost" uuid="8ecf3694-4ce8-4cec-b851-25d361a8e12f">
