@@ -12,7 +12,8 @@ async def post_user(
         session: AsyncSession = Depends(DB.get_session),
         token: models.JwtTokenData = Depends(models.JwtTokenData.get_access_token_or_none),
 ) -> responses.SelfUserRes:
-    return await  body.to_self_user_res(session, token.profile)
+    model = await body.save_new(session, token.profile)
+    return model.to_self_user_res()
 
 
 @app.get("/api/user/self")

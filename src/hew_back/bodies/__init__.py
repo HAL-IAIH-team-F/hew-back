@@ -3,7 +3,7 @@ import uuid
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import ENV, tbls, models, responses
+from hew_back import ENV, tables, models, responses
 from hew_back.responses import SelfUserRes
 from hew_back.util import keycloak
 
@@ -20,17 +20,17 @@ class PostUserBody(BaseModel):
     user_name: str
     user_icon_uuid: uuid.UUID | None
 
-    async def to_self_user_res(
+    async def save_new(
             self,
             session: AsyncSession,
             profile: keycloak.KeycloakUserProfile
-    ) -> SelfUserRes:
+    ) -> models.UserModel:
         # UserTableクラスは、SQLAlchemy を使ってデータベース上のテーブルを定義しており、
         # API から受け取ったデータをデータベースに保存したり、データベースからデータを取得して
         # API に返すための処理を行う。
 
         # new_record メソッドを使って、新しいユーザーをデータベースに追加
-        tbl = tbls.UserTable.create(
+        tbl = tables.UserTable.create(
             session=session,
             user_id=profile.sub,
             user_name=self.user_name,
@@ -40,7 +40,7 @@ class PostUserBody(BaseModel):
         )
         await session.commit()
         await session.refresh(tbl)
-        return responses.SelfUserRes.create_by_user_table(tbl)
+        return models.UserModel(tbl)
 
 
 class PostCreatorBody(BaseModel):
@@ -48,8 +48,8 @@ class PostCreatorBody(BaseModel):
     contact_address: str
     transfer_target: str
 
-    def save(self, user: tbls.UserTable, session: AsyncSession) -> models.CreatorModel:
-        creator_tbl = tbls.CreatorTable.create(user, self.contact_address, self.transfer_target)
+    def save(self, user: tables.UserTable, session: AsyncSession) -> models.CreatorModel:
+        creator_tbl = tables.CreatorTable.create(user, self.contact_address, self.transfer_target)
         creator_tbl.save(session)
         return models.CreatorModel(
             creator_tbl

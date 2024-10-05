@@ -7,7 +7,7 @@ from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tbls, models
+from hew_back import tables, models
 from hew_back.db import DB
 from hew_back.models import TokenInfo, JwtTokenData
 from hew_back.util import keycloak
@@ -32,7 +32,7 @@ class GetProductsResponse(BaseModel):
             following: Union[bool, None],
             read_limit_number: Union[int, None],
     ):
-        products_fr_tbl = await tbls.ProductTable.find_products_or_null(
+        products_fr_tbl = await tables.ProductTable.find_products_or_null(
             session=session,
             name=name,
             tag=tag,
@@ -92,7 +92,7 @@ class SelfUserRes(BaseModel):
         )
 
     @staticmethod
-    def create_by_user_table(tbl: tbls.UserTable):
+    def create_by_user_table(tbl: tables.UserTable):
         return SelfUserRes.create(
             user_id=tbl.user_id,
             user_name=tbl.user_name,
@@ -107,7 +107,7 @@ class SelfUserRes(BaseModel):
             session: AsyncSession = Depends(DB.get_session),
             token: models.JwtTokenData = Depends(models.JwtTokenData.get_access_token_or_none),
     ) -> Union['SelfUserRes', None]:
-        tbl = await tbls.UserTable.find_one_or_none(session, token.profile.sub)
+        tbl = await tables.UserTable.find_one_or_none(session, token.profile.sub)
         if tbl is None:
             return None
         tbl.user_mail = token.profile.email
@@ -121,7 +121,7 @@ class SelfUserRes(BaseModel):
             session: AsyncSession = Depends(DB.get_session),
             token: models.JwtTokenData = Depends(models.JwtTokenData.get_access_token_or_none),
     ):
-        tbl = await tbls.UserTable.find_one(session, token.profile.sub)
+        tbl = await tables.UserTable.find_one(session, token.profile.sub)
         tbl.user_mail = token.profile.email
         tbl.user_screen_id = token.profile.preferred_username
         await session.commit()

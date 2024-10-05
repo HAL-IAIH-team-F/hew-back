@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import models, tbls, bodies, responses
+from hew_back import models, tables, bodies, responses
 from test.conftest import session
 
 
@@ -20,7 +20,7 @@ async def post_user_body_saved(session, keycloak_user_profile) -> bodies.PostUse
         user_name="PostUserBody_user_name_saved",
         user_icon_uuid=None,
     )
-    await body.to_self_user_res(session, keycloak_user_profile)
+    await body.save_new(session, keycloak_user_profile)
     return body
 
 
@@ -37,8 +37,8 @@ async def test_create_user(session, client, token_info, post_user_body):
     body = responses.SelfUserRes(**body)
     result = await session.execute(
         sqlalchemy.select(sqlalchemy.func.count())
-        .select_from(tbls.UserTable)
-        .where(tbls.UserTable.user_id == body.user_id)
+        .select_from(tables.UserTable)
+        .where(tables.UserTable.user_id == body.user_id)
     )
     assert result.scalar_one() == 1, f"\n{body}\n"
 

@@ -42,7 +42,7 @@ class ProductTable(BaseTable):
     ):
         # from hew_back.table import ProductTag
         # from hew_back.table import Tag
-        from hew_back.tbls import ProductTag, Tag
+        from hew_back.tables import ProductTag, Tag
 
         stmt = select(ProductTable)
 

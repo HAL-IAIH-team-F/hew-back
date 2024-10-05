@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from hew_back import app, tbls, bodies
+from hew_back import app, tables, bodies
 
 
 # FastAPIアプリケーションを作成します
@@ -10,7 +10,7 @@ from hew_back import app, tbls, bodies
 @app.post("/creator")
 async def post_creator(
         body: bodies.PostCreatorBody,
-        user_tbl: tbls.UserTable = Depends(tbls.CreatorTable)
+        user_tbl: tables.UserTable = Depends(tables.CreatorTable)
 ):
     body
     return body.user_id
