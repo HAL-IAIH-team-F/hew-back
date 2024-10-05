@@ -1,4 +1,5 @@
 import pytest
+import pytest_asyncio
 import sqlalchemy
 
 from hew_back import model, table
@@ -12,14 +13,13 @@ def post_user_body(session) -> model.PostUserBody:
     )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def post_user_body_saved(session, keycloak_user_profile) -> model.PostUserBody:
     tbl = model.PostUserBody(
         user_name="PostUserBody_user_name_saved"
     )
-    async with session() as session:
-        tbl.new_record(session, keycloak_user_profile)
-        await session.commit()
+    tbl.new_record(session, keycloak_user_profile)
+    await session.commit()
     return tbl
 
 

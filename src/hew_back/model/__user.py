@@ -1,4 +1,5 @@
 import datetime
+from typing import Union
 
 from fastapi import Depends
 from pydantic import BaseModel
@@ -68,14 +69,15 @@ class SelfUserRes(BaseModel):
     async def get_self_user_res_or_none(
             session: AsyncSession = Depends(DB.get_session),
             token: model.JwtTokenData = Depends(model.JwtTokenData.get_access_token_or_none),
-    ):
+    ) -> Union['SelfUserRes', None]:
         tbl = await table.UserTable.find_one_or_none(session, token.profile.sub)
         if tbl is None:
             return None
         tbl.user_mail = token.profile.email
         tbl.user_screen_id = token.profile.preferred_username
+        res = SelfUserRes.create_by_user_table(tbl)
         await session.commit()
-        return tbl
+        return res
 
     @staticmethod
     async def get_self_user_res(

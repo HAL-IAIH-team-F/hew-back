@@ -11,7 +11,7 @@ import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from hew_back import main, model, ENV
-from hew_back.db import BaseTable
+from hew_back.db import BaseTable, DB
 from test.base import Client
 
 
@@ -49,8 +49,14 @@ async def create(engine):
 
 
 @pytest_asyncio.fixture
-async def session(engine, create):
+async def session(engine, create,app):
     session_maker = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    async def override_get_db():
+        async with session_maker() as db_session:
+            yield db_session
+
+    app.dependency_overrides[DB.get_session] = override_get_db
 
     async with session_maker() as session:
         yield session
