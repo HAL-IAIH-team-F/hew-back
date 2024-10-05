@@ -1,10 +1,48 @@
 name: test
 
-on: [push]
+on: [ push ]
 
 jobs:
   back:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker compose -f docker-compose.test.yml up backend-test
+
+      - uses: actions/cache@v2
+        with:
+          path: ./temp
+          key: ${{ github.ref }}-${{ github.sha }} # キャッシュのキーを指定
+          restore-keys: |
+            ${{ github.ref }}
+            refs/head/develop
+
+# キャッシュがある場合は tar をロードしてイメージ一覧に追加
+      - name: Load Docker image if exists
+        run: |
+          if [ -f ./temp/postgres.tar ]; then  
+            docker load --input ./temp/postgres.tar
+          fi
+          if [ -f ./temp/python.tar ]; then  
+            docker load --input ./temp/python.tar
+          fi
+          if [ -f ./temp/rsync.tar ]; then  
+            docker load --input ./temp/rsync.tar
+          fi
+
+      - run:
+          mkdir -p temp/test/app-data
+      - run: |
+          docker compose -f docker-compose.test.yml up backend-test --exit-code-from backend-test
+      - run: docker compose -f docker-compose.test.yml logs
+        if: always()
+
+      # キャッシュがない場合は Docker イメージをビルド後、tar アーカイブをキャッシュ先に保存
+      - name: Build Docker image and save
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          # キャッシュディレクトリを作成
+          mkdir -p ./temp
+          # イメージのキャッシュ（tar をキャッシュ・ディレクトリに出力）
+          docker save --output ./temp/postgres.tar postgres
+          docker save --output ./temp/python.tar python
+          docker save --output ./temp/rsync.tar secoresearch/rsync
