@@ -3,7 +3,7 @@ import uuid
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import ENV, tables, result
+from hew_back import ENV, tables, result, deps
 from hew_back.util import keycloak
 
 
@@ -47,11 +47,11 @@ class PostCreatorBody(BaseModel):
     contact_address: str
     transfer_target: str
 
-    async def save_new(self, user: tables.UserTable, session: AsyncSession) -> result.CreatorModel:
-        creator_table = tables.CreatorTable.create(user, self.contact_address, self.transfer_target)
+    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> result.CreatorResult:
+        creator_table = tables.CreatorTable.create(user.user_table, self.contact_address, self.transfer_target)
         creator_table.save_new(session)
         await session.commit()
         await session.refresh(creator_table)
-        return result.CreatorModel(
+        return result.CreatorResult(
             creator_table
         )

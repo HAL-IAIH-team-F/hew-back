@@ -5,7 +5,6 @@ from typing import Optional, Union
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import ENV, tables, responses, models
@@ -14,6 +13,13 @@ from hew_back.models import TokenType
 from hew_back.util import err, keycloak
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/refresh", auto_error=False)
+
+
+class DbDeps:
+    @staticmethod
+    async def session() -> AsyncSession:
+        async with DB.session_maker() as session:
+            yield session
 
 
 @dataclass
@@ -75,8 +81,8 @@ class UserDeps:
         return responses.SelfUserRes.create_by_user_table(self.user_table)
 
     @staticmethod
-    async def get_self_user_res_or_none(
-            session: AsyncSession = Depends(DB.get_session),
+    async def get_or_none(
+            session: AsyncSession = Depends(DbDeps.session),
             token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token_or_none),
     ) -> Union['UserDeps', None]:
         table = await tables.UserTable.find_one_or_none(session, token.profile.sub)
@@ -89,8 +95,8 @@ class UserDeps:
         return UserDeps(table)
 
     @staticmethod
-    async def get_self_user_res(
-            session: AsyncSession = Depends(DB.get_session),
+    async def get(
+            session: AsyncSession = Depends(DbDeps.session),
             token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token_or_none),
     ) -> 'UserDeps':
         table = await tables.UserTable.find_one(session, token.profile.sub)

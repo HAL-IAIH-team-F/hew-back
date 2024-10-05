@@ -4,8 +4,16 @@ from .. import tables, responses
 
 
 @dataclass
-class CreatorModel:
+class CreatorResult:
     creator: tables.CreatorTable
+
+    def to_creator_res(self):
+        return responses.CreatorResponse.create(
+            creator_id=self.creator.creator_id,
+            user_id=self.creator.user_id,
+            contact_address=self.creator.contact_address,
+            transfer_target=self.creator.transfer_target,
+        )
 
 
 @dataclass
