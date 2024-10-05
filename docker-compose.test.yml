@@ -20,11 +20,11 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    user: 1000:1000
+    user: ${USER_ID}:${GROUP_ID}
   #########################################################
   init-rsync:
     image: secoresearch/rsync
-    user: 1000:1000
+    user: ${USER_ID}:${GROUP_ID}
     command:
       - rsync
       - --delete
@@ -49,7 +49,7 @@ services:
         target: /app
   #########################################################
   backend-test:
-    user: 1000:1000
+    user: ${USER_ID}:${GROUP_ID}
     image: python:3.12-bookworm
     depends_on:
       postgres-test:
