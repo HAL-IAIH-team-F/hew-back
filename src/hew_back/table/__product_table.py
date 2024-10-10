@@ -1,4 +1,5 @@
 import uuid
+from itertools import product
 
 from sqlalchemy import Column, String, DateTime, UUID, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,6 +14,11 @@ from typing import Union, List
 from hew_back.db import BaseTable
 
 import datetime
+
+from hew_back.table import LikeTable
+from hew_back.util import OrderDirection
+
+from sqlalchemy import asc, desc # ←使用したほうがいいですかね？
 
 
 # from hew_back import table
@@ -34,15 +40,19 @@ class ProductTable(BaseTable):
             session: AsyncSession,
             name: Union[List[str], None],
             tag: Union[List[str], None],
-            post_by: [List[UUID], None],
+            post_by: Union[List[str], None],
             start_datetime: Union[datetime, None],
             end_datetime: Union[datetime, None],
             following: Union[bool, None],
-            read_limit_number: Union[int, None]
+            read_limit_number: Union[int, None],
+            time_order: OrderDirection,
+            name_order: OrderDirection,
+            like_order: OrderDirection,
+            sort: List[str]
     ):
         # from hew_back.table import ProductTag
         # from hew_back.table import Tag
-        from hew_back.table import ProductTag, Tag
+        from hew_back.table import ProductTag, Tag, CreatorProductTable, CreatorTable, UserTable, UserFollowTable
 
         stmt = select(ProductTable)
 
@@ -65,7 +75,7 @@ class ProductTable(BaseTable):
                 .having(func.count(ProductTag.tag_id) == len(tag))
                 .subquery()
             )
-            # メインクエリにサブクエリを結合して、製品をフィルタリング
+            # メインクエリにサブクエリを結合して、製品をフィルタリングしています
             stmt = stmt.join(tag_subquery, ProductTable.product_id == tag_subquery.c.product_id)
 
         if start_datetime is not None:
@@ -76,10 +86,85 @@ class ProductTable(BaseTable):
             end_datetime = end_datetime.replace(tzinfo=None)
             stmt = stmt.where(ProductTable.product_date <= end_datetime)
 
+        if post_by is not None and len(post_by) > 0:
+            post_by_subquery = (
+                select(
+                    CreatorProductTable.product_id.label("product_id")
+                )
+                .join(CreatorTable, CreatorProductTable.creator_id == CreatorTable.creator_id)
+                .join(UserTable, UserTable.user_id == CreatorTable.user_id)
+                .where(UserTable.user_name.in_(post_by))
+                .group_by(CreatorProductTable.product_id)
+                .having(func.count(UserTable.user_name) == len(post_by))
+                .subquery()
+            )
+            stmt = stmt.join(post_by_subquery, ProductTable.product_id == post_by_subquery.c.product_id)
+
+        # ログイン機能を作らないときのAPIは役に立ちません　→　ログイン機能作ったら、where句追加してください
+        if following:
+            following_subquery = (
+                select(
+                    UserFollowTable.creator_id
+                )
+                # .where(UserFollowTable.user_id == current_user.user_id) ←　ログイン機能実装後、ログインしているユーザーがフォローしているクリエイターのフィルタリングを行う処理をwhere句で実施していきたい
+                .subquery()
+            )
+            stmt = (
+                select(ProductTable)
+                .join(CreatorProductTable, ProductTable.product_id == CreatorProductTable.product_id)
+                .join(CreatorTable, CreatorProductTable.creator_id == CreatorTable.creator_id)
+                .where(CreatorProductTable.creator_id.in_(following_subquery))
+            )
+
+        if read_limit_number is not None and read_limit_number > 0:
+            stmt = stmt.limit(read_limit_number)
+
+
+        # time_order に基づいて product_date のソートを追加
+        if time_order == OrderDirection.ASC:
+            stmt = stmt.order_by(ProductTable.product_date.asc())
+        elif time_order == OrderDirection.DESC:
+            stmt = stmt.order_by(ProductTable.product_date.desc())
+        #
+        # name_order に基づいて product_title のソートを追加
+        if name_order == OrderDirection.ASC:
+            stmt = stmt.order_by(ProductTable.product_title.asc())
+        elif name_order == OrderDirection.DESC:
+            stmt = stmt.order_by(ProductTable.product_title.desc())
+
+
+        likes_subquery = (
+            select(
+                LikeTable.product_id,
+                func.count(LikeTable.product_id).label("like_count")
+            )
+            .group_by(LikeTable.product_id)
+            .subquery()
+        )
+        stmt = stmt.outerjoin(likes_subquery, ProductTable.product_id == likes_subquery.c.product_id)
+
+        if like_order == OrderDirection.ASC:
+            stmt = stmt.order_by(likes_subquery.c.like_count.asc().nullsfirst())
+        else:
+            stmt = stmt.order_by(likes_subquery.c.like_count.desc().nullslast())
+
+        if sort:
+            print(sort)
+            for sort_field in sort:
+                print(sort_field)
+                if sort_field == "datetime":
+                    stmt = stmt.order_by(ProductTable.product_date.desc())  # datetime のデフォルトは降順
+                elif sort_field == "name":
+                    stmt = stmt.order_by(ProductTable.product_title.asc())  # name のデフォルトは昇順
+                elif sort_field == "like":
+                    stmt = stmt.order_by(likes_subquery.c.like_count.desc().nullslast())  # like のデフォルトは降順
+
+
 
         result = await session.execute(stmt)
 
         products = result.scalars().all()
+
         return products
 
         # return query

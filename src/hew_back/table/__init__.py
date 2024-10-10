@@ -24,7 +24,8 @@ from .__serialcode_table import *
 
 from .__tag_table import *
 
-
 from .__creator_product_table import *
+
+from .__user_follow_table import *
 
 
