@@ -13,6 +13,7 @@ class Token:
     access_token_expire_minutes: int | float
     img_token_expire_minutes: int | float
     secret_key = os.getenv("SECRET_KEY")
+    img_secret_key = os.getenv("IMG_SECRET_KEY")
     algorithm: str
 
     def __init__(self):

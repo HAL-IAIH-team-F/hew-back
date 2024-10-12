@@ -16,10 +16,10 @@ class AbcJwtTokenData[T: AbcTokenType](BaseModel, metaclass=abc.ABCMeta):
     exp: datetime
     token_type: T
 
-    def new_token_info(self) -> 'TokenInfo':
+    def new_token_info(self, secret: str) -> 'TokenInfo':
         encoded_jwt = jwt.encode(
             self.model_dump(),
-            ENV.token.secret_key,
+            secret,
             algorithm=ENV.token.algorithm
         )
         return TokenInfo.create(encoded_jwt, self.exp)

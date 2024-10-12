@@ -19,13 +19,13 @@ class PostTokenBody(BaseModel):
         profile = self.fetch_keycloak_profile()
         return models.Tokens(
             access=models.JwtTokenData.new(
-                tokens.TokenType.upload,
+                models.TokenType.access,
                 profile
-            ).new_token_info(),
+            ).new_token_info(ENV.token.secret_key),
             refresh=models.JwtTokenData.new(
-                tokens.TokenType.upload,
+                models.TokenType.refresh,
                 profile
-            ).new_token_info()
+            ).new_token_info(ENV.token.secret_key)
         )
 
 

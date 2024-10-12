@@ -39,14 +39,14 @@ class JwtTokenData(tokens.AbcJwtTokenData[TokenType]):
 
     def renew_tokens(self):
         return Tokens(
-            JwtTokenData.new(TokenType.access, self.profile).new_token_info(),
-            JwtTokenData.new(TokenType.refresh, self.profile).new_token_info(),
+            JwtTokenData.new(TokenType.access, self.profile).new_token_info(ENV.token.secret_key),
+            JwtTokenData.new(TokenType.refresh, self.profile).new_token_info(ENV.token.secret_key),
         )
 
     @staticmethod
     def new(
             token_type: TokenType, profile: keycloak.KeycloakUserProfile
-    ):
+    )->'JwtTokenData':
         if token_type == TokenType.access:
             exp = datetime.now(timezone.utc) + timedelta(ENV.token.access_token_expire_minutes)
         elif token_type == TokenType.refresh:
@@ -67,7 +67,7 @@ class ImgJwtTokenData(tokens.AbcJwtTokenData[ImgTokenType]):
 
     def new_img_tokens(self) -> ImgTokens:
         return ImgTokens(
-            self.new_token_info()
+            self.new_token_info(ENV.token.img_secret_key)
         )
 
     @staticmethod

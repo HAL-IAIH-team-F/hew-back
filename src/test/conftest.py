@@ -84,4 +84,4 @@ def token_info(keycloak_user_profile, session) -> tokens.TokenInfo:
     return models.JwtTokenData.new(
         models.TokenType.access,
         keycloak_user_profile
-    ).new_token_info()
+    ).new_token_info(ENV.token.secret_key)
