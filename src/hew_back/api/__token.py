@@ -1,16 +1,23 @@
 from fastapi import Depends
 
-from hew_back import app, result, bodies, responses, deps
+from hew_back import app, bodies, responses, deps
 
 
 @app.post("/api/token")
 async def post_token(body: bodies.PostTokenBody) -> responses.TokenRes:
-    profile = body.fetch_keycloak_profile()
-    return responses.TokenRes.create_by_keycloak_user_profile(profile)
+    tokens = body.new_tokens()
+    return tokens.to_token_res()
 
 
 @app.get("/api/token/refresh")
 async def token_refresh(
-        token: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_access_token_or_none)
+        token: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_refresh_token)
 ) -> responses.TokenRes:
-    return token.to_token_res()
+    return token.new_token_res()
+
+
+@app.get("/api/token/image")
+async def image_token_refresh(
+        token: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_access_token)
+) -> responses.TokenRes:
+    return token.new_token_res()

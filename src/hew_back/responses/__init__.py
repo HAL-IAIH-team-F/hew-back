@@ -1,14 +1,13 @@
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Union
 from uuid import UUID
 
-from jose import jwt
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tables, ENV, models
-from hew_back.util import keycloak
+from hew_back import tables
+from hew_back.util import keycloak, tokens
 
 
 # 例:文字列のクエリパラメーターを受け取る
@@ -81,48 +80,19 @@ class SelfUserRes(BaseModel):
         )
 
 
-class TokenInfo(BaseModel):
-    token: str
-    expire: datetime
-
-    @staticmethod
-    def create_token(token_type: models.TokenType, res: keycloak.KeycloakUserProfile,
-                     expires_delta: timedelta | None = None):
-        expire = datetime.now(timezone.utc) + expires_delta
-        encoded_jwt = jwt.encode(
-            models.JwtTokenData.create(exp=expire, token_type=token_type, profile=res).model_dump(),
-            ENV.token.secret_key,
-            algorithm=ENV.token.algorithm
-        )
-        return TokenInfo(token=encoded_jwt, expire=expire)
-
-    @staticmethod
-    def create_refresh_token(res: keycloak.KeycloakUserProfile):
-        return TokenInfo.create_token(
-            models.TokenType.refresh, res,
-            expires_delta=timedelta(minutes=ENV.token.refresh_token_expire_minutes)
-        )
-
-    @staticmethod
-    def create_access_token(res: keycloak.KeycloakUserProfile):
-        return TokenInfo.create_token(
-            models.TokenType.access, res, timedelta(minutes=ENV.token.access_token_expire_minutes)
-        )
-
-
 class TokenRes(BaseModel):
-    access: TokenInfo
-    refresh: TokenInfo
+    access: tokens.TokenInfo
+    refresh: tokens.TokenInfo
 
     @staticmethod
-    def create(access: TokenInfo, refresh: TokenInfo):
+    def create(access: tokens.TokenInfo, refresh: tokens.TokenInfo):
         return TokenRes(access=access, refresh=refresh)
 
     @staticmethod
     def create_by_keycloak_user_profile(profile: keycloak.KeycloakUserProfile):
         return TokenRes.create(
-            TokenInfo.create_access_token(profile),
-            TokenInfo.create_refresh_token(profile)
+            tokens.TokenInfo.create_access_token(profile),
+            tokens.TokenInfo.create_refresh_token(profile)
         )
 
 

@@ -9,8 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import ENV, tables, responses, models
 from hew_back.db import DB
-from hew_back.models import TokenType
-from hew_back.util import err, keycloak
+from hew_back.util import err, keycloak, tokens
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/refresh", auto_error=False)
 
@@ -31,15 +30,24 @@ class JwtTokenDeps:
         return self.jwt_token_data.exp
 
     @property
-    def token_type(self) -> TokenType:
+    def token_type(self) -> tokens.TokenType:
         return self.jwt_token_data.token_type
 
     @property
     def profile(self) -> keycloak.KeycloakUserProfile:
         return self.jwt_token_data.profile
 
-    def to_token_res(self) -> responses.TokenRes:
-        return responses.TokenRes.create_by_keycloak_user_profile(self.profile)
+    def new_token_res(self) -> responses.TokenRes:
+        return responses.TokenRes.create(
+            tokens.TokenInfo.create_access_token(self.profile),
+            tokens.TokenInfo.create_refresh_token(self.profile)
+        )
+
+    def new_img_token_res(self) -> responses.TokenRes:
+        return responses.TokenRes.create(
+            tokens.TokenInfo.create_access_token(self.profile),
+            tokens.TokenInfo.create_refresh_token(self.profile)
+        )
 
     @staticmethod
     def get_token_or_none(token: str | None = Depends(oauth2_scheme)) -> Optional['JwtTokenDeps']:
@@ -60,7 +68,13 @@ class JwtTokenDeps:
     def get_access_token_or_none(token=Depends(get_token_or_none)) -> Optional['JwtTokenDeps']:
         if token is None:
             return None
-        if token.token_type != models.TokenType.access:
+        if token.token_type != token.TokenType.access:
+            raise err.ErrorIdException(err.ErrorIds.INVALID_TOKEN)
+        return token
+
+    @staticmethod
+    def get_access_token(token=Depends(get_token)) -> 'JwtTokenDeps':
+        if token.token_type != tokens.TokenType.access:
             raise err.ErrorIdException(err.ErrorIds.INVALID_TOKEN)
         return token
 
@@ -68,7 +82,13 @@ class JwtTokenDeps:
     def get_refresh_token_or_none(token=Depends(get_token_or_none)):
         if token is None:
             return None
-        if token.token_type != models.TokenType.refresh:
+        if token.token_type != tokens.TokenType.refresh:
+            raise err.ErrorIdException(err.ErrorIds.INVALID_TOKEN)
+        return token
+
+    @staticmethod
+    def get_refresh_token(token=Depends(get_token)):
+        if token.token_type != tokens.TokenType.refresh:
             raise err.ErrorIdException(err.ErrorIds.INVALID_TOKEN)
         return token
 
@@ -85,6 +105,8 @@ class UserDeps:
             session: AsyncSession = Depends(DbDeps.session),
             token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token_or_none),
     ) -> Union['UserDeps', None]:
+        if token is None:
+            return None
         table = await tables.UserTable.find_one_or_none(session, token.profile.sub)
         if table is None:
             return None
@@ -97,7 +119,7 @@ class UserDeps:
     @staticmethod
     async def get(
             session: AsyncSession = Depends(DbDeps.session),
-            token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token_or_none),
+            token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token),
     ) -> 'UserDeps':
         table = await tables.UserTable.find_one(session, token.profile.sub)
         table.user_mail = token.profile.email
