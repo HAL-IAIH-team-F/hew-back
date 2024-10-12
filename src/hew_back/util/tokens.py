@@ -8,14 +8,13 @@ from pydantic import BaseModel
 from .. import ENV
 
 
-class TokenType(str, Enum):
-    access = "access"
-    refresh = "refresh"
+class AbcTokenType(str, Enum):
+    pass
 
 
-class AbcJwtTokenData(BaseModel, metaclass=abc.ABCMeta):
+class AbcJwtTokenData[T: AbcTokenType](BaseModel, metaclass=abc.ABCMeta):
     exp: datetime
-    token_type: TokenType
+    token_type: T
 
     def new_token_info(self) -> 'TokenInfo':
         encoded_jwt = jwt.encode(

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import ENV, tables, responses, models
 from hew_back.db import DB
-from hew_back.util import err, keycloak, tokens
+from hew_back.util import err, keycloak
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/refresh", auto_error=False)
 
@@ -30,24 +30,15 @@ class JwtTokenDeps:
         return self.jwt_token_data.exp
 
     @property
-    def token_type(self) -> tokens.TokenType:
+    def token_type(self) -> models.TokenType:
         return self.jwt_token_data.token_type
 
     @property
     def profile(self) -> keycloak.KeycloakUserProfile:
         return self.jwt_token_data.profile
 
-    def new_token_res(self) -> responses.TokenRes:
-        return responses.TokenRes.create(
-            tokens.TokenInfo.create_access_token(self.profile),
-            tokens.TokenInfo.create_refresh_token(self.profile)
-        )
-
-    def new_img_token_res(self) -> responses.TokenRes:
-        return responses.TokenRes.create(
-            tokens.TokenInfo.create_access_token(self.profile),
-            tokens.TokenInfo.create_refresh_token(self.profile)
-        )
+    def renew_tokens(self) -> models.Tokens:
+        return self.jwt_token_data.renew_tokens()
 
     @staticmethod
     def get_token_or_none(token: str | None = Depends(oauth2_scheme)) -> Optional['JwtTokenDeps']:
@@ -68,13 +59,13 @@ class JwtTokenDeps:
     def get_access_token_or_none(token=Depends(get_token_or_none)) -> Optional['JwtTokenDeps']:
         if token is None:
             return None
-        if token.token_type != token.TokenType.access:
+        if token.token_type != token.TokenType.upload:
             raise err.ErrorIdException(err.ErrorIds.INVALID_TOKEN)
         return token
 
     @staticmethod
     def get_access_token(token=Depends(get_token)) -> 'JwtTokenDeps':
-        if token.token_type != tokens.TokenType.access:
+        if token.token_type != models.TokenType.access:
             raise err.ErrorIdException(err.ErrorIds.INVALID_TOKEN)
         return token
 
@@ -82,13 +73,13 @@ class JwtTokenDeps:
     def get_refresh_token_or_none(token=Depends(get_token_or_none)):
         if token is None:
             return None
-        if token.token_type != tokens.TokenType.refresh:
+        if token.token_type != models.TokenType.refresh:
             raise err.ErrorIdException(err.ErrorIds.INVALID_TOKEN)
         return token
 
     @staticmethod
     def get_refresh_token(token=Depends(get_token)):
-        if token.token_type != tokens.TokenType.refresh:
+        if token.token_type != models.TokenType.refresh:
             raise err.ErrorIdException(err.ErrorIds.INVALID_TOKEN)
         return token
 

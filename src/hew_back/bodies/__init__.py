@@ -18,14 +18,12 @@ class PostTokenBody(BaseModel):
     def new_tokens(self):
         profile = self.fetch_keycloak_profile()
         return models.Tokens(
-            access=models.JwtTokenData.create(
-                datetime.now(timezone.utc) + timedelta(ENV.token.access_token_expire_minutes),
-                tokens.TokenType.access,
+            access=models.JwtTokenData.new(
+                tokens.TokenType.upload,
                 profile
             ).new_token_info(),
-            refresh=models.JwtTokenData.create(
-                datetime.now(timezone.utc) + timedelta(ENV.token.refresh_token_expire_minutes),
-                tokens.TokenType.access,
+            refresh=models.JwtTokenData.new(
+                tokens.TokenType.upload,
                 profile
             ).new_token_info()
         )

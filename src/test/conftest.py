@@ -1,5 +1,4 @@
 import asyncio
-from datetime import datetime, timezone, timedelta
 from typing import Iterator
 
 import dotenv
@@ -82,8 +81,7 @@ def keycloak_user_profile() -> keycloak.KeycloakUserProfile:
 
 @pytest.fixture
 def token_info(keycloak_user_profile, session) -> tokens.TokenInfo:
-    return models.JwtTokenData.create(
-        datetime.now(timezone.utc) + timedelta(ENV.token.access_token_expire_minutes),
-        tokens.TokenType.access,
+    return models.JwtTokenData.new(
+        models.TokenType.access,
         keycloak_user_profile
     ).new_token_info()

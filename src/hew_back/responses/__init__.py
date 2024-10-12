@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tables
-from hew_back.util import keycloak, tokens
+from hew_back.util import tokens
 
 
 # 例:文字列のクエリパラメーターを受け取る
@@ -88,12 +88,13 @@ class TokenRes(BaseModel):
     def create(access: tokens.TokenInfo, refresh: tokens.TokenInfo):
         return TokenRes(access=access, refresh=refresh)
 
+
+class ImgTokenRes(BaseModel):
+    upload: tokens.TokenInfo
+
     @staticmethod
-    def create_by_keycloak_user_profile(profile: keycloak.KeycloakUserProfile):
-        return TokenRes.create(
-            tokens.TokenInfo.create_access_token(profile),
-            tokens.TokenInfo.create_refresh_token(profile)
-        )
+    def create(upload: tokens.TokenInfo):
+        return ImgTokenRes(upload=upload)
 
 
 class CreatorResponse(BaseModel):
