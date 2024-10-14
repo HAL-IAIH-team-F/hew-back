@@ -1,14 +1,13 @@
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Union
 from uuid import UUID
 
-from jose import jwt
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tables, ENV, models
-from hew_back.util import keycloak
+from hew_back import tables, mdls
+from hew_back.util import tks
 
 
 # 例:文字列のクエリパラメーターを受け取る
@@ -47,16 +46,20 @@ class SelfUserRes(BaseModel):
     user_id: uuid.UUID
     user_name: str
     user_screen_id: str
-    user_icon_uuid: uuid.UUID | None
+    user_icon: mdls.Img | None
     user_date: datetime
     user_mail: str
+
+    @field_serializer("user_date")
+    def serialize_sub(self, user_date: datetime) -> str:
+        return user_date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     @staticmethod
     def create(
             user_id: uuid.UUID,
             user_name: str,
             user_screen_id: str,
-            user_icon_uuid: uuid.UUID | None,
+            user_icon: mdls.Img | None,
             user_date: datetime,
             user_mail: str,
     ):
@@ -64,66 +67,50 @@ class SelfUserRes(BaseModel):
             user_id=user_id,
             user_name=user_name,
             user_screen_id=user_screen_id,
-            user_icon_uuid=user_icon_uuid,
+            user_icon=user_icon,
             user_date=user_date,
             user_mail=user_mail,
         )
 
     @staticmethod
     def create_by_user_table(tbl: tables.UserTable):
+        if tbl.user_icon_uuid is None:
+            user_icon = None
+        else:
+            user_icon = mdls.Img.create(tbl.user_icon_uuid, None)
         return SelfUserRes.create(
             user_id=tbl.user_id,
             user_name=tbl.user_name,
             user_screen_id=tbl.user_screen_id,
-            user_icon_uuid=tbl.user_icon_uuid,
+            user_icon=user_icon,
             user_date=tbl.user_date,
             user_mail=tbl.user_mail,
         )
 
 
-class TokenInfo(BaseModel):
-    token: str
-    expire: datetime
-
-    @staticmethod
-    def create_token(token_type: models.TokenType, res: keycloak.KeycloakUserProfile,
-                     expires_delta: timedelta | None = None):
-        expire = datetime.now(timezone.utc) + expires_delta
-        encoded_jwt = jwt.encode(
-            models.JwtTokenData.create(exp=expire, token_type=token_type, profile=res).model_dump(),
-            ENV.token.secret_key,
-            algorithm=ENV.token.algorithm
-        )
-        return TokenInfo(token=encoded_jwt, expire=expire)
-
-    @staticmethod
-    def create_refresh_token(res: keycloak.KeycloakUserProfile):
-        return TokenInfo.create_token(
-            models.TokenType.refresh, res,
-            expires_delta=timedelta(minutes=ENV.token.refresh_token_expire_minutes)
-        )
-
-    @staticmethod
-    def create_access_token(res: keycloak.KeycloakUserProfile):
-        return TokenInfo.create_token(
-            models.TokenType.access, res, timedelta(minutes=ENV.token.access_token_expire_minutes)
-        )
-
-
 class TokenRes(BaseModel):
-    access: TokenInfo
-    refresh: TokenInfo
+    access: tks.TokenInfo
+    refresh: tks.TokenInfo
 
     @staticmethod
-    def create(access: TokenInfo, refresh: TokenInfo):
+    def from_tokens(tokens: mdls.Tokens):
+        return TokenRes.create(tokens.access, tokens.refresh)
+
+    @staticmethod
+    def create(access: tks.TokenInfo, refresh: tks.TokenInfo):
         return TokenRes(access=access, refresh=refresh)
 
+
+class ImgTokenRes(BaseModel):
+    upload: tks.TokenInfo
+
     @staticmethod
-    def create_by_keycloak_user_profile(profile: keycloak.KeycloakUserProfile):
-        return TokenRes.create(
-            TokenInfo.create_access_token(profile),
-            TokenInfo.create_refresh_token(profile)
-        )
+    def from_img_tokens(tokens: mdls.ImgTokens):
+        return ImgTokenRes.create(tokens.upload)
+
+    @staticmethod
+    def create(upload: tks.TokenInfo):
+        return ImgTokenRes(upload=upload)
 
 
 class CreatorResponse(BaseModel):

@@ -10,6 +10,7 @@ from sqlalchemy.orm import Mapped
 
 from hew_back.db import BaseTable
 from hew_back.util import err
+from hew_back.util.err import ErrorIds
 
 
 class UserTable(BaseTable):
@@ -40,7 +41,10 @@ class UserTable(BaseTable):
         )
         return tbl
 
-    def save_new(self, session: AsyncSession):
+    async def save_new(self, session: AsyncSession):
+        user = await UserTable.find_one_or_none(session, self.user_id)
+        if user is not None:
+            raise ErrorIds.USER_ALREADY_EXISTS.to_exception(f"user already exists: {self.user_id}")
         session.add(self)
 
     @staticmethod

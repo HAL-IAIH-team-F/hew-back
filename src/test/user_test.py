@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import result, tables, bodies, responses
+from hew_back import tables, bodies, responses
 from test.conftest import session
 
 

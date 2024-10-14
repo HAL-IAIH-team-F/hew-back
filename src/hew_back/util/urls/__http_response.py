@@ -69,7 +69,10 @@ class HttpResponse:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__exit__(exc_type, exc_val, exc_tb)
 
-    def on_status_code(self, expect: int, fn: Callable[[Self], any]) -> Self:
-        if self.status_code == expect:
+    def on(self, test: Callable[[Self], bool], fn: Callable[[Self], any]):
+        if test(self):
             fn(self)
         return self
+
+    def on_status_code(self, expect: int, fn: Callable[[Self], any]) -> Self:
+        return self.on(lambda s: s.status_code == expect, fn)

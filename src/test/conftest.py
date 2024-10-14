@@ -6,14 +6,14 @@ import pytest_asyncio
 from _pytest.fixtures import FixtureRequest
 from sqlalchemy import NullPool
 
-from hew_back.util import keycloak
+from hew_back.util import keycloak, tks
 
 dotenv.load_dotenv("./.env.test")
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from hew_back import main, ENV, responses, deps
-from hew_back.db import BaseTable, DB
+from hew_back import main, ENV, deps, mdls
+from hew_back.db import BaseTable
 from test.base import Client
 
 
@@ -80,7 +80,8 @@ def keycloak_user_profile() -> keycloak.KeycloakUserProfile:
 
 
 @pytest.fixture
-def token_info(keycloak_user_profile, session) -> responses.TokenInfo:
-    return responses.TokenInfo.create_access_token(
+def token_info(keycloak_user_profile, session) -> tks.TokenInfo:
+    return mdls.JwtTokenData.new(
+        mdls.TokenType.access,
         keycloak_user_profile
-    )
+    ).new_token_info(ENV.token.secret_key)

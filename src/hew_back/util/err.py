@@ -22,6 +22,7 @@ class ErrorIds(Enum):
     UNAUTHORIZED = ErrorId.create("unauthorized", 401)
     UNAUTHORIZED_TOKEN = ErrorId.create("unauthorized token", 401)
     NOT_PERMITTED = ErrorId.create("not permitted", 401)
+    INVALID_KEYCLOAK_TOKEN = ErrorId.create("invalid keycloak token", 401)
 
     NOT_FOUND = ErrorId.create("404 not found", 404)
     GACHA_NOT_FOUND = ErrorId.create("gacha not found", 404)
@@ -33,8 +34,7 @@ class ErrorIds(Enum):
     TOKEN_CONFLICT = ErrorId.create("token conflict", 409)
     TOKEN_EXPIRED = ErrorId.create("token expired", 409)
     INVALID_TOKEN = ErrorId.create("token invalid", 409)
-    INVALID_KEYCLOAK_TOKEN = ErrorId.create("invalid keycloak token", 401)
-    USER_LOGIN_FAILED = ErrorId.create("user login failed, invalid name or password", 409)
+    USER_ALREADY_EXISTS = ErrorId.create("USER_ALREADY_EXISTS", 409)
     ALL_GACHA_PULLED = ErrorId.create("all gacha were pulled", 409)
 
     def to_exception(self, message: str | None = None) -> 'ErrorIdException':

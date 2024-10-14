@@ -26,7 +26,7 @@ class KeycloakUserProfile(BaseModel):
     email: str
 
     @field_serializer("sub")
-    def serialize_date(self, sub: uuid.UUID) -> str:
+    def serialize_sub(self, sub: uuid.UUID) -> str:
         return str(sub)
 
     @staticmethod
