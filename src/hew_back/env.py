@@ -86,6 +86,7 @@ class Keycloak:
 
 class Env:
     cors_list = os.getenv("CORS_LIST")
+    img_url = urls.URL.by_str(os.getenv("IMG_URL"))
     token = Token()
     database = Database()
     keycloak = Keycloak()

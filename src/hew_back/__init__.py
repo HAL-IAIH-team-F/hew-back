@@ -1,11 +1,11 @@
-import uvicorn
-
 import logging
 
+import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from hew_back.env import ENV
+from hew_back.util import fastapiutil
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
@@ -31,6 +31,7 @@ class Main:
         self.ACCESS_TOKEN_EXPIRE_MINUTES = 15
         self.REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 14
 
+        fastapiutil.handler(app)
         # noinspection PyUnresolvedReferences
         import hew_back.api
 

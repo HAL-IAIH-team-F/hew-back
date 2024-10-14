@@ -2,7 +2,6 @@ from abc import ABC
 from enum import Enum
 from typing import Self, Final
 from urllib import request
-from urllib.error import HTTPError
 
 from . import URL
 
@@ -11,6 +10,10 @@ from . import URL
 class ContentType(Enum):
     JSON = "application/json"
     GITHUB_JSON = "application/vnd.github+json"
+
+
+class HttpMethod(str, Enum):
+    PUT = "PUT"
 
 
 class AuthorizationValue(
@@ -42,6 +45,10 @@ class HttpRequest:
         """
         return HttpRequest(request.Request(url.to_str_url(), method="GET"))
 
+    def body(self, body: any) -> Self:
+        self._url_request.data = body
+        return self
+
     def get_request(self) -> request.Request:
         """現在のリクエストを取得します
         """
@@ -63,8 +70,11 @@ class HttpRequest:
         self._url_request.add_header(header, value)
         return self
 
-    def set_method(self, method: str) -> Self:
-        self._url_request.method = method
+    def set_method(self, method: HttpMethod) -> Self:
+        if method is str:
+            self._url_request.method = method
+        else:
+            self._url_request.method = method.value
         return self
 
     def fetch(self):
