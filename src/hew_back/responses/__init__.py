@@ -74,11 +74,15 @@ class SelfUserRes(BaseModel):
 
     @staticmethod
     def create_by_user_table(tbl: tables.UserTable):
+        if tbl.user_icon_uuid is None:
+            user_icon = None
+        else:
+            user_icon = mdls.Img.create(tbl.user_icon_uuid, None)
         return SelfUserRes.create(
             user_id=tbl.user_id,
             user_name=tbl.user_name,
             user_screen_id=tbl.user_screen_id,
-            user_icon=mdls.Img.create(tbl.user_icon_uuid, None),
+            user_icon=user_icon,
             user_date=tbl.user_date,
             user_mail=tbl.user_mail,
         )

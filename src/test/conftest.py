@@ -80,7 +80,7 @@ def keycloak_user_profile() -> keycloak.KeycloakUserProfile:
 
 
 @pytest.fixture
-def token_info(keycloak_user_profile, session) -> tokens.TokenInfo:
+def token_info(keycloak_user_profile, session) -> tks.TokenInfo:
     return mdls.JwtTokenData.new(
         mdls.TokenType.access,
         keycloak_user_profile
