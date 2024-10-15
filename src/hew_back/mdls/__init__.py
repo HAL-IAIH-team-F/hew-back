@@ -101,7 +101,7 @@ class ImagePreferenceRequest(BaseModel):
          .fetch()
          .on_status_code(404, lambda s: ErrorIds.CONTENT_IMAGE_NOT_FOUND.to_exception("img id not found").raise_self())
          .on(lambda s: s.status_code != 200,
-             lambda s: ErrorIds.INTERNAL_ERROR.to_exception(f"{s.status_code}: {s.body()}").raise_self())
+             lambda s: ErrorIds.INTERNAL_API_ERROR.to_exception(f"{s.status_code}: {s.body()}").raise_self())
          .body()
          )
 
