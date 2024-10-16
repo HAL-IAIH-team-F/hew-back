@@ -11,10 +11,6 @@ class Db:
             autocommit=False, autoflush=False, bind=self.engine, class_=AsyncSession
         )
 
-    async def get_session(self):
-        async with self.session_maker() as session:
-            yield session
-
 
 DB = Db()
 BaseTable = declarative_base()

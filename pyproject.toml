@@ -22,8 +22,8 @@ build-backend = "hatchling.build"
 [tool.rye]
 managed = true
 dev-dependencies = [
-    "pytest>=8.2.2",
-    "pytest-asyncio>=0.23.7",
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
     "aiosqlite>=0.20.0",
 ]
 virtual = true
@@ -34,5 +34,8 @@ allow-direct-references = true
 [tool.hatch.build.targets.wheel]
 packages = ["src/hew_back"]
 
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+
 [project.scripts]
-run = 'hew_back:main'
+dev = 'uvicorn --reload hew_back'

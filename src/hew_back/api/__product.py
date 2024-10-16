@@ -1,12 +1,10 @@
-from email.policy import default
-
 from fastapi import Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, model, error
 from hew_back.db import DB
 
-from typing import Union, List, OrderedDict
+from typing import Union, List
 from datetime import datetime
 
 from hew_back.util import OrderDirection
