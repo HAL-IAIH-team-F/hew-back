@@ -1,19 +1,11 @@
+from datetime import datetime
+from typing import Union, List
+
 from fastapi import Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import app, model, error
-from hew_back.db import DB
-
-from typing import Union, List
-from datetime import datetime
-
+from hew_back import app, responses, deps
 from hew_back.util import OrderDirection
-
-from enum import Enum
-
-
-from uuid import UUID
-
 
 
 @app.get("/products/")
@@ -23,15 +15,18 @@ async def read_products(
         post_by: Union[List[str], None] = Query(default=None, description="created_by"),
         start_datetime: Union[datetime, None] = Query(default=None, description="start_datetime"),
         end_datetime: Union[datetime, None] = Query(default=None, description="end_datetime"),
-        following: Union[bool, None] = Query(default=None, description="user_following"), # ← settion通信？してUserテーブルからログインしているユーザーがフォローしているか取ってくるコードが必要なのでは？
+        following: Union[bool, None] = Query(default=None, description="user_following"),
+        # ← settion通信？してUserテーブルからログインしているユーザーがフォローしているか取ってくるコードが必要なのでは？
         read_limit_number: Union[int, None] = Query(default=20, description="read_product_limit_number"),
         time_order: OrderDirection = Query(default=None, description="time_direction asc/desc"),
         name_order: OrderDirection = Query(default=None, description="name_direction asc/desc"),
         like_order: OrderDirection = Query(default=None, description="like_direction asc/desc"),
-        sort: List[str] = Query(default=None, description="List may be included datetime or name or like,witch is gaven default asc or desc"),
-        session: AsyncSession = Depends(DB.get_session)
+        sort: List[str] = Query(
+            default=None,
+            description="List may be included datetime or name or like,witch is gaven default asc or desc"
+        ),
+        session: AsyncSession = Depends(deps.DbDeps.session)
 ):
-
     # order_by: Literal["created_at", "updated_at"] = "created_at"とできることを後で知ったが、実装した後になって修正するのはめんどくさい
 
     # query_items = {
@@ -48,7 +43,7 @@ async def read_products(
     # if isinstance(time_order, list):
     #     raise HTTPException(status_code=400, detail="time_order should be specified only once.")
 
-    search_products = await model.GetProductsResponse.get_products(
+    search_products = await responses.GetProductsResponse.get_products(
         session=session,
         name=name,
         tag=tag,
@@ -64,12 +59,8 @@ async def read_products(
     )
     return search_products
 
-
-
-
 # True
 # http://127.0.0.1:8000/products/?name=AdoのTシャツ&start_datetime=2024-01-01T00:00:00Z&end_datetime=2024-01-31T23:59:59Z&read_limit_number=10
 
 # Error
 # http://127.0.0.1:8000/products/?name=Ado&name=グッズ&start_datetime=2024-01-31T23:59:59Z&end_datetime=2024-01-01T00:00:00Z
-
