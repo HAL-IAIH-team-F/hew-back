@@ -7,16 +7,24 @@ from pydantic import BaseModel, field_serializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tables, mdls
-from hew_back.util import tks
+from hew_back.util import tks, OrderDirection
 
 
 # 例:文字列のクエリパラメーターを受け取る
 # api → model → table
 # 最終的にtableでjoin句などを使用して、product_idなどを返し、それをapiに伝える
 # table → model → api
+
 class GetProductsResponse(BaseModel):
-    # product_id: uuid
-    # product_name: str
+    product_text: str
+    product_id: UUID
+    product_thumbnail_uuid: UUID
+    product_price: int
+    product_title: str
+    product_date: datetime
+    product_contents_uuid: UUID
+
+
 
     @staticmethod
     async def get_products(
@@ -28,8 +36,12 @@ class GetProductsResponse(BaseModel):
             end_datetime: Union[datetime, None],
             following: Union[bool, None],
             read_limit_number: Union[int, None],
-    ):
-        products_fr_tbl = await tables.ProductTable.find_products_or_null(
+            time_order: OrderDirection,
+            name_order: OrderDirection,
+            like_order: OrderDirection,
+            sort: list[str]
+    ) -> list["GetProductsResponse"]:
+        products_data = await tables.ProductTable.find_products_or_null(
             session=session,
             name=name,
             tag=tag,
@@ -37,9 +49,27 @@ class GetProductsResponse(BaseModel):
             start_datetime=start_datetime,
             end_datetime=end_datetime,
             following=following,
-            read_limit_number=read_limit_number
+            read_limit_number=read_limit_number,
+            time_order=time_order,
+            name_order=name_order,
+            like_order=like_order,
+            sort=sort,
         )
-        return products_fr_tbl,  # name, start_datetime, end_datetime, following, read_limit_number, products_fr_tbl
+
+
+
+        # Pydanticモデルのリストに変換
+
+        # **は辞書の展開を意味
+        # product.__dict__に含まれるキーと値が、GetProductsResponseのフィールドにマッピング
+        if products_data:
+            return [GetProductsResponse(**product.__dict__) for product in products_data]
+        else:
+            return []
+
+    class Config:
+        from_attributes = True  # SQLAlchemyオブジェクトからPydanticモデルへの変換を有効に
+
 
 
 class SelfUserRes(BaseModel):

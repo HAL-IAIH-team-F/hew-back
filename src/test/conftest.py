@@ -8,7 +8,6 @@ from sqlalchemy import NullPool
 
 from hew_back.util import keycloak, tks
 
-dotenv.load_dotenv("./.env.test")
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
