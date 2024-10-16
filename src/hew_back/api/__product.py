@@ -8,7 +8,7 @@ from hew_back import app, responses, deps
 from hew_back.util import OrderDirection
 
 
-@app.get("/products/")
+@app.get("/products")
 async def read_products(
         name: Union[List[str], None] = Query(default=None, description="for_0_to_multiple_product_or_tag_name_post_by"),
         tag: Union[List[str], None] = Query(default=None, description="tag_related_product"),
