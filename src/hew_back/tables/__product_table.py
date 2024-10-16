@@ -2,6 +2,7 @@ import datetime
 import uuid
 from typing import Union, List
 
+import sqlalchemy
 from sqlalchemy import Column, String, DateTime, UUID
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,12 +22,33 @@ class ProductTable(BaseTable):
     __tablename__ = 'TBL_PRODUCT'
 
     product_id = Column(UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4)
-    product_price = Column(String(64), nullable=False)
+    product_price = Column(sqlalchemy.Integer, nullable=False)
     product_title = Column(String(64), nullable=False)
     product_text = Column(String(255), nullable=False)
     product_date = Column(DateTime, default=datetime.datetime.now)
     product_thumbnail_uuid = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
     product_contents_uuid = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
+
+    @staticmethod
+    def insert(
+            session: AsyncSession,
+            product_price: int,
+            product_title: str,
+            product_text: str,
+            product_date: datetime.datetime,
+            product_thumbnail_uuid: uuid.UUID,
+            product_contents_uuid: uuid.UUID,
+    ) -> 'ProductTable':
+        table = ProductTable(
+            product_price=product_price,
+            product_title=product_title,
+            product_text=product_text,
+            product_date=product_date,
+            product_thumbnail_uuid=product_thumbnail_uuid,
+            product_contents_uuid=product_contents_uuid,
+        )
+        session.add(table)
+        return table
 
     @staticmethod
     async def find_products_or_null(
