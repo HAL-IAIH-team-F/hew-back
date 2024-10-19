@@ -54,7 +54,7 @@ services:
       init-rsync-test-migration:
         condition: service_completed_successfully
     links:
-      - postgres-test:postgres
+      - postgres-test-migration:postgres
     volumes:
       - type: bind
         source: ./temp/test/app-data-test-migration
