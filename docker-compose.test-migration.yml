@@ -64,7 +64,7 @@ services:
       DB_USER: 'postgres'
       DB_PASS: 'postgres'
       DB_NAME: "hew"
-      DB_HOST: "postgres-test"
+      DB_HOST: "postgres-test-migration"
     command:
       - bash
       - -c

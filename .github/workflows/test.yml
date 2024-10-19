@@ -78,7 +78,7 @@ jobs:
           mkdir -p temp/test/app-data-test-migration
       - run: |
           docker compose -f docker-compose.test-migration.yml up test-migration --exit-code-from test-migration
-      - run: docker compose -f docker-compose.test.yml logs
+      - run: docker compose -f docker-compose.test-migration.yml logs
         if: always()
 
       # キャッシュがない場合は Docker イメージをビルド後、tar アーカイブをキャッシュ先に保存
