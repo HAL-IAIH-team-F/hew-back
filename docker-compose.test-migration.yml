@@ -49,9 +49,9 @@ services:
   test-migration:
     image: python:3.12-bookworm
     depends_on:
-      postgres-test:
+      postgres-test-migration:
         condition: service_healthy
-      init-rsync:
+      init-rsync-test-migration:
         condition: service_completed_successfully
     links:
       - postgres-test:postgres
