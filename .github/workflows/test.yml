@@ -75,7 +75,7 @@ jobs:
           fi
 
       - run:
-          mkdir -p temp/test/app-data
+          mkdir -p temp/test/app-data-test-migration
       - run: |
           docker compose -f docker-compose.test-migration.yml up test-migration --exit-code-from test-migration
       - run: docker compose -f docker-compose.test.yml logs
