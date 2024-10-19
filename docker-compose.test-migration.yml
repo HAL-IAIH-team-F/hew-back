@@ -71,7 +71,7 @@ services:
       - |
         pip install -r requirements.lock
         python -c "import sys; print(sys.version)"
-        python -m alembic head
+        python -m alembic upgrade head
   #########################################################
 
 volumes:
