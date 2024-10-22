@@ -31,7 +31,8 @@ def upgrade() -> None:
     op.alter_column('TBL_PRODUCT', 'product_price',
                existing_type=sa.VARCHAR(length=64),
                type_=sa.Integer(),
-               existing_nullable=False)
+               existing_nullable=False,
+               postgresql_using="product_price::integer")
     # ### end Alembic commands ###
 
 

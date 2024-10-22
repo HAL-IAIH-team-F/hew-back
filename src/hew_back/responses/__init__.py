@@ -8,6 +8,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tables, mdls
 from hew_back.util import tks, OrderDirection
+# from test.conftest import session # ←循環importによるエラーが起きたんでコメントアウトしました
+
+
+class GetProductCart(BaseModel):
+
+    @staticmethod
+    async def get_product_cart(session: AsyncSession) -> list["GetProductCart"]:
+        product_cart = await tables.ProductCartTable.get_product_cart(
+            session=session,
+        )
+        return product_cart
+
 
 
 # 例:文字列のクエリパラメーターを受け取る

@@ -3,6 +3,8 @@ import uuid
 from typing import Union, List
 
 import sqlalchemy
+from sqlalchemy import Integer
+
 from sqlalchemy import Column, String, DateTime, UUID
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
