@@ -4,6 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import uuid
 from sqlalchemy import Column, UUID, Boolean, ForeignKey, select
 
+from hew_back import tables
+
 class ProductCartTable(BaseTable):
     __tablename__ = 'TBL_PRODUCT_CART'
 
@@ -15,8 +17,9 @@ class ProductCartTable(BaseTable):
     async def get_product_cart(
             session: AsyncSession
     ):
-        stmt = select(ProductCartTable)
-        # stmt.where(tables.Tag.tag_name.in_(tag))
+        stmt = (select(tables.ProductTable)
+                .where(ProductCartTable.product_id==tables.ProductTable.product_id)
+                .where(tables.ProductCartTable.flag.is_(True)))
         result = await session.execute(stmt)
         product_cart = result.scalars().all()
         return product_cart

@@ -9,3 +9,8 @@ async def read_product_curt(
     ):
     product_cart = await responses.GetProductCart.get_product_cart(session=session)
     return product_cart
+
+# @app.post("/product_cart")
+# async def create_product_curt(
+#
+# )
