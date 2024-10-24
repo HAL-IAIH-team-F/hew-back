@@ -15,10 +15,22 @@ class GetProductCart(BaseModel):
 
     @staticmethod
     async def get_product_cart(session: AsyncSession) -> list["GetProductCart"]:
-        product_cart = await tables.ProductCartTable.get_product_cart(
+        get_product_cart = await tables.ProductCartTable.get_product_cart(
             session=session,
         )
-        return product_cart
+        return get_product_cart
+
+class PutProductCart(BaseModel):
+    @staticmethod
+    async  def put_product_cart(
+            session: AsyncSession,
+            product_id:Union[list[uuid.UUID], None]
+    ) -> list["PutProductCart"]:
+        put_product_cart = await tables.ProductCartTable.put_product_cart(
+            session=session,
+            product_id=product_id,
+        )
+        return put_product_cart
 
 
 
