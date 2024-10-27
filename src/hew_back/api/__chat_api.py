@@ -10,9 +10,10 @@ from hew_back import app, bodies, deps, reses
 async def pc(
         body: bodies.PostChatBody,
         session: AsyncSession = Depends(deps.DbDeps.session),
-        token: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_access_token),
+        user: deps.UserDeps = Depends(deps.UserDeps.get),
 ):
-    raise NotImplementedError
+    await body.save_new(user, session)
+    return {}
 
 
 @app.get("/api/chat/{user_id}")

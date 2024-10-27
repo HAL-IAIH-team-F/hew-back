@@ -42,7 +42,7 @@ class PostUserBody(BaseModel):
             self,
             session: AsyncSession,
             profile: keycloak.KeycloakUserProfile
-    ) -> results.UserModel:
+    ) -> results.UserResult:
         if self.user_icon_uuid is not None:
             mdls.ImagePreferenceRequest.crete(mdls.State.public).post_preference(self.user_icon_uuid)
         # UserTableクラスは、SQLAlchemy を使ってデータベース上のテーブルを定義しており、
@@ -60,7 +60,7 @@ class PostUserBody(BaseModel):
         await tbl.save_new(session)
         await session.commit()
         await session.refresh(tbl)
-        return results.UserModel(tbl)
+        return results.UserResult(tbl)
 
 
 class PostCreatorBody(BaseModel):
@@ -82,3 +82,12 @@ class PostChatBody(BaseModel):
     to: uuid.UUID
     message: str
     images: list[uuid.UUID]
+
+    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.ChatResult:
+        chat_table = tables.ChatTable.create(user.user_table, self.message)
+        chat_table.save_new(session)
+        await session.commit()
+        await session.refresh(chat_table)
+        return results.ChatResult(
+            chat_table
+        )

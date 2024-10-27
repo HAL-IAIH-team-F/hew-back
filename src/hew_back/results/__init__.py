@@ -17,8 +17,13 @@ class CreatorResult:
 
 
 @dataclass
-class UserModel:
+class UserResult:
     user: tables.UserTable
 
     def to_self_user_res(self):
         return reses.SelfUserRes.create_by_user_table(self.user)
+
+
+@dataclass
+class ChatResult:
+    chat: tables.ChatTable
