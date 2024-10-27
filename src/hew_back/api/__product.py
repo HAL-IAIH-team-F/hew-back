@@ -4,7 +4,7 @@ from typing import Union, List
 from fastapi import Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import app, responses, deps
+from hew_back import app, reses, deps
 from hew_back.util import OrderDirection
 
 
@@ -43,7 +43,7 @@ async def read_products(
     # if isinstance(time_order, list):
     #     raise HTTPException(status_code=400, detail="time_order should be specified only once.")
 
-    search_products = await responses.GetProductsResponse.get_products(
+    search_products = await reses.GetProductsResponse.get_products(
         session=session,
         name=name,
         tag=tag,

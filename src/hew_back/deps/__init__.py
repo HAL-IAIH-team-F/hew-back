@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import ENV, tables, responses, mdls
+from hew_back import ENV, tables, reses, mdls
 from hew_back.db import DB
 from hew_back.util import err, keycloak
 
@@ -88,8 +88,8 @@ class JwtTokenDeps:
 class UserDeps:
     user_table: tables.UserTable
 
-    def to_self_user_res(self) -> responses.SelfUserRes:
-        return responses.SelfUserRes.create_by_user_table(self.user_table)
+    def to_self_user_res(self) -> reses.SelfUserRes:
+        return reses.SelfUserRes.create_by_user_table(self.user_table)
 
     @staticmethod
     async def get_or_none(

@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import tables, bodies, responses
+from hew_back import tables, bodies, reses
 from test.conftest import session
 
 
@@ -34,7 +34,7 @@ async def test_create_user(session, client, token_info, post_user_body):
     assert result.status_code == 200, f"invalid status code {result.json()}"
     body = result.json()
     assert body is not None
-    body = responses.SelfUserRes(**body)
+    body = reses.SelfUserRes(**body)
     result = await session.execute(
         sqlalchemy.select(sqlalchemy.func.count())
         .select_from(tables.UserTable)
@@ -52,7 +52,7 @@ async def test_get_self(client, token_info, session, post_user_body_saved, keycl
     assert result.status_code == 200, f"invalid status code {result.read()}"
     body = result.json()
     assert body is not None
-    body = responses.SelfUserRes(**body)
+    body = reses.SelfUserRes(**body)
     assert body.user_id == keycloak_user_profile.sub
     assert body.user_mail == keycloak_user_profile.email
     assert body.user_name == post_user_body_saved.user_name

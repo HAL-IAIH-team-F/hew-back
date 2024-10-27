@@ -5,7 +5,7 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import responses, tables
+from hew_back import reses, tables
 from test.conftest import session
 
 
@@ -92,7 +92,7 @@ async def test_read_products(client, session,product_table_saved):
 
     for i in range(len(records)):
         record = records[i]
-        product = responses.GetProductsResponse(**body[i])
+        product = reses.GetProductsResponse(**body[i])
 
         assert record.product_id == product.product_id
         assert record.product_date == product.product_date

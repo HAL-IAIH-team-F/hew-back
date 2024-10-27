@@ -76,3 +76,9 @@ class PostCreatorBody(BaseModel):
         return results.CreatorResult(
             creator_table
         )
+
+
+class PostChatBody(BaseModel):
+    to: uuid.UUID
+    message: str
+    images: list[uuid.UUID]
