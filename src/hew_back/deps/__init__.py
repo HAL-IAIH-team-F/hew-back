@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import ENV, tables, reses, mdls
+from hew_back import ENV, tbls, reses, mdls
 from hew_back.db import DB
 from hew_back.util import err, keycloak
 
@@ -86,7 +86,7 @@ class JwtTokenDeps:
 
 @dataclass
 class UserDeps:
-    user_table: tables.UserTable
+    user_table: tbls.UserTable
 
     def to_self_user_res(self) -> reses.SelfUserRes:
         return reses.SelfUserRes.create_by_user_table(self.user_table)
@@ -98,7 +98,7 @@ class UserDeps:
     ) -> Union['UserDeps', None]:
         if token is None:
             return None
-        table = await tables.UserTable.find_one_or_none(session, token.profile.sub)
+        table = await tbls.UserTable.find_one_or_none(session, token.profile.sub)
         if table is None:
             return None
         table.user_mail = token.profile.email
@@ -112,7 +112,7 @@ class UserDeps:
             session: AsyncSession = Depends(DbDeps.session),
             token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token),
     ) -> 'UserDeps':
-        table = await tables.UserTable.find_one(session, token.profile.sub)
+        table = await tbls.UserTable.find_one(session, token.profile.sub)
         table.user_mail = token.profile.email
         table.user_screen_id = token.profile.preferred_username
         await session.commit()

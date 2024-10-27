@@ -2,7 +2,7 @@ import uuid
 
 from pydantic import BaseModel
 
-from hew_back import tables
+from hew_back import tbls
 
 
 class SelfCreatorRes(BaseModel):
@@ -12,8 +12,8 @@ class SelfCreatorRes(BaseModel):
 
     @staticmethod
     def create(
-            creator: tables.CreatorTable,
-            user: tables.UserTable,
+            creator: tbls.CreatorTable,
+            user: tbls.UserTable,
             contact_address: str,
     ):
         return SelfCreatorRes(

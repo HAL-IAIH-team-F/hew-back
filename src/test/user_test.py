@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import tables, bodies, reses
+from hew_back import tbls, bodies, reses
 from test.conftest import session
 
 
@@ -37,8 +37,8 @@ async def test_create_user(session, client, token_info, post_user_body):
     body = reses.SelfUserRes(**body)
     result = await session.execute(
         sqlalchemy.select(sqlalchemy.func.count())
-        .select_from(tables.UserTable)
-        .where(tables.UserTable.user_id == body.user_id)
+        .select_from(tbls.UserTable)
+        .where(tbls.UserTable.user_id == body.user_id)
     )
     assert result.scalar_one() == 1, f"\n{body}\n"
 

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from .. import tables, reses
+from .. import tbls, reses
 
 
 @dataclass
 class CreatorResult:
-    creator: tables.CreatorTable
+    creator: tbls.CreatorTable
 
     def to_creator_res(self):
         return reses.CreatorResponse.create(
@@ -18,7 +18,7 @@ class CreatorResult:
 
 @dataclass
 class UserResult:
-    user: tables.UserTable
+    user: tbls.UserTable
 
     def to_self_user_res(self):
         return reses.SelfUserRes.create_by_user_table(self.user)
@@ -26,4 +26,4 @@ class UserResult:
 
 @dataclass
 class ChatResult:
-    chat: tables.ChatTable
+    chat: tbls.ChatTable

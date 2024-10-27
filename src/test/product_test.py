@@ -5,7 +5,7 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import reses, tables
+from hew_back import reses, tbls
 from test.conftest import session
 
 
@@ -27,8 +27,8 @@ from test.conftest import session
 #     await body.save_new(session, keycloak_user_profile)
 #     return body
 @pytest_asyncio.fixture
-async def product_table_saved(session, keycloak_user_profile) -> tables.ProductTable:
-    table = tables.ProductTable.insert(
+async def product_table_saved(session, keycloak_user_profile) -> tbls.ProductTable:
+    table = tbls.ProductTable.insert(
         session,
         product_price=100,
         product_title="title",
@@ -85,7 +85,7 @@ async def test_read_products(client, session,product_table_saved):
     body = result.json()
     assert body is not None
     records = await session.execute(
-        sqlalchemy.select(tables.ProductTable).where()
+        sqlalchemy.select(tbls.ProductTable).where()
     )
     records = records.scalars().all()
     assert len(records) == len(body)

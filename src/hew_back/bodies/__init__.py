@@ -3,7 +3,7 @@ import uuid
 from pydantic import BaseModel, field_serializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import ENV, tables, results, deps, mdls
+from hew_back import ENV, tbls, results, deps, mdls
 from hew_back.util import keycloak
 
 
@@ -50,7 +50,7 @@ class PostUserBody(BaseModel):
         # API に返すための処理を行う。
 
         # new_record メソッドを使って、新しいユーザーをデータベースに追加
-        tbl = tables.UserTable.create(
+        tbl = tbls.UserTable.create(
             user_id=profile.sub,
             user_name=self.user_name,
             user_screen_id=profile.preferred_username,
@@ -69,7 +69,7 @@ class PostCreatorBody(BaseModel):
     transfer_target: str
 
     async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.CreatorResult:
-        creator_table = tables.CreatorTable.create(user.user_table, self.contact_address, self.transfer_target)
+        creator_table = tbls.CreatorTable.create(user.user_table, self.contact_address, self.transfer_target)
         creator_table.save_new(session)
         await session.commit()
         await session.refresh(creator_table)
@@ -84,7 +84,7 @@ class PostChatBody(BaseModel):
     images: list[uuid.UUID]
 
     async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.ChatResult:
-        chat_table = tables.ChatTable.create(user.user_table, self.message)
+        chat_table = tbls.ChatTable.create(user.user_table, self.message)
         chat_table.save_new(session)
         await session.commit()
         await session.refresh(chat_table)

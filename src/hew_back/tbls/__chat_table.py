@@ -4,7 +4,7 @@ import sqlalchemy
 from sqlalchemy import Column, ForeignKey, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tables
+from hew_back import tbls
 from hew_back.db import BaseTable
 
 
@@ -19,7 +19,7 @@ class ChatTable(BaseTable):
 
     @staticmethod
     def create(
-            to_user: tables.UserTable,
+            to_user: tbls.UserTable,
             message: str,
     ) -> 'ChatTable':
         return ChatTable(

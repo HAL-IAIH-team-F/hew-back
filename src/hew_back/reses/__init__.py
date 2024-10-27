@@ -83,7 +83,7 @@ class SelfUserRes(BaseModel):
         )
 
     @staticmethod
-    def create_by_user_table(tbl: tables.UserTable):
+    def create_by_user_table(tbl: tbls.UserTable):
         if tbl.user_icon_uuid is None:
             user_icon = None
         else:

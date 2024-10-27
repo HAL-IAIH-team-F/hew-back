@@ -5,7 +5,7 @@ from typing import Union
 from pydantic import BaseModel, field_serializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tables, mdls
+from hew_back import tbls, mdls
 from hew_back.util import OrderDirection
 
 
@@ -40,7 +40,7 @@ class GetProductsResponse(BaseModel):
             like_order: OrderDirection,
             sort: list[str]
     ) -> list["GetProductsResponse"]:
-        products_data = await tables.ProductTable.find_products_or_null(
+        products_data = await tbls.ProductTable.find_products_or_null(
             session=session,
             name=name,
             tag=tag,
