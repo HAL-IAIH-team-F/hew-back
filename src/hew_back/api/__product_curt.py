@@ -17,12 +17,8 @@ async def read_product_curt(
     ):
 
     user_id = user_deps.user_table.user_id
-    user_mail = user_deps.user_table.user_mail
-    user_name = user_deps.user_table.user_name
 
     print("user_id:",user_id)
-    print("user_mail:",user_mail)
-    print("user_name:",user_name)
 
     if user_deps is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
@@ -30,8 +26,6 @@ async def read_product_curt(
     product_cart = await responses.GetProductCart.get_product_cart(
         session=session,
         user_id=user_id,
-        user_mail=user_mail,
-        user_name=user_name,
     )
 
     if not product_cart:

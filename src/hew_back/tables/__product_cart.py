@@ -23,15 +23,11 @@ class ProductCartTable(BaseTable):
     async def get_product_cart(
             session: AsyncSession,
             user_id: uuid,
-            user_mail: str,
-            user_name: str,
     ):
         stmt = (select(tables.ProductTable)
                 .where(ProductCartTable.product_id==tables.ProductTable.product_id)
                 .where(ProductCartTable.flag.is_(True))
                 .where(tables.ProductCartTable.user_id==user_id)
-                .where(tables.UserTable.user_mail==user_mail)
-                .where(tables.UserTable.user_name==user_name)
                 )
         result = await session.execute(stmt)
         product_cart = result.scalars().all()

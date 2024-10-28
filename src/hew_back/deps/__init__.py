@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, Union
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -113,6 +113,19 @@ class UserDeps:
             token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token),
     ) -> 'UserDeps':
         table = await tables.UserTable.find_one(session, token.profile.sub)
+
+        if table.user_name != token.profile.preferred_username:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="ユーザー名が一致しませんでした"
+            )
+
+        if table.user_mail != token.profile.email:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="メールアドレスが一致しませんでした"
+            )
+
         table.user_mail = token.profile.email
         table.user_screen_id = token.profile.preferred_username
         await session.commit()

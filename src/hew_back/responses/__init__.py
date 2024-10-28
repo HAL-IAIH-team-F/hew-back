@@ -23,14 +23,11 @@ class GetProductCart(BaseModel):
     async def get_product_cart(
             session: AsyncSession,
             user_id: UUID,
-            user_mail: str,
-            user_name: str,
     ) -> list["GetProductCart"]:
         get_product_cart = await tables.ProductCartTable.get_product_cart(
             session=session,
             user_id=user_id,
-            user_mail=user_mail,
-            user_name=user_name,
+
         )
         if get_product_cart:
             return [GetProductCart(**product.__dict__) for product in get_product_cart]
