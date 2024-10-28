@@ -1,5 +1,6 @@
 from .__chat_image_table import *
 from .__chat_table import *
+from .__chat_user_table import *
 from .__creator_product_table import *
 from .__creator_recrutor_table import *
 from .__creator_table import *

@@ -58,21 +58,22 @@ class PostCreatorBody(BaseModel):
 
 
 class PostChatBody(BaseModel):
-    to: uuid.UUID
-    message: str
-    images: list[uuid.UUID]
+    users: list[uuid.UUID]
 
-    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.ChatResult:
-        to_user = await tbls.UserTable.find_one(session, self.to)
-        chat = tbls.ChatTable.create(user.user_table, to_user, self.message, session)
+    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.ChatSaveNewResult:
+        users = tbls.UserTable.find_all(session, self.users)
+
+        chat = tbls.ChatTable.create(session)
         await session.commit()
         await session.refresh(chat)
+        users = await  users
+        users.append(user.user_table)
 
-        images = tbls.ChatImageTable.create_all(chat, self.images, session)
+        users = tbls.ChatUserTable.create_all(chat, users, session)
         await session.commit()
-        for image in images:
-            await session.refresh(image)
+        for user in users:
+            await session.refresh(user)
 
-        return results.ChatResult(
-            chat, images
+        return results.ChatSaveNewResult(
+            chat, users
         )

@@ -25,6 +25,11 @@ class UserResult:
 
 
 @dataclass
-class ChatResult:
+class ChatSaveNewResult:
     chat: tbls.ChatTable
-    images: list[tbls.ChatImageTable]
+    users: list[tbls.ChatUserTable]
+
+
+@dataclass
+class FindChatsResult:
+    chats: list[tbls.ChatTable]
