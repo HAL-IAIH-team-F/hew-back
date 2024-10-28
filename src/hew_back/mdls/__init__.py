@@ -18,6 +18,7 @@ class Tokens:
 
 
 @dataclass
+
 class ImgTokens:
     upload: tks.TokenInfo
 

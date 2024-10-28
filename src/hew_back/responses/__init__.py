@@ -8,27 +8,47 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tables, mdls
 from hew_back.util import tks, OrderDirection
-# from test.conftest import session # ←循環importによるエラーが起きたんでコメントアウトしました
 
 
 class GetProductCart(BaseModel):
+    product_text: str
+    product_id: UUID
+    product_thumbnail_uuid: UUID
+    product_price: int
+    product_title: str
+    product_date: datetime
+    product_contents_uuid: UUID
 
     @staticmethod
-    async def get_product_cart(session: AsyncSession) -> list["GetProductCart"]:
+    async def get_product_cart(
+            session: AsyncSession,
+            user_id: UUID,
+            user_mail: str,
+            user_name: str,
+    ) -> list["GetProductCart"]:
         get_product_cart = await tables.ProductCartTable.get_product_cart(
             session=session,
+            user_id=user_id,
+            user_mail=user_mail,
+            user_name=user_name,
         )
-        return get_product_cart
+        if get_product_cart:
+            return [GetProductCart(**product.__dict__) for product in get_product_cart]
+        else:
+            return []
+
 
 class PutProductCart(BaseModel):
     @staticmethod
     async  def put_product_cart(
             session: AsyncSession,
-            product_id:Union[list[uuid.UUID], None]
+            product_id:Union[list[uuid.UUID], None],
+            user_id: UUID
     ) -> list["PutProductCart"]:
         put_product_cart = await tables.ProductCartTable.put_product_cart(
             session=session,
             product_id=product_id,
+            user_id=user_id,
         )
         return put_product_cart
 

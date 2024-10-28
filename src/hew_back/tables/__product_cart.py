@@ -1,3 +1,5 @@
+from sqlalchemy.testing.suite.test_reflection import users
+
 from hew_back.db import BaseTable
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,11 +21,18 @@ class ProductCartTable(BaseTable):
 
     @staticmethod
     async def get_product_cart(
-            session: AsyncSession
+            session: AsyncSession,
+            user_id: uuid,
+            user_mail: str,
+            user_name: str,
     ):
         stmt = (select(tables.ProductTable)
                 .where(ProductCartTable.product_id==tables.ProductTable.product_id)
-                .where(tables.ProductCartTable.flag.is_(True)))
+                .where(ProductCartTable.flag.is_(True))
+                .where(tables.ProductCartTable.user_id==user_id)
+                .where(tables.UserTable.user_mail==user_mail)
+                .where(tables.UserTable.user_name==user_name)
+                )
         result = await session.execute(stmt)
         product_cart = result.scalars().all()
         return product_cart
@@ -31,15 +40,16 @@ class ProductCartTable(BaseTable):
     @staticmethod
     async def put_product_cart(
             session: AsyncSession,
-            product_id :Union[list[uuid.UUID], None] = Query(),
+            product_id:Union[list[uuid.UUID], None],
+            user_id: uuid,
     ):
         stmt = (
             update(tables.ProductCartTable)
             .where(tables.ProductCartTable.product_id.in_(product_id))
+            .where(tables.ProductCartTable.user_id==user_id)
             .values(flag=False)
         )
-        result = await session.execute(stmt)
-        result.scalars().all()
+        await session.execute(stmt)
         await session.commit()  # コミットして変更を適用
 
-        return {"message": "Product cart updated successfully"}
+        return await ProductCartTable.get_product_cart(session, user_id)
