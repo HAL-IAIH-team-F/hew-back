@@ -1,4 +1,5 @@
 from fastapi import Query
+from sqlalchemy import true
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException, status
@@ -8,8 +9,6 @@ import uuid
 
 from typing import Union
 
-
-
 @app.get("/product_cart")
 async def read_product_curt(
     session: AsyncSession = Depends(deps.DbDeps.session),
@@ -17,8 +16,6 @@ async def read_product_curt(
     ):
 
     user_id = user_deps.user_table.user_id
-
-    print("user_id:",user_id)
 
     if user_deps is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")

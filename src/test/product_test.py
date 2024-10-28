@@ -78,18 +78,26 @@ async def product_table_saved(session, keycloak_user_profile) -> tables.ProductT
 
 @pytest.mark.asyncio
 async def test_read_products(client, session,product_table_saved):
+
+    # エンドポイントへのリクエスト送信
     result = await client.get(
         "/products"
     )
+    # ステータスコードの検証
     assert result.status_code == 200, f"invalid status code {result.read()}"
+
+    # レスポンスボディの確認
     body = result.json()
     assert body is not None
+
+    # 取得したデータの数と、APIのレスポンスに含まれるデータの数（bodyの長さ）が一致していることを確認
     records = await session.execute(
         sqlalchemy.select(tables.ProductTable).where()
     )
     records = records.scalars().all()
     assert len(records) == len(body)
 
+    # データの個々の検証
     for i in range(len(records)):
         record = records[i]
         product = responses.GetProductsResponse(**body[i])
