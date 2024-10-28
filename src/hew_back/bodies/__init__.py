@@ -1,31 +1,10 @@
 import uuid
 
-from pydantic import BaseModel, field_serializer
+from pydantic import field_serializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import ENV, tbls, results, deps, mdls
-from hew_back.util import keycloak
-
-
-class PostTokenBody(BaseModel):
-    keycloak_token: str
-
-    def fetch_keycloak_profile(self) -> keycloak.KeycloakUserProfile:
-        well_known = keycloak.WellKnown.fetch(ENV.keycloak.well_known_url)
-        return keycloak.KeycloakUserProfile.fetch(well_known, self.keycloak_token)
-
-    def new_tokens(self):
-        profile = self.fetch_keycloak_profile()
-        return mdls.Tokens(
-            access=mdls.JwtTokenData.new(
-                mdls.TokenType.access,
-                profile
-            ).new_token_info(ENV.token.secret_key),
-            refresh=mdls.JwtTokenData.new(
-                mdls.TokenType.refresh,
-                profile
-            ).new_token_info(ENV.token.secret_key)
-        )
+from hew_back import tbls, results, deps
+from .__token_bodies import *
 
 
 class PostUserBody(BaseModel):
@@ -84,10 +63,16 @@ class PostChatBody(BaseModel):
     images: list[uuid.UUID]
 
     async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.ChatResult:
-        chat_table = tbls.ChatTable.create(user.user_table, self.message)
-        chat_table.save_new(session)
+        to_user = await tbls.UserTable.find_one(session, self.to)
+        chat = tbls.ChatTable.create(user.user_table, to_user, self.message, session)
         await session.commit()
-        await session.refresh(chat_table)
+        await session.refresh(chat)
+
+        images = tbls.ChatImageTable.create_all(chat, self.images, session)
+        await session.commit()
+        for image in images:
+            await session.refresh(image)
+
         return results.ChatResult(
-            chat_table
+            chat, images
         )

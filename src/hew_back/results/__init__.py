@@ -27,3 +27,4 @@ class UserResult:
 @dataclass
 class ChatResult:
     chat: tbls.ChatTable
+    images: list[tbls.ChatImageTable]
