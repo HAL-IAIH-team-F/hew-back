@@ -126,8 +126,8 @@ class UserDeps:
                 detail="メールアドレスが一致しませんでした"
             )
 
-        table.user_mail = token.profile.email
-        table.user_screen_id = token.profile.preferred_username
+        # table.user_mail = token.profile.email
+        # table.user_screen_id = token.profile.preferred_username
         await session.commit()
         await session.refresh(table)
         return UserDeps(table)
