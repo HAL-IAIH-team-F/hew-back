@@ -1,5 +1,6 @@
-from .__chat_image_table import *
+from .__user import *
 from .__chat_table import *
+from .__chat_image_table import *
 from .__chat_user_table import *
 from .__creator_product_table import *
 from .__creator_recrutor_table import *
@@ -14,5 +15,4 @@ from .__purchase_table import *
 from .__ranking_table import *
 from .__serialcode_table import *
 from .__tag_table import *
-from .__user import *
 from .__user_follow_table import *

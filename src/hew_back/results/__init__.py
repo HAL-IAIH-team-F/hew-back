@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 
 from .. import tbls, reses
@@ -31,5 +32,23 @@ class ChatSaveNewResult:
 
 
 @dataclass
+class FindChatsResultItem:
+    chat: tbls.ChatTable
+    chat_users: list[tbls.ChatUserTable]
+
+    def to_chat_res(self):
+        user_ids: list[uuid.UUID] = []
+        for chat_user in self.chat_users:
+            user_ids.append(chat_user.user_id)
+        return reses.ChatRes.create(self.chat.chat_id, user_ids)
+
+
+@dataclass
 class FindChatsResult:
-    chats: list[tbls.ChatTable]
+    chats: list[FindChatsResultItem]
+
+    def to_chat_reses(self) -> list[reses.ChatRes]:
+        result: list[reses.ChatRes] = []
+        for chat in self.chats:
+            result.append(chat.to_chat_res())
+        return result

@@ -49,8 +49,17 @@ class CreatorResponse(BaseModel):
 
 
 class ChatRes(BaseModel):
-    message: str
-    images: list[uuid.UUID]
+    chat_id: uuid.UUID
+    users: list[uuid.UUID]
+    @staticmethod
+    def create(
+            chat_id: uuid.UUID,
+            users: list[uuid.UUID],
+    ):
+        return ChatRes(
+            chat_id=chat_id,
+            users=users,
+        )
 
 class SelfUserRes(BaseModel):
     user_id: uuid.UUID

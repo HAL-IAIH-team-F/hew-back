@@ -37,3 +37,14 @@ class ChatUserTable(BaseTable):
             table = ChatUserTable.create(chat, user, session)
             tables.append(table)
         return tables
+
+    @staticmethod
+    async def find_all_by_chat(session: AsyncSession, user: tbls.ChatTable) -> list['ChatUserTable']:
+        res = await session.execute(
+            sqlalchemy.select(ChatUserTable)
+            .where(tbls.ChatUserTable.chat_id == user.chat_id)
+        )
+        tables: list[ChatUserTable] = []
+        for tbl in res.scalars().all():
+            tables.append(tbl)
+        return tables

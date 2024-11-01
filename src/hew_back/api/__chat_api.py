@@ -1,5 +1,3 @@
-import uuid
-
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,9 +14,10 @@ async def pc(
     return {}
 
 
-@app.get("/api/chat/{user_id}")
+@app.get("/api/chat")
 async def gc(
-        user_id: uuid.UUID,
         user: deps.UserDeps = Depends(deps.UserDeps.get),
+        session: AsyncSession = Depends(deps.DbDeps.session),
 ) -> list[reses.ChatRes]:
-    raise NotImplementedError
+    chats = await user.find_chats(session)
+    return chats.to_chat_reses()

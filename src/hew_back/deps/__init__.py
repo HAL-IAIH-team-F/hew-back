@@ -14,7 +14,11 @@ class UserDeps:
 
     async def find_chats(self, session: AsyncSession) -> results.FindChatsResult:
         chats = await tbls.ChatTable.find_all(session, self.user_table)
-        return results.FindChatsResult(chats)
+        items: list[results.FindChatsResultItem] = []
+        for chat in chats:
+            users = await tbls.ChatUserTable.find_all_by_chat(session, chat)
+            items.append(results.FindChatsResultItem(chat, users))
+        return results.FindChatsResult(items)
 
     @staticmethod
     async def get_or_none(
