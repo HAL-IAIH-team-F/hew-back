@@ -26,26 +26,20 @@ class UserResult:
 
 
 @dataclass
-class ChatSaveNewResult:
+class ChatUsersResult:
     chat: tbls.ChatTable
     users: list[tbls.ChatUserTable]
 
-
-@dataclass
-class FindChatsResultItem:
-    chat: tbls.ChatTable
-    chat_users: list[tbls.ChatUserTable]
-
     def to_chat_res(self):
         user_ids: list[uuid.UUID] = []
-        for chat_user in self.chat_users:
+        for chat_user in self.users:
             user_ids.append(chat_user.user_id)
         return reses.ChatRes.create(self.chat.chat_id, user_ids)
 
 
 @dataclass
 class FindChatsResult:
-    chats: list[FindChatsResultItem]
+    chats: list[ChatUsersResult]
 
     def to_chat_reses(self) -> list[reses.ChatRes]:
         result: list[reses.ChatRes] = []

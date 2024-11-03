@@ -1,30 +1,5 @@
-from hew_back.util import tks
-from .__products_reses import *
-
-
-class TokenRes(BaseModel):
-    access: tks.TokenInfo
-    refresh: tks.TokenInfo
-
-    @staticmethod
-    def from_tokens(tokens: mdls.Tokens):
-        return TokenRes.create(tokens.access, tokens.refresh)
-
-    @staticmethod
-    def create(access: tks.TokenInfo, refresh: tks.TokenInfo):
-        return TokenRes(access=access, refresh=refresh)
-
-
-class ImgTokenRes(BaseModel):
-    upload: tks.TokenInfo
-
-    @staticmethod
-    def from_img_tokens(tokens: mdls.ImgTokens):
-        return ImgTokenRes.create(tokens.upload)
-
-    @staticmethod
-    def create(upload: tks.TokenInfo):
-        return ImgTokenRes(upload=upload)
+from .__products_res import *
+from .__token_res import *
 
 
 class CreatorResponse(BaseModel):
@@ -51,6 +26,7 @@ class CreatorResponse(BaseModel):
 class ChatRes(BaseModel):
     chat_id: uuid.UUID
     users: list[uuid.UUID]
+
     @staticmethod
     def create(
             chat_id: uuid.UUID,
@@ -60,6 +36,7 @@ class ChatRes(BaseModel):
             chat_id=chat_id,
             users=users,
         )
+
 
 class SelfUserRes(BaseModel):
     user_id: uuid.UUID

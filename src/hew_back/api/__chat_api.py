@@ -9,9 +9,9 @@ async def pc(
         body: bodies.PostChatBody,
         session: AsyncSession = Depends(deps.DbDeps.session),
         user: deps.UserDeps = Depends(deps.UserDeps.get),
-):
-    await body.save_new(user, session)
-    return {}
+) -> reses.ChatRes:
+    res = await body.save_new(user, session)
+    return res.to_chat_res()
 
 
 @app.get("/api/chat")

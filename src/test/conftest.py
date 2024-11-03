@@ -1,18 +1,15 @@
 import asyncio
 from typing import Iterator
 
-import dotenv
+import pytest
 import pytest_asyncio
 from _pytest.fixtures import FixtureRequest
 from sqlalchemy import NullPool
-
-from hew_back.util import keycloak, tks
-
-import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from hew_back import main, ENV, deps, mdls
+from hew_back import main, ENV, deps, mdls, bodies
 from hew_back.db import BaseTable
+from hew_back.util import keycloak, tks
 from test.base import Client
 
 
@@ -84,3 +81,13 @@ def token_info(keycloak_user_profile, session) -> tks.TokenInfo:
         mdls.TokenType.access,
         keycloak_user_profile
     ).new_token_info(ENV.token.secret_key)
+
+
+@pytest_asyncio.fixture
+async def registered_token_info(keycloak_user_profile, session, token_info) -> tks.TokenInfo:
+    body = bodies.PostUserBody(
+        user_name="PostUserBody_user_name_saved",
+        user_icon_uuid=None,
+    )
+    await body.save_new(session, keycloak_user_profile)
+    return token_info

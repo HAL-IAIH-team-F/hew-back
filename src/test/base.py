@@ -18,14 +18,14 @@ class Client:
         headers = {}
         if token is not None:
             headers["Authorization"] = f"Bearer {token}"
-        result = await self.client.post(path, json=json_data.dict(), headers=headers)
+        result = await self.client.post(path, content=json_data.model_dump_json(), headers=headers)
         return result
 
     async def put(self, path: str, json_data: pydantic.BaseModel, token: str | None = None):
         headers = {}
         if token is not None:
             headers["Authorization"] = f"Bearer {token}"
-        result = await self.client.put(path, json=json_data.dict(), headers=headers)
+        result = await self.client.put(path, content=json_data.model_dump_json(), headers=headers)
         return result
 
     async def delete(self, path: str, token: str | None = None):

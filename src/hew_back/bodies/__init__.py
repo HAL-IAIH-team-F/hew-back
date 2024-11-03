@@ -60,7 +60,7 @@ class PostCreatorBody(BaseModel):
 class PostChatBody(BaseModel):
     users: list[uuid.UUID]
 
-    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.ChatSaveNewResult:
+    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.ChatUsersResult:
         users = tbls.UserTable.find_all(session, self.users)
 
         chat = tbls.ChatTable.create(session)
@@ -68,12 +68,15 @@ class PostChatBody(BaseModel):
         await session.refresh(chat)
         users = await  users
         users.append(user.user_table)
+        for user in users:
+            await session.refresh(user)
 
         users = tbls.ChatUserTable.create_all(chat, users, session)
         await session.commit()
         for user in users:
             await session.refresh(user)
+        await session.refresh(chat)
 
-        return results.ChatSaveNewResult(
+        return results.ChatUsersResult(
             chat, users
         )

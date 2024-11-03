@@ -14,10 +14,10 @@ class UserDeps:
 
     async def find_chats(self, session: AsyncSession) -> results.FindChatsResult:
         chats = await tbls.ChatTable.find_all(session, self.user_table)
-        items: list[results.FindChatsResultItem] = []
+        items: list[results.ChatUsersResult] = []
         for chat in chats:
             users = await tbls.ChatUserTable.find_all_by_chat(session, chat)
-            items.append(results.FindChatsResultItem(chat, users))
+            items.append(results.ChatUsersResult(chat, users))
         return results.FindChatsResult(items)
 
     @staticmethod
