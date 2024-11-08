@@ -26,7 +26,7 @@ async def read_products(
             description="List may be included datetime or name or like,witch is gaven default asc or desc"
         ),
         session: AsyncSession = Depends(deps.DbDeps.session)
-):
+) -> list[reses.GetProductsResponse]:
     # order_by: Literal["created_at", "updated_at"] = "created_at"とできることを後で知ったが、実装した後になって修正するのはめんどくさい
 
     # query_items = {

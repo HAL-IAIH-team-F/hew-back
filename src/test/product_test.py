@@ -11,7 +11,7 @@ from test.conftest import session
 
 
 @pytest_asyncio.fixture
-async def product_table_saved(session, keycloak_user_profile) -> tbls.ProductTable:
+async def product_table_saved(session) -> tbls.ProductTable:
     table = tbls.ProductTable.insert(
         session,
         product_price=100,
