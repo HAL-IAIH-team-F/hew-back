@@ -115,6 +115,7 @@ typing-extensions==4.12.2
     # via pydantic-core
     # via sqlalchemy
     # via typer
+tzdata==2024.2
 ujson==5.10.0
     # via fastapi
 uvicorn==0.30.1

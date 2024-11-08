@@ -10,46 +10,37 @@ from hew_back import tables, mdls
 from hew_back.util import tks, OrderDirection
 
 
-class GetProductCart(BaseModel):
-    product_text: str
+class CartProduct(BaseModel):
     product_id: UUID
-    product_thumbnail_uuid: UUID
     product_price: int
     product_title: str
+    product_text: str
     product_date: datetime
     product_contents_uuid: UUID
+    product_thumbnail_uuid: UUID
 
     @staticmethod
-    async def get_product_cart(
+    async def get_cart_product(
             session: AsyncSession,
             user_id: UUID,
-    ) -> list["GetProductCart"]:
-        get_product_cart = await tables.ProductCartTable.get_product_cart(
+    ) -> list["CartProduct"]:
+        get_product_cart = await tables.CartProductTable.get_cart_product(
             session=session,
             user_id=user_id,
-
         )
-        if get_product_cart:
-            return [GetProductCart(**product.__dict__) for product in get_product_cart]
-        else:
-            return []
+        return get_product_cart
 
 
-class PutProductCart(BaseModel):
     @staticmethod
-    async  def put_product_cart(
-            session: AsyncSession,
-            product_id:Union[list[uuid.UUID], None],
-            user_id: UUID
-    ) -> list["PutProductCart"]:
-        put_product_cart = await tables.ProductCartTable.put_product_cart(
-            session=session,
-            product_id=product_id,
-            user_id=user_id,
-        )
-        return put_product_cart
-
-
+    async  def put_cart_product(
+         session: AsyncSession,
+         user_id: UUID
+    ) -> list["CartProduct"]:
+     put_product_cart = await tables.CartProductTable.put_cart_product(
+         session=session,
+         user_id=user_id,
+     )
+     return put_product_cart
 
 # 例:文字列のクエリパラメーターを受け取る
 # api → model → table

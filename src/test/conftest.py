@@ -84,3 +84,6 @@ def token_info(keycloak_user_profile, session) -> tks.TokenInfo:
         mdls.TokenType.access,
         keycloak_user_profile
     ).new_token_info(ENV.token.secret_key)
+
+    token_info.profile = keycloak_user_profile  # keycloak_user_profile を profile として設定
+    return token_info
