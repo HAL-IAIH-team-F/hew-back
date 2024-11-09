@@ -1,31 +1,10 @@
 import uuid
 
-from pydantic import BaseModel, field_serializer
+from pydantic import field_serializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import ENV, tables, results, deps, mdls
-from hew_back.util import keycloak
-
-
-class PostTokenBody(BaseModel):
-    keycloak_token: str
-
-    def fetch_keycloak_profile(self) -> keycloak.KeycloakUserProfile:
-        well_known = keycloak.WellKnown.fetch(ENV.keycloak.well_known_url)
-        return keycloak.KeycloakUserProfile.fetch(well_known, self.keycloak_token)
-
-    def new_tokens(self):
-        profile = self.fetch_keycloak_profile()
-        return mdls.Tokens(
-            access=mdls.JwtTokenData.new(
-                mdls.TokenType.access,
-                profile
-            ).new_token_info(ENV.token.secret_key),
-            refresh=mdls.JwtTokenData.new(
-                mdls.TokenType.refresh,
-                profile
-            ).new_token_info(ENV.token.secret_key)
-        )
+from hew_back import tbls, results, deps
+from .__token_bodies import *
 
 
 class PostUserBody(BaseModel):
@@ -42,7 +21,7 @@ class PostUserBody(BaseModel):
             self,
             session: AsyncSession,
             profile: keycloak.KeycloakUserProfile
-    ) -> results.UserModel:
+    ) -> results.UserResult:
         if self.user_icon_uuid is not None:
             mdls.ImagePreferenceRequest.crete(mdls.State.public).post_preference(self.user_icon_uuid)
         # UserTableクラスは、SQLAlchemy を使ってデータベース上のテーブルを定義しており、
@@ -50,7 +29,7 @@ class PostUserBody(BaseModel):
         # API に返すための処理を行う。
 
         # new_record メソッドを使って、新しいユーザーをデータベースに追加
-        tbl = tables.UserTable.create(
+        tbl = tbls.UserTable.create(
             user_id=profile.sub,
             user_name=self.user_name,
             user_screen_id=profile.preferred_username,
@@ -60,7 +39,7 @@ class PostUserBody(BaseModel):
         await tbl.save_new(session)
         await session.commit()
         await session.refresh(tbl)
-        return results.UserModel(tbl)
+        return results.UserResult(tbl)
 
 
 class PostCreatorBody(BaseModel):
@@ -69,10 +48,35 @@ class PostCreatorBody(BaseModel):
     transfer_target: str
 
     async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.CreatorResult:
-        creator_table = tables.CreatorTable.create(user.user_table, self.contact_address, self.transfer_target)
+        creator_table = tbls.CreatorTable.create(user.user_table, self.contact_address, self.transfer_target)
         creator_table.save_new(session)
         await session.commit()
         await session.refresh(creator_table)
         return results.CreatorResult(
             creator_table
+        )
+
+
+class PostChatBody(BaseModel):
+    users: list[uuid.UUID]
+
+    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.ChatUsersResult:
+        users = tbls.UserTable.find_all(session, self.users)
+
+        chat = tbls.ChatTable.create(session)
+        await session.commit()
+        await session.refresh(chat)
+        users = await  users
+        users.append(user.user_table)
+        for user in users:
+            await session.refresh(user)
+
+        users = tbls.ChatUserTable.create_all(chat, users, session)
+        await session.commit()
+        for user in users:
+            await session.refresh(user)
+        await session.refresh(chat)
+
+        return results.ChatUsersResult(
+            chat, users
         )

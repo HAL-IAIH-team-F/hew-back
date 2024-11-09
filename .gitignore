@@ -11,4 +11,4 @@ wheels/
 /src/.env.local
 /.env.test
 /temp/
-/.env.test
+/src/.env.test

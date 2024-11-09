@@ -1,18 +1,16 @@
 import asyncio
 from typing import Iterator
 
-import dotenv
+import pytest
 import pytest_asyncio
 from _pytest.fixtures import FixtureRequest
 from sqlalchemy import NullPool
-
-from hew_back.util import keycloak, tks
-
-import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from hew_back import main, ENV, deps, mdls
+from hew_back import main, ENV, deps, mdls, bodies, reses
 from hew_back.db import BaseTable
+from hew_back.deps import JwtTokenDeps, UserDeps
+from hew_back.util import keycloak, tks
 from test.base import Client
 
 
@@ -68,19 +66,57 @@ def client(app):
     return Client(app)
 
 
-@pytest.fixture
-def keycloak_user_profile() -> keycloak.KeycloakUserProfile:
+@pytest_asyncio.fixture
+async def login_keycloak_profile(session) -> keycloak.KeycloakUserProfile:
+    uid = "565dc2fd-127d-45d1-9a10-8002280777d7"
     return keycloak.KeycloakUserProfile(
-        sub="7f4b560a-71f1-4c19-a003-3c42eb0899e3",
+        sub=uid,
         email_verified=True,
-        preferred_username="username",
-        email="test@example.com",
+        preferred_username="user_login",
+        email="user_login@example.com",
     )
 
 
+@pytest_asyncio.fixture
+async def login_user(session, login_keycloak_profile) -> reses.SelfUserRes:
+    body = bodies.PostUserBody(
+        user_name="user_login",
+        user_icon_uuid=None,
+    )
+    res = await body.save_new(session, login_keycloak_profile)
+    return res.to_self_user_res()
+
+
 @pytest.fixture
-def token_info(keycloak_user_profile, session) -> tks.TokenInfo:
+def login_access_token(session, login_keycloak_profile, login_user) -> tks.TokenInfo:
     return mdls.JwtTokenData.new(
         mdls.TokenType.access,
-        keycloak_user_profile
+        login_keycloak_profile
     ).new_token_info(ENV.token.secret_key)
+
+
+@pytest_asyncio.fixture
+async def login_access_jwt_token_deps(session, login_user, login_access_token) -> JwtTokenDeps | None:
+    return deps.JwtTokenDeps.get_token_or_none(login_access_token.token)
+
+
+@pytest_asyncio.fixture
+async def login_user_deps(session, login_user, login_access_jwt_token_deps) -> UserDeps:
+    return await deps.UserDeps.get(session, login_access_jwt_token_deps)
+
+
+@pytest_asyncio.fixture
+async def user_saved(session) -> reses.SelfUserRes:
+    uid = "df56c011-8025-468a-a390-202e6f0d6328"
+    profile = keycloak.KeycloakUserProfile(
+        sub=uid,
+        email_verified=True,
+        preferred_username="post_chat_body",
+        email="post_chat_body@example.com",
+    )
+    body = bodies.PostUserBody(
+        user_name="PostUserBody_user_name_saved",
+        user_icon_uuid=None,
+    )
+    res = await body.save_new(session, profile)
+    return res.to_self_user_res()

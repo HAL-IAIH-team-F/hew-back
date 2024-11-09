@@ -14,7 +14,7 @@ jobs:
           key: ${{ github.ref }}-${{ github.sha }} # キャッシュのキーを指定
           restore-keys: |
             ${{ github.ref }}
-            refs/head/develop
+            refs/head/
 
 # キャッシュがある場合は tar をロードしてイメージ一覧に追加
       - name: Load Docker image if exists
@@ -59,7 +59,7 @@ jobs:
           key: ${{ github.ref }}-${{ github.sha }} # キャッシュのキーを指定
           restore-keys: |
             ${{ github.ref }}
-            refs/head/develop
+            refs/head/
 
 # キャッシュがある場合は tar をロードしてイメージ一覧に追加
       - name: Load Docker image if exists
