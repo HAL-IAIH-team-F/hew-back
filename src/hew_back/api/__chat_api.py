@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,3 +23,13 @@ async def gc(
 ) -> list[reses.ChatRes]:
     chats = await user.find_chats(session)
     return chats.to_chat_reses()
+
+
+@app.post("/api/chat/{chat_id}/message")
+async def pcm(
+        body: bodies.PostChatMessageBody,
+        chat_id: uuid.UUID,
+        session: AsyncSession = Depends(deps.DbDeps.session),
+) -> reses.ChatMessageRes:
+    res = await body.save_new(session, chat_id)
+    return res.to_chat_message_res()

@@ -30,7 +30,7 @@ class ChatUsersResult:
     chat: tbls.ChatTable
     users: list[tbls.ChatUserTable]
 
-    def to_chat_res(self):
+    def to_chat_res(self) -> reses.ChatRes:
         user_ids: list[uuid.UUID] = []
         for chat_user in self.users:
             user_ids.append(chat_user.user_id)
@@ -46,3 +46,22 @@ class FindChatsResult:
         for chat in self.chats:
             result.append(chat.to_chat_res())
         return result
+
+
+@dataclass
+class ChatMessageResult:
+    chat: tbls.ChatTable
+    message: tbls.ChatMessageTable
+    images: list[tbls.ChatImageTable]
+
+    def to_chat_message_res(self) -> reses.ChatMessageRes:
+        images: list[uuid.UUID] = []
+        for image in self.images:
+            images.append(image.image_uuid)
+        return reses.ChatMessageRes.create(
+            self.chat.chat_id,
+            self.message.chat_message_id,
+            self.message.index,
+            self.message.message,
+            images
+        )

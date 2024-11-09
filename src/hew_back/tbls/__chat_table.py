@@ -34,3 +34,11 @@ class ChatTable(BaseTable):
         table = ChatTable()
         session.add(table)
         return table
+
+    @staticmethod
+    async def find(session: AsyncSession, chat_id: uuid.UUID) -> 'ChatTable':
+        res = await session.execute(
+            sqlalchemy.select(ChatTable)
+            .where(ChatTable.chat_id == chat_id)
+        )
+        return res.scalar_one()
