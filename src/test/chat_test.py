@@ -3,11 +3,12 @@ import pytest_asyncio
 import sqlalchemy
 
 from hew_back import bodies, tbls, reses
+from hew_back.bodies import PostChatMessageBody
 from hew_back.reses import ChatRes
 
 
-@pytest_asyncio.fixture
-async def post_chat_body(session, user_saved) -> bodies.PostChatBody:
+@pytest.fixture
+def post_chat_body(session, user_saved) -> bodies.PostChatBody:
     return bodies.PostChatBody(
         users=[
             user_saved.user_id
@@ -15,8 +16,16 @@ async def post_chat_body(session, user_saved) -> bodies.PostChatBody:
     )
 
 
+@pytest.fixture
+def post_chat_message_body(session) -> PostChatMessageBody:
+    return bodies.PostChatMessageBody(
+        message="post_chat_message_body",
+        images=[]
+    )
+
+
 @pytest_asyncio.fixture
-async def chat_saved(session, user_saved, login_user_deps) -> reses.ChatRes:
+async def saved_chat(session, user_saved, login_user_deps) -> reses.ChatRes:
     body = bodies.PostChatBody(
         users=[
             user_saved.user_id
@@ -27,8 +36,8 @@ async def chat_saved(session, user_saved, login_user_deps) -> reses.ChatRes:
 
 
 @pytest.fixture
-def chat_saved_list(chat_saved) -> list[ChatRes]:
-    return [chat_saved]
+def chat_saved_list(saved_chat) -> list[ChatRes]:
+    return [saved_chat]
 
 
 @pytest.mark.asyncio
@@ -72,3 +81,38 @@ async def test_get_chat(client, login_access_token, session, chat_saved_list):
         assert chat.chat_id == res.chat_id
         for user_i in range(len(chat.users)):
             assert chat.users[user_i] == res.users[user_i]
+
+
+@pytest.mark.asyncio
+async def test_post_chat(session, client, login_access_token, saved_chat, post_chat_message_body):
+    response = await client.post(
+        f"/api/chat/{saved_chat.chat_id}/message",
+        post_chat_message_body,
+        login_access_token.token
+    )
+    assert response.status_code == 200, f"invalid status code {response.json()}"
+    body = response.json()
+    assert body is not None
+    message = reses.ChatMessageRes(**body)
+
+    result = await session.execute(
+        sqlalchemy.select(tbls.ChatMessageTable)
+        .where(tbls.ChatMessageTable.chat_message_id == message.chat_message_id)
+    )
+    record: tbls.ChatMessageTable = result.scalar_one()
+
+    assert record.chat_id == message.chat_id
+    assert record.chat_message_id == message.chat_message_id
+    assert record.message == message.message
+    assert record.index == message.index
+
+    result = await session.execute(
+        sqlalchemy.select(tbls.ChatImageTable)
+        .where(tbls.ChatImageTable.chat_message_id == record.chat_id)
+    )
+    image_records: list[tbls.ChatImageTable] = result.scalars().all()
+
+    assert len(image_records) == len(message.images)
+    for i in range(len(image_records)):
+        image = image_records[i]
+        assert image.image_uuid == message.images[i]

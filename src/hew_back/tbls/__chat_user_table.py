@@ -3,6 +3,7 @@ import uuid
 import sqlalchemy
 from sqlalchemy import Column, ForeignKey, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped
 
 from hew_back import tbls
 from hew_back.db import BaseTable
@@ -10,8 +11,8 @@ from hew_back.db import BaseTable
 
 class ChatUserTable(BaseTable):
     __tablename__ = 'TBL_CHAT_USER'
-    chat_id = Column(UUID(as_uuid=True), ForeignKey('TBL_CHAT.chat_id'), primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('TBL_USER.user_id'), primary_key=True)
+    chat_id: Mapped[uuid.UUID] = Column(UUID(as_uuid=True), ForeignKey('TBL_CHAT.chat_id'), primary_key=True)
+    user_id: Mapped[uuid.UUID] = Column(UUID(as_uuid=True), ForeignKey('TBL_USER.user_id'), primary_key=True)
 
     @staticmethod
     def create(

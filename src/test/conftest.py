@@ -54,6 +54,7 @@ async def session(engine, create, app):
     async def override_get_db():
         async with session_maker() as db_session:
             yield db_session
+            await db_session.commit()
 
     app.dependency_overrides[deps.DbDeps.session] = override_get_db
 

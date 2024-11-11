@@ -3,7 +3,7 @@ import uuid
 from pydantic import BaseModel, field_serializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import results, mdls
+from hew_back import results, mdls, tbls
 from hew_back.util import keycloak
 
 
