@@ -77,9 +77,7 @@ async def product_table_saved(session, keycloak_user_profile) -> tables.ProductT
 #     assert body.user_name == post_user_body_saved.user_name
 
 @pytest.mark.asyncio
-async def test_read_products(client, session,product_table_saved):
-
-    # エンドポイントへのリクエスト送信
+async def test_read_products(client, session,product_table_saved):  # ←　これ実行すると、なぜかデータベース消える意味わからんw
     result = await client.get(
         "/products"
     )

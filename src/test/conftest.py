@@ -15,6 +15,8 @@ from hew_back import main, ENV, deps, mdls
 from hew_back.db import BaseTable
 from test.base import Client
 
+import uuid
+
 
 @pytest.fixture(scope="session")
 def event_loop(request: FixtureRequest) -> Iterator[asyncio.AbstractEventLoop]:
@@ -67,23 +69,28 @@ async def session(engine, create, app):
 def client(app):
     return Client(app)
 
+from httpx import AsyncClient
+@pytest_asyncio.fixture
+async def async_client(app):
+    async with AsyncClient(app=app, base_url="http://testserver") as client:
+        yield client
+
 
 @pytest.fixture
 def keycloak_user_profile() -> keycloak.KeycloakUserProfile:
     return keycloak.KeycloakUserProfile(
-        sub="7f4b560a-71f1-4c19-a003-3c42eb0899e3",
+        sub="d89c7adb-74b2-f904-322e-70f642ee8132",
         email_verified=True,
-        preferred_username="username",
-        email="test@example.com",
+        preferred_username="Ado",
+        email="Ado@gmail.com",
     )
 
 
 @pytest.fixture
 def token_info(keycloak_user_profile, session) -> tks.TokenInfo:
     return mdls.JwtTokenData.new(
-        mdls.TokenType.access,
-        keycloak_user_profile
+        token_type=mdls.TokenType.access,
+        profile=keycloak_user_profile
     ).new_token_info(ENV.token.secret_key)
 
-    token_info.profile = keycloak_user_profile  # keycloak_user_profile を profile として設定
-    return token_info
+

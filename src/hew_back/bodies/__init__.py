@@ -45,11 +45,7 @@ class PostUserBody(BaseModel):
     ) -> results.UserModel:
         if self.user_icon_uuid is not None:
             mdls.ImagePreferenceRequest.crete(mdls.State.public).post_preference(self.user_icon_uuid)
-        # UserTableクラスは、SQLAlchemy を使ってデータベース上のテーブルを定義しており、
-        # API から受け取ったデータをデータベースに保存したり、データベースからデータを取得して
-        # API に返すための処理を行う。
 
-        # new_record メソッドを使って、新しいユーザーをデータベースに追加
         tbl = tables.UserTable.create(
             user_id=profile.sub,
             user_name=self.user_name,

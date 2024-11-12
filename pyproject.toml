@@ -12,6 +12,7 @@ dependencies = [
     "asyncpg>=0.29.0",
     "python-jose>=3.3.0",
     "tzdata>=2024.2",
+    "pyjwt>=2.9.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
