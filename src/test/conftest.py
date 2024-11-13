@@ -7,9 +7,11 @@ from _pytest.fixtures import FixtureRequest
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from hew_back import main, ENV, deps, mdls, bodies, reses
+from hew_back import main, ENV, deps, mdls
 from hew_back.db import BaseTable
 from hew_back.deps import JwtTokenDeps, UserDeps
+from hew_back.user.__res import SelfUserRes
+from hew_back.user.__user_body import PostUserBody
 from hew_back.util import keycloak, tks
 from test.base import Client
 
@@ -79,8 +81,8 @@ async def login_keycloak_profile(session) -> keycloak.KeycloakUserProfile:
 
 
 @pytest_asyncio.fixture
-async def login_user(session, login_keycloak_profile) -> reses.SelfUserRes:
-    body = bodies.PostUserBody(
+async def login_user(session, login_keycloak_profile) -> SelfUserRes:
+    body = PostUserBody(
         user_name="user_login",
         user_icon_uuid=None,
     )
@@ -107,7 +109,7 @@ async def login_user_deps(session, login_user, login_access_jwt_token_deps) -> U
 
 
 @pytest_asyncio.fixture
-async def user_saved(session) -> reses.SelfUserRes:
+async def user_saved(session) -> SelfUserRes:
     uid = "df56c011-8025-468a-a390-202e6f0d6328"
     profile = keycloak.KeycloakUserProfile(
         sub=uid,
@@ -115,7 +117,7 @@ async def user_saved(session) -> reses.SelfUserRes:
         preferred_username="post_chat_body",
         email="post_chat_body@example.com",
     )
-    body = bodies.PostUserBody(
+    body = PostUserBody(
         user_name="PostUserBody_user_name_saved",
         user_icon_uuid=None,
     )

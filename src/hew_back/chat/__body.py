@@ -1,27 +1,16 @@
-from hew_back import tbls, deps
-from .__token_body import *
-from .__user_body import *
+import uuid
 
+from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
-class PostCreatorBody(BaseModel):
-    user_id: uuid.UUID
-    contact_address: str
-    transfer_target: str
-
-    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.CreatorResult:
-        creator_table = tbls.CreatorTable.create(user.user_table, self.contact_address, self.transfer_target)
-        creator_table.save_new(session)
-        await session.commit()
-        await session.refresh(creator_table)
-        return results.CreatorResult(
-            creator_table
-        )
+from hew_back import deps, tbls
+from hew_back.chat.__result import ChatUsersResult, ChatMessageResult
 
 
 class PostChatBody(BaseModel):
     users: list[uuid.UUID]
 
-    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> results.ChatUsersResult:
+    async def save_new(self, user: deps.UserDeps, session: AsyncSession) -> ChatUsersResult:
         users = tbls.UserTable.find_all(session, self.users)
 
         chat = tbls.ChatTable.create(session)
@@ -38,7 +27,7 @@ class PostChatBody(BaseModel):
             await session.refresh(user)
         await session.refresh(chat)
 
-        return results.ChatUsersResult(
+        return ChatUsersResult(
             chat, users
         )
 
@@ -47,7 +36,7 @@ class PostChatMessageBody(BaseModel):
     message: str
     images: list[uuid.UUID]
 
-    async def save_new(self, session: AsyncSession, chat_id: uuid.UUID) -> results.ChatMessageResult:
+    async def save_new(self, session: AsyncSession, chat_id: uuid.UUID) -> ChatMessageResult:
         chat = await tbls.ChatTable.find(session, chat_id)
 
         last_index = await tbls.ChatMessageTable.last_index(session, chat)
@@ -59,6 +48,6 @@ class PostChatMessageBody(BaseModel):
         for image in images:
             await session.refresh(image)
 
-        return results.ChatMessageResult(
+        return ChatMessageResult(
             chat, chat_message, images
         )

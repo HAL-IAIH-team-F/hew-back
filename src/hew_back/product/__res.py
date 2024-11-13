@@ -2,10 +2,10 @@ import uuid
 from datetime import datetime
 from typing import Union
 
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tbls, mdls
+from hew_back import tbls
 from hew_back.util import OrderDirection
 
 
@@ -22,8 +22,6 @@ class GetProductsResponse(BaseModel):
     product_title: str
     product_date: datetime
     product_contents_uuid: uuid.UUID
-
-
 
     @staticmethod
     async def get_products(
@@ -55,8 +53,6 @@ class GetProductsResponse(BaseModel):
             sort=sort,
         )
 
-
-
         # Pydanticモデルのリストに変換
 
         # **は辞書の展開を意味
@@ -68,5 +64,3 @@ class GetProductsResponse(BaseModel):
 
     class Config:
         from_attributes = True  # SQLAlchemyオブジェクトからPydanticモデルへの変換を有効に
-
-

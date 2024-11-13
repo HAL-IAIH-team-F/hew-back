@@ -33,7 +33,7 @@ class Main:
 
         fastapiutil.handler(app)
         # noinspection PyUnresolvedReferences
-        import hew_back.api
+        import hew_back.apis
 
     def main(self):
         uvicorn.run(self.app, host="0.0.0.0")

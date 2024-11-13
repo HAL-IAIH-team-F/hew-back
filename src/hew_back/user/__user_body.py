@@ -3,7 +3,8 @@ import uuid
 from pydantic import BaseModel, field_serializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import results, mdls, tbls
+from hew_back import  mdls, tbls
+from hew_back.user.__result import UserResult
 from hew_back.util import keycloak
 
 
@@ -21,7 +22,7 @@ class PostUserBody(BaseModel):
             self,
             session: AsyncSession,
             profile: keycloak.KeycloakUserProfile
-    ) -> results.UserResult:
+    ) -> UserResult:
         if self.user_icon_uuid is not None:
             mdls.ImagePreferenceRequest.crete(mdls.State.public).post_preference(self.user_icon_uuid)
         # UserTableクラスは、SQLAlchemy を使ってデータベース上のテーブルを定義しており、
@@ -39,4 +40,4 @@ class PostUserBody(BaseModel):
         await tbl.save_new(session)
         await session.commit()
         await session.refresh(tbl)
-        return results.UserResult(tbl)
+        return UserResult(tbl)

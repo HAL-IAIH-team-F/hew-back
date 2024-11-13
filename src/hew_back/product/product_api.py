@@ -4,7 +4,8 @@ from typing import Union, List
 from fastapi import Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import app, reses, deps
+from hew_back import app, deps
+from hew_back.product.__res import GetProductsResponse
 from hew_back.util import OrderDirection
 
 
@@ -26,7 +27,7 @@ async def read_products(
             description="List may be included datetime or name or like,witch is gaven default asc or desc"
         ),
         session: AsyncSession = Depends(deps.DbDeps.session)
-) -> list[reses.GetProductsResponse]:
+) -> list[GetProductsResponse]:
     # order_by: Literal["created_at", "updated_at"] = "created_at"とできることを後で知ったが、実装した後になって修正するのはめんどくさい
 
     # query_items = {
@@ -43,7 +44,7 @@ async def read_products(
     # if isinstance(time_order, list):
     #     raise HTTPException(status_code=400, detail="time_order should be specified only once.")
 
-    search_products = await reses.GetProductsResponse.get_products(
+    search_products = await GetProductsResponse.get_products(
         session=session,
         name=name,
         tag=tag,

@@ -2,14 +2,16 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import bodies, tbls, reses
-from hew_back.bodies import PostChatMessageBody
-from hew_back.reses import ChatRes
+from hew_back import  tbls
+
+from hew_back.chat.__body import PostChatBody, PostChatMessageBody
+
+from hew_back.chat.__res import ChatMessageRes, ChatRes
 
 
 @pytest.fixture
-def post_chat_body(session, user_saved) -> bodies.PostChatBody:
-    return bodies.PostChatBody(
+def post_chat_body(session, user_saved) -> PostChatBody:
+    return PostChatBody(
         users=[
             user_saved.user_id
         ]
@@ -18,15 +20,15 @@ def post_chat_body(session, user_saved) -> bodies.PostChatBody:
 
 @pytest.fixture
 def post_chat_message_body(session) -> PostChatMessageBody:
-    return bodies.PostChatMessageBody(
+    return PostChatMessageBody(
         message="post_chat_message_body",
         images=[]
     )
 
 
 @pytest_asyncio.fixture
-async def saved_chat(session, user_saved, login_user_deps) -> reses.ChatRes:
-    body = bodies.PostChatBody(
+async def saved_chat(session, user_saved, login_user_deps) -> ChatRes:
+    body = PostChatBody(
         users=[
             user_saved.user_id
         ]
@@ -50,7 +52,7 @@ async def test_post_chat(session, client, login_access_token, post_chat_body):
     assert response.status_code == 200, f"invalid status code {response.json()}"
     body = response.json()
     assert body is not None
-    chat = reses.ChatRes(**body)
+    chat = ChatRes(**body)
 
     record = await session.execute(
         sqlalchemy.select(tbls.ChatUserTable)
@@ -77,7 +79,7 @@ async def test_get_chat(client, login_access_token, session, chat_saved_list):
     assert len(chat_saved_list) == len(body)
     for i in range(len(chat_saved_list)):
         chat = chat_saved_list[i]
-        res = reses.ChatRes(**body[i])
+        res = ChatRes(**body[i])
         assert chat.chat_id == res.chat_id
         for user_i in range(len(chat.users)):
             assert chat.users[user_i] == res.users[user_i]
@@ -93,7 +95,7 @@ async def test_post_chat(session, client, login_access_token, saved_chat, post_c
     assert response.status_code == 200, f"invalid status code {response.json()}"
     body = response.json()
     assert body is not None
-    message = reses.ChatMessageRes(**body)
+    message = ChatMessageRes(**body)
 
     result = await session.execute(
         sqlalchemy.select(tbls.ChatMessageTable)
