@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps
 from hew_back.chat.__body import PostChatBody, PostChatMessageBody
-from hew_back.chat.__res import ChatMessageRes, ChatRes
+from hew_back.chat.__finder import ChatFinder
+from hew_back.chat.__res import ChatMessageRes, ChatRes, ChatMessagesRes
 
 
 @app.post("/api/chat")
@@ -32,8 +33,9 @@ async def pcm(
         body: PostChatMessageBody,
         chat_id: uuid.UUID,
         session: AsyncSession = Depends(deps.DbDeps.session),
+        user: deps.UserDeps = Depends(deps.UserDeps.get),
 ) -> ChatMessageRes:
-    res = await body.save_new(session, chat_id)
+    res = await body.save_new(session, chat_id, user)
     return res.to_chat_message_res()
 
 
@@ -41,6 +43,7 @@ async def pcm(
 async def gcms(
         chat_id: uuid.UUID,
         session: AsyncSession = Depends(deps.DbDeps.session),
-) -> ChatMessageRes:
-    res = await body.save_new(session, chat_id)
-    return res.to_chat_message_res()
+        user: deps.UserDeps = Depends(deps.UserDeps.get),
+) -> ChatMessagesRes:
+    res = await ChatFinder.find_chat_messages(session, chat_id, user)
+    return res.to_chat_messages_res()

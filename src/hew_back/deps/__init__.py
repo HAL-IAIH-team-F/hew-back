@@ -3,7 +3,7 @@ from typing import Union
 from hew_back import tbls
 from .__db_deps import *
 from .__token_deps import *
-from ..chat.__result import FindChatsResult, ChatUsersResult
+from ..chat.__result import ChatsResult, ChatUsersResult
 from ..user.__res import SelfUserRes
 
 
@@ -14,13 +14,13 @@ class UserDeps:
     def to_self_user_res(self) -> SelfUserRes:
         return SelfUserRes.create_by_user_table(self.user_table)
 
-    async def find_chats(self, session: AsyncSession) -> FindChatsResult:
+    async def find_chats(self, session: AsyncSession) -> ChatsResult:
         chats = await tbls.ChatTable.find_all(session, self.user_table)
         items: list[ChatUsersResult] = []
         for chat in chats:
             users = await tbls.ChatUserTable.find_all_by_chat(session, chat)
             items.append(ChatUsersResult(chat, users))
-        return FindChatsResult(items)
+        return ChatsResult(items)
 
     @staticmethod
     async def get_or_none(

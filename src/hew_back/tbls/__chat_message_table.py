@@ -19,6 +19,21 @@ class ChatMessageTable(BaseTable):
     message = Column(sqlalchemy.Text, nullable=False)
 
     @staticmethod
+    async def find_messages(session: AsyncSession, chat: tbls.ChatTable, user: tbls.UserTable):
+        res = await session.execute(
+            sqlalchemy.select(ChatMessageTable)
+            .distinct()
+            .join(tbls.ChatUserTable)
+            .where(sqlalchemy.and_(
+                ChatMessageTable.chat_id == chat.chat_id,
+                tbls.ChatUserTable.user_id == user.user_id,
+            ))
+            .order_by(ChatMessageTable.index)
+        )
+        records = res.scalars().all()
+        return records
+
+    @staticmethod
     async def last_index(session: AsyncSession, chat: tbls.ChatTable):
         res = await session.execute(
             sqlalchemy.select(sqlalchemy.func.max(ChatMessageTable.index))

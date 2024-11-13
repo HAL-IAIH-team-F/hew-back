@@ -36,8 +36,8 @@ class PostChatMessageBody(BaseModel):
     message: str
     images: list[uuid.UUID]
 
-    async def save_new(self, session: AsyncSession, chat_id: uuid.UUID) -> ChatMessageResult:
-        chat = await tbls.ChatTable.find(session, chat_id)
+    async def save_new(self, session: AsyncSession, chat_id: uuid.UUID, user: deps.UserDeps) -> ChatMessageResult:
+        chat = await tbls.ChatTable.find(session, chat_id, user.user_table)
 
         last_index = await tbls.ChatMessageTable.last_index(session, chat)
         chat_message = tbls.ChatMessageTable.create(session, chat, last_index + 1, self.message)
