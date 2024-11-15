@@ -43,7 +43,8 @@ class MessageResult:
             self.message.chat_message_id,
             self.message.index,
             self.message.message,
-            images
+            images,
+            self.message.post_user_id,
         )
 
 
