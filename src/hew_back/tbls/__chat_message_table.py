@@ -14,8 +14,9 @@ class ChatMessageTable(BaseTable):
         sqlalchemy.UniqueConstraint("chat_id", "index"),
     )
     chat_message_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    chat_id = Column(UUID(as_uuid=True), ForeignKey('TBL_CHAT.chat_id'))
-    index = Column(sqlalchemy.Integer, nullable=False)
+    chat_id = Column(UUID(as_uuid=True), ForeignKey('TBL_CHAT.chat_id'), nullable=False)
+    post_user_id = Column(UUID(as_uuid=True), ForeignKey('TBL_USER.user_id'), nullable=False)
+    index = Column(sqlalchemy.Integer, nullable=False, unique=True)
     message = Column(sqlalchemy.Text, nullable=False)
 
     @staticmethod
@@ -50,11 +51,13 @@ class ChatMessageTable(BaseTable):
             chat: tbls.ChatTable,
             index: int,
             message: str,
+            post_user: tbls.UserTable
     ) -> 'ChatMessageTable':
         table = ChatMessageTable(
             chat_id=chat.chat_id,
             message=message,
             index=index,
+            post_user_id=post_user.user_id,
         )
         session.add(table)
         return table
