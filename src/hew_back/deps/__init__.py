@@ -49,3 +49,9 @@ class UserDeps:
         await session.commit()
         await session.refresh(table)
         return UserDeps(table)
+
+    async def refresh(self, session: AsyncSession):
+        for wait in [
+            session.refresh(self.user_table),
+        ]:
+            await wait

@@ -109,7 +109,7 @@ async def login_user_deps(session, login_user, login_access_jwt_token_deps) -> U
 
 
 @pytest_asyncio.fixture
-async def user_saved(session) -> SelfUserRes:
+async def saved_user(session) -> SelfUserRes:
     uid = "df56c011-8025-468a-a390-202e6f0d6328"
     profile = keycloak.KeycloakUserProfile(
         sub=uid,

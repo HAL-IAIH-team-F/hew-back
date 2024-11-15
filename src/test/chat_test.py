@@ -2,18 +2,17 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import  tbls
-
+from hew_back import tbls
 from hew_back.chat.__body import PostChatBody, PostChatMessageBody
-
-from hew_back.chat.__res import ChatMessageRes, ChatRes
+from hew_back.chat.__res import ChatMessageRes, ChatRes, ChatMessagesRes
+from hew_back.chat.__result import ChatMessageResult
 
 
 @pytest.fixture
-def post_chat_body(session, user_saved) -> PostChatBody:
+def post_chat_body(session, saved_user) -> PostChatBody:
     return PostChatBody(
         users=[
-            user_saved.user_id
+            saved_user.user_id
         ]
     )
 
@@ -27,19 +26,36 @@ def post_chat_message_body(session) -> PostChatMessageBody:
 
 
 @pytest_asyncio.fixture
-async def saved_chat(session, user_saved, login_user_deps) -> ChatRes:
+async def saved_chat(session, saved_user, login_user_deps) -> ChatRes:
     body = PostChatBody(
         users=[
-            user_saved.user_id
+            saved_user.user_id
         ]
     )
     res = await body.save_new(login_user_deps, session)
     return res.to_chat_res()
 
 
+@pytest_asyncio.fixture
+async def saved_message(session, login_user_deps, saved_chat) -> ChatMessageResult:
+    body = PostChatMessageBody(
+        message="saved_message",
+        images=[],
+    )
+    await login_user_deps.refresh(session)
+    res = await body.save_new(session, saved_chat.chat_id, login_user_deps)
+    await session.commit()
+    return res
+
+
 @pytest.fixture
-def chat_saved_list(saved_chat) -> list[ChatRes]:
+def saved_chat_list(saved_chat) -> list[ChatRes]:
     return [saved_chat]
+
+
+@pytest.fixture
+def saved_message_list(saved_message) -> list[ChatMessageResult]:
+    return [saved_message]
 
 
 @pytest.mark.asyncio
@@ -68,7 +84,7 @@ async def test_post_chat(session, client, login_access_token, post_chat_body):
 
 
 @pytest.mark.asyncio
-async def test_get_chat(client, login_access_token, session, chat_saved_list):
+async def test_get_chat(client, login_access_token, session, saved_chat_list):
     result = await client.get(
         "/api/chat",
         login_access_token.token
@@ -76,9 +92,9 @@ async def test_get_chat(client, login_access_token, session, chat_saved_list):
     assert result.status_code == 200, f"invalid status code {result.read()}"
     body = result.json()
     assert body is not None
-    assert len(chat_saved_list) == len(body)
-    for i in range(len(chat_saved_list)):
-        chat = chat_saved_list[i]
+    assert len(saved_chat_list) == len(body)
+    for i in range(len(saved_chat_list)):
+        chat = saved_chat_list[i]
         res = ChatRes(**body[i])
         assert chat.chat_id == res.chat_id
         for user_i in range(len(chat.users)):
@@ -86,7 +102,29 @@ async def test_get_chat(client, login_access_token, session, chat_saved_list):
 
 
 @pytest.mark.asyncio
-async def test_post_chat(session, client, login_access_token, saved_chat, post_chat_message_body):
+async def test_get_message(client, login_access_token, session, saved_chat, saved_message_list):
+    result = await client.get(
+        f"/api/chat/{saved_chat.chat_id}/message",
+        login_access_token.token
+    )
+    assert result.status_code == 200, f"invalid status code {result.read()}"
+    body = result.json()
+    assert body is not None
+    res = ChatMessagesRes(**body)
+    assert len(saved_message_list) == len(res.messages)
+    assert saved_chat.chat_id == res.chat_id
+    for i in range(len(saved_message_list)):
+        message_record = saved_message_list[i]
+        message_res = res.messages[i]
+        await message_record.refresh(session)
+        assert message_record.message.chat_message_id == message_res.chat_message_id
+        assert message_record.message.message == message_res.message
+        for j in range(len(message_record.images)):
+            assert message_record.images[j].image_uuid == message_res.images[j]
+
+
+@pytest.mark.asyncio
+async def test_post_message(session, client, login_access_token, saved_chat, post_chat_message_body):
     response = await client.post(
         f"/api/chat/{saved_chat.chat_id}/message",
         post_chat_message_body,

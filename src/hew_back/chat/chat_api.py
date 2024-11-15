@@ -39,7 +39,7 @@ async def pcm(
     return res.to_chat_message_res()
 
 
-@app.post("/api/chat/{chat_id}/message")
+@app.get("/api/chat/{chat_id}/message")
 async def gcms(
         chat_id: uuid.UUID,
         session: AsyncSession = Depends(deps.DbDeps.session),

@@ -1,6 +1,8 @@
 import uuid
 from dataclasses import dataclass
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from hew_back import tbls
 from hew_back.chat.__res import ChatRes, ChatMessageRes, MessageRes, ChatMessagesRes
 
@@ -77,3 +79,11 @@ class ChatMessageResult:
             self.message.message,
             images
         )
+
+    async def refresh(self, session: AsyncSession):
+        for wait in [
+            session.refresh(self.chat),
+            session.refresh(self.message),
+            *map(lambda image: session.refresh(image), self.images),
+        ]:
+            await wait

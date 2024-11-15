@@ -23,7 +23,7 @@ class ChatMessageTable(BaseTable):
         res = await session.execute(
             sqlalchemy.select(ChatMessageTable)
             .distinct()
-            .join(tbls.ChatUserTable)
+            .join(tbls.ChatUserTable, ChatMessageTable.chat_id == tbls.ChatUserTable.chat_id)
             .where(sqlalchemy.and_(
                 ChatMessageTable.chat_id == chat.chat_id,
                 tbls.ChatUserTable.user_id == user.user_id,

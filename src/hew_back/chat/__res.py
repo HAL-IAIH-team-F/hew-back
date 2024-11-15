@@ -47,7 +47,7 @@ class ChatMessagesRes(BaseModel):
             chat_id: uuid.UUID,
             messages: list[MessageRes]
     ):
-        return ChatMessageRes(
+        return ChatMessagesRes(
             chat_id=chat_id,
             messages=messages,
         )
