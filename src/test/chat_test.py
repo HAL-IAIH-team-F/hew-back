@@ -119,12 +119,20 @@ async def test_get_message(client, login_access_token, session, saved_chat, save
         await message_record.refresh(session)
         assert message_record.message.chat_message_id == message_res.chat_message_id
         assert message_record.message.message == message_res.message
+        assert message_record.message.post_user_id == message_res.post_user_id
         for j in range(len(message_record.images)):
             assert message_record.images[j].image_uuid == message_res.images[j]
 
 
 @pytest.mark.asyncio
-async def test_post_message(session, client, login_access_token, saved_chat, post_chat_message_body):
+async def test_post_message(
+        session,
+        client,
+        login_access_token,
+        saved_chat,
+        post_chat_message_body,
+        login_user,
+):
     response = await client.post(
         f"/api/chat/{saved_chat.chat_id}/message",
         post_chat_message_body,
@@ -145,6 +153,7 @@ async def test_post_message(session, client, login_access_token, saved_chat, pos
     assert record.chat_message_id == message.chat_message_id
     assert record.message == message.message
     assert record.index == message.index
+    assert record.post_user_id == login_user.user_id
 
     result = await session.execute(
         sqlalchemy.select(tbls.ChatImageTable)
