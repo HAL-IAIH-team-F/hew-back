@@ -6,7 +6,7 @@ from sqlalchemy import Column, String, UUID, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped
 
-from hew_back import tables
+from hew_back import tbls
 from hew_back.db import BaseTable
 
 
@@ -25,7 +25,7 @@ class CreatorTable(BaseTable):
 
     @staticmethod
     def create(
-            user: tables.UserTable,
+            user: tbls.UserTable,
             contact_address: str,
             transfer_target: str,
     ) -> 'CreatorTable':

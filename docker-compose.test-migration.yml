@@ -1,0 +1,81 @@
+services:
+  postgres-test-migration:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: "hew"
+    volumes:
+      - type: volume
+        source: db-data-test-migration
+        target: /var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: '3'
+    healthcheck:
+      test: "pg_isready -q -U postgres"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  #########################################################
+  init-rsync-test-migration:
+    image: secoresearch/rsync
+    command:
+      - rsync
+      - --delete
+      - -av
+      - /src/
+      - /app
+      - --exclude
+      - .venv
+      - --exclude
+      - .git
+      - --exclude
+      - /temp
+      - --exclude
+      - .gitignore
+    working_dir: /src
+    volumes:
+      - type: bind
+        source: .
+        target: /src
+      - type: bind
+        source: ./temp/test/app-data-test-migration
+        target: /app
+  #########################################################
+  test-migration:
+    image: python:3.12-bookworm
+    depends_on:
+      postgres-test-migration:
+        condition: service_healthy
+      init-rsync-test-migration:
+        condition: service_completed_successfully
+    links:
+      - postgres-test-migration:postgres
+    volumes:
+      - type: bind
+        source: ./temp/test/app-data-test-migration
+        target: /app
+    working_dir: /app
+    environment:
+      DB_USER: 'postgres'
+      DB_PASS: 'postgres'
+      DB_NAME: "hew"
+      DB_HOST: "postgres-test-migration"
+    command:
+      - bash
+      - -c
+      - |
+        pip install -r requirements.lock
+        python -c "import sys; print(sys.version)"
+        cd src
+        pwd
+        ls
+        python -m alembic upgrade head
+  #########################################################
+
+volumes:
+  db-data-test-migration:

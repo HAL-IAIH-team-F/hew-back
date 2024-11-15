@@ -1,0 +1,84 @@
+from .__products_res import *
+from .__token_res import *
+
+
+class CreatorResponse(BaseModel):
+    creator_id: uuid.UUID
+    user_id: uuid.UUID
+    contact_address: str
+    transfer_target: str
+
+    @staticmethod
+    def create(
+            creator_id: uuid.UUID,
+            user_id: uuid.UUID,
+            contact_address: str,
+            transfer_target: str,
+    ) -> 'CreatorResponse':
+        return CreatorResponse(
+            creator_id=creator_id,
+            user_id=user_id,
+            contact_address=contact_address,
+            transfer_target=transfer_target,
+        )
+
+
+class ChatRes(BaseModel):
+    chat_id: uuid.UUID
+    users: list[uuid.UUID]
+
+    @staticmethod
+    def create(
+            chat_id: uuid.UUID,
+            users: list[uuid.UUID],
+    ):
+        return ChatRes(
+            chat_id=chat_id,
+            users=users,
+        )
+
+
+class SelfUserRes(BaseModel):
+    user_id: uuid.UUID
+    user_name: str
+    user_screen_id: str
+    user_icon: mdls.Img | None
+    user_date: datetime
+    user_mail: str
+
+    @field_serializer("user_date")
+    def serialize_sub(self, user_date: datetime) -> str:
+        return user_date.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    @staticmethod
+    def create(
+            user_id: uuid.UUID,
+            user_name: str,
+            user_screen_id: str,
+            user_icon: mdls.Img | None,
+            user_date: datetime,
+            user_mail: str,
+    ):
+        return SelfUserRes(
+            user_id=user_id,
+            user_name=user_name,
+            user_screen_id=user_screen_id,
+            user_icon=user_icon,
+            user_date=user_date,
+            user_mail=user_mail,
+        )
+
+    @staticmethod
+    def create_by_user_table(tbl: tbls.UserTable):
+        if tbl.user_icon_uuid is None:
+            user_icon = None
+        else:
+            user_icon = mdls.Img.create(tbl.user_icon_uuid, None)
+        return SelfUserRes.create(
+            user_id=tbl.user_id,
+            user_name=tbl.user_name,
+            user_screen_id=tbl.user_screen_id,
+            user_icon=user_icon,
+            user_date=tbl.user_date,
+            user_mail=tbl.user_mail,
+        )

@@ -3,14 +3,12 @@ from hew_back.db import BaseTable
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import uuid
-from typing import Union
-
-from fastapi import Query
 
 
-from sqlalchemy import Column, UUID, Boolean, ForeignKey, select, update, Nullable
 
-from datetime import datetime, timezone
+from sqlalchemy import Column, UUID, ForeignKey, select, update
+
+from datetime import datetime
 
 from hew_back import tables
 

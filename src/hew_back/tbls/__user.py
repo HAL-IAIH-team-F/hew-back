@@ -62,3 +62,11 @@ class UserTable(BaseTable):
         if tbl is None:
             raise err.ErrorIdException(err.ErrorIds.USER_NOT_FOUND)
         return tbl
+
+    @staticmethod
+    async def find_all(session: AsyncSession, user_ids: list[uuid.UUID]) -> list['UserTable']:
+        result: list[UserTable] = []
+        for user_id in user_ids:
+            tbl = await UserTable.find_one(session, user_id)
+            result.append(tbl)
+        return result

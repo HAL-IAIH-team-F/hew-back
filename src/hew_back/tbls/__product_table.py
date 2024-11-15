@@ -9,7 +9,7 @@ from sqlalchemy import Column, String, DateTime, UUID
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tables
+from hew_back import tbls
 from hew_back.db import BaseTable
 from hew_back.util import OrderDirection
 
@@ -77,15 +77,15 @@ class ProductTable(BaseTable):
         if tag is not None and len(tag) > 0:
             tag_subquery = (
                 select(
-                    tables.ProductTag.item_id.label("product_id")
+                    tbls.ProductTag.item_id.label("product_id")
                 )
-                .join(tables.Tag, tables.ProductTag.tag_id == tables.Tag.tag_id)
-                .where(tables.Tag.tag_name.in_(tag))
+                .join(tbls.Tag, tbls.ProductTag.tag_id == tbls.Tag.tag_id)
+                .where(tbls.Tag.tag_name.in_(tag))
                 # ProductTag.item_idをgroup_byすることで、ProductTag テーブルの item_id（製品ID）ごとにグループ化
                 # →中間テーブルの特性上、その製品に関連付けられたタグ情報がまとめられる
-                .group_by(tables.ProductTag.item_id)
+                .group_by(tbls.ProductTag.item_id)
                 # 各 item_id に関連するタグの数が指定した条件と一致したら
-                .having(func.count(tables.ProductTag.tag_id) == len(tag))
+                .having(func.count(tbls.ProductTag.tag_id) == len(tag))
                 .subquery()
             )
             # メインクエリにサブクエリを結合して、製品をフィルタリングしています
@@ -102,13 +102,13 @@ class ProductTable(BaseTable):
         if post_by is not None and len(post_by) > 0:
             post_by_subquery = (
                 select(
-                    tables.CreatorProductTable.product_id.label("product_id")
+                    tbls.CreatorProductTable.product_id.label("product_id")
                 )
-                .join(tables.CreatorTable, tables.CreatorProductTable.creator_id == tables.CreatorTable.creator_id)
-                .join(tables.UserTable, tables.UserTable.user_id == tables.CreatorTable.user_id)
-                .where(tables.UserTable.user_name.in_(post_by))
-                .group_by(tables.CreatorProductTable.product_id)
-                .having(func.count(tables.UserTable.user_name) == len(post_by))
+                .join(tbls.CreatorTable, tbls.CreatorProductTable.creator_id == tbls.CreatorTable.creator_id)
+                .join(tbls.UserTable, tbls.UserTable.user_id == tbls.CreatorTable.user_id)
+                .where(tbls.UserTable.user_name.in_(post_by))
+                .group_by(tbls.CreatorProductTable.product_id)
+                .having(func.count(tbls.UserTable.user_name) == len(post_by))
                 .subquery()
             )
             stmt = stmt.join(post_by_subquery, ProductTable.product_id == post_by_subquery.c.product_id)
@@ -117,16 +117,16 @@ class ProductTable(BaseTable):
         if following:
             following_subquery = (
                 select(
-                    tables.UserFollowTable.creator_id
+                    tbls.UserFollowTable.creator_id
                 )
                 # .where(UserFollowTable.user_id == current_user.user_id) ←　ログイン機能実装後、ログインしているユーザーがフォローしているクリエイターのフィルタリングを行う処理をwhere句で実施していきたい
                 .subquery()
             )
             stmt = (
                 select(ProductTable)
-                .join(tables.CreatorProductTable, ProductTable.product_id == tables.CreatorProductTable.product_id)
-                .join(tables.CreatorTable, tables.CreatorProductTable.creator_id == tables.CreatorTable.creator_id)
-                .where(tables.CreatorProductTable.creator_id.in_(following_subquery))
+                .join(tbls.CreatorProductTable, ProductTable.product_id == tbls.CreatorProductTable.product_id)
+                .join(tbls.CreatorTable, tbls.CreatorProductTable.creator_id == tbls.CreatorTable.creator_id)
+                .where(tbls.CreatorProductTable.creator_id.in_(following_subquery))
             )
 
         if read_limit_number is not None and read_limit_number > 0:
@@ -146,10 +146,10 @@ class ProductTable(BaseTable):
 
         likes_subquery = (
             select(
-                tables.LikeTable.product_id,
-                func.count(tables.LikeTable.product_id).label("like_count")
+                tbls.LikeTable.product_id,
+                func.count(tbls.LikeTable.product_id).label("like_count")
             )
-            .group_by(tables.LikeTable.product_id)
+            .group_by(tbls.LikeTable.product_id)
             .subquery()
         )
         stmt = stmt.outerjoin(likes_subquery, ProductTable.product_id == likes_subquery.c.product_id)
