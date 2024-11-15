@@ -1,5 +1,4 @@
 import uuid
-from unittest.mock import MagicMixin
 
 import sqlalchemy
 from sqlalchemy import Column, UUID
@@ -34,3 +33,16 @@ class ChatTable(BaseTable):
         table = ChatTable()
         session.add(table)
         return table
+
+    @staticmethod
+    async def find(session: AsyncSession, chat_id: uuid.UUID, user: tbls.UserTable) -> 'ChatTable':
+        res = await session.execute(
+            sqlalchemy.select(ChatTable)
+            .distinct()
+            .join(tbls.ChatUserTable)
+            .where(sqlalchemy.and_(
+                ChatTable.chat_id == chat_id,
+                tbls.ChatUserTable.user_id == user.user_id,
+            ))
+        )
+        return res.scalar_one()

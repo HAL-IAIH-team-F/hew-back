@@ -8,4 +8,5 @@ class DbDeps:
     async def session() -> AsyncSession:
         async with DB.session_maker() as session:
             yield session
+            session.commit()
 

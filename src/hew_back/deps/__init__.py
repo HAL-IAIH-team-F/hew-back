@@ -1,24 +1,26 @@
 from typing import Union
 
-from hew_back import tbls, reses, results
+from hew_back import tbls
 from .__db_deps import *
 from .__token_deps import *
+from ..chat.__result import ChatsResult, ChatUsersResult
+from ..user.__res import SelfUserRes
 
 
 @dataclass
 class UserDeps:
     user_table: tbls.UserTable
 
-    def to_self_user_res(self) -> reses.SelfUserRes:
-        return reses.SelfUserRes.create_by_user_table(self.user_table)
+    def to_self_user_res(self) -> SelfUserRes:
+        return SelfUserRes.create_by_user_table(self.user_table)
 
-    async def find_chats(self, session: AsyncSession) -> results.FindChatsResult:
+    async def find_chats(self, session: AsyncSession) -> ChatsResult:
         chats = await tbls.ChatTable.find_all(session, self.user_table)
-        items: list[results.ChatUsersResult] = []
+        items: list[ChatUsersResult] = []
         for chat in chats:
             users = await tbls.ChatUserTable.find_all_by_chat(session, chat)
-            items.append(results.ChatUsersResult(chat, users))
-        return results.FindChatsResult(items)
+            items.append(ChatUsersResult(chat, users))
+        return ChatsResult(items)
 
     @staticmethod
     async def get_or_none(
@@ -47,3 +49,9 @@ class UserDeps:
         await session.commit()
         await session.refresh(table)
         return UserDeps(table)
+
+    async def refresh(self, session: AsyncSession):
+        for wait in [
+            session.refresh(self.user_table),
+        ]:
+            await wait

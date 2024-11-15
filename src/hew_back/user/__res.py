@@ -1,41 +1,9 @@
-from .__products_res import *
-from .__token_res import *
+import uuid
+from datetime import datetime
 
+from pydantic import BaseModel, field_serializer
 
-class CreatorResponse(BaseModel):
-    creator_id: uuid.UUID
-    user_id: uuid.UUID
-    contact_address: str
-    transfer_target: str
-
-    @staticmethod
-    def create(
-            creator_id: uuid.UUID,
-            user_id: uuid.UUID,
-            contact_address: str,
-            transfer_target: str,
-    ) -> 'CreatorResponse':
-        return CreatorResponse(
-            creator_id=creator_id,
-            user_id=user_id,
-            contact_address=contact_address,
-            transfer_target=transfer_target,
-        )
-
-
-class ChatRes(BaseModel):
-    chat_id: uuid.UUID
-    users: list[uuid.UUID]
-
-    @staticmethod
-    def create(
-            chat_id: uuid.UUID,
-            users: list[uuid.UUID],
-    ):
-        return ChatRes(
-            chat_id=chat_id,
-            users=users,
-        )
+from hew_back import mdls, tbls
 
 
 class SelfUserRes(BaseModel):
