@@ -60,8 +60,11 @@ async def read_products(
     )
     return search_products
 
-# True
-# http://127.0.0.1:8000/products/?name=AdoのTシャツ&start_datetime=2024-01-01T00:00:00Z&end_datetime=2024-01-31T23:59:59Z&read_limit_number=10
-
-# Error
-# http://127.0.0.1:8000/products/?name=Ado&name=グッズ&start_datetime=2024-01-31T23:59:59Z&end_datetime=2024-01-01T00:00:00Z
+@app.post("/api/chat")
+async def pc(
+        body: PostChatBody,
+        session: AsyncSession = Depends(deps.DbDeps.session),
+        user: deps.UserDeps = Depends(deps.UserDeps.get),
+) -> ChatRes:
+    res = await body.save_new(user, session)
+    return res.to_chat_res()
