@@ -1,4 +1,3 @@
-from sqlalchemy.testing.suite.test_reflection import users
 
 from hew_back.db import BaseTable
 from sqlalchemy.ext.asyncio import AsyncSession

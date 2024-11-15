@@ -3,18 +3,13 @@ import uuid
 
 import pytest
 
-from sqlalchemy import true, Nullable
-
 import pytest_asyncio
 
-from hew_back import tables, bodies, responses, deps
-from hew_back.responses import CartProduct
+from hew_back import responses
 from hew_back.tables import UserTable, CartTable, CartProductTable, ProductTable
 from test.conftest import session
 
 from datetime import datetime
-
-from typing import Union
 
 @pytest_asyncio.fixture
 async def mock_data(session):
@@ -62,7 +57,13 @@ async def mock_data(session):
         product_id=product_id,
     )
     session.add(cart_product)
+
     await session.commit()
+    await session.refresh(user)
+    await session.refresh(cart)
+    await session.refresh(products)
+    await session.refresh(cart_product)
+
 
     return user, cart, products, cart_product
 
@@ -72,7 +73,10 @@ async  def cart_product_result(
         mock_data
     ):
     user, products, cart, cart_product = mock_data
+    # print(f"user→{user} products→{products} cart→{cart} cart_product{cart_product}\n")
+    print(f"user_id→→→{user.user_id}")
     result = await responses.CartProduct.get_cart_product(session=session, user_id=user.user_id)
+    print(f"result→{result}")
     return [to_dict(item) for item in result]
 
 def to_dict(instance):
@@ -80,42 +84,48 @@ def to_dict(instance):
 
 @pytest.mark.asyncio
 async def test_read_cart_product(
-    async_client,
-    session,
+    client,
+    # session,
     token_info,
     cart_product_result
 ):
-    print(f"これがtoken_info------------------>{token_info}")
 
-    import jwt
-    class ENV:
-        class token:
-            secret_key = "secret"
+    # 1回pullしてくる
+    # 
 
-        class db:
-            host = "hew"
-            port = 5433
-            username = "postgres"
-            password = "postgres"
 
-    # シークレットキーはデコードに必要です
-    secret_key = ENV.token.secret_key
+    print(f"token_info--->{token_info},token_info.token--->{token_info.token}")
+    # print(f"これがtoken_info------------------>{token_info}")
 
-    # JWT トークンをデコードしてペイロードを取得
-    decoded_token = jwt.decode(token_info.token, secret_key, algorithms=["HS256"])
+    # import jwt
+    # class ENV:
+    #     class token:
+    #         secret_key = "secret"
 
-    # ペイロードから `sub` にアクセス
-    user_id = decoded_token["profile"]["sub"]
-    print(f"これがuser_id--------------------->{user_id}")
+    #     class db:
+    #         host = "hew"
+    #         port = 5433
+    #         username = "postgres"
+    #         password = "postgres"
+    #
+    # # シークレットキーはデコードに必要です
+    # secret_key = ENV.token.secret_key
+    #
+    # # JWT トークンをデコードしてペイロードを取得
+    # decoded_token = jwt.decode(token_info.token, secret_key, algorithms=["HS256"])
+    #
+    # # ペイロードから `sub` にアクセス
+    # user_id = decoded_token["profile"]["sub"]
+    # print(f"これがuser_id--------------------->{user_id}")
 
     # ユーザーが存在するか確認
-    user = await session.get(UserTable, user_id)
-    assert user is not None, "Userは存在しません！！！！！！！！！！！！！！！！！！！！！！！！！！！！"
+    # user = await session.get(UserTable, user_id)
+    # assert user is not None, "Userは存在しません！！！！！！！！！！！！！！！！！！！！！！！！！！！！"
 
     # 非同期的にGETリクエストを送信
-    response = await async_client.get(
+    response = await client.get(
         "/cart_product",
-        headers={"Authorization": f"Bearer {token_info.token}"}
+        token_info.token
     )
     assert response.status_code == 200, f"Unexpected status code: {response.status_code}, {response.json()}"
     assert response.json() == cart_product_result, f"Unexpected response: {response.json()}"

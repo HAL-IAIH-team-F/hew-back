@@ -1,7 +1,6 @@
 import asyncio
 from typing import Iterator
 
-import dotenv
 import pytest_asyncio
 from _pytest.fixtures import FixtureRequest
 from sqlalchemy import NullPool
@@ -15,7 +14,6 @@ from hew_back import main, ENV, deps, mdls
 from hew_back.db import BaseTable
 from test.base import Client
 
-import uuid
 
 
 @pytest.fixture(scope="session")
@@ -68,12 +66,6 @@ async def session(engine, create, app):
 @pytest.fixture
 def client(app):
     return Client(app)
-
-from httpx import AsyncClient
-@pytest_asyncio.fixture
-async def async_client(app):
-    async with AsyncClient(app=app, base_url="http://testserver") as client:
-        yield client
 
 
 @pytest.fixture
