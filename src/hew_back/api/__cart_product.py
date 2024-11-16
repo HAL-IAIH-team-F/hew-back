@@ -1,12 +1,6 @@
-from fastapi import Query
-from sqlalchemy import true
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException, status
 from hew_back import app, deps, responses
-
-import uuid
-
 from typing import Union
 
 

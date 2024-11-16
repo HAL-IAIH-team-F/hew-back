@@ -6,7 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel, field_serializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tables, mdls
+from hew_back import tbls, mdls
 from hew_back.util import tks, OrderDirection
 
 
@@ -24,7 +24,7 @@ class CartProduct(BaseModel):
             session: AsyncSession,
             user_id: UUID,
     ) -> list["CartProduct"]:
-        get_product_cart = await tables.CartProductTable.get_cart_product(
+        get_product_cart = await tbls.CartProductTable.get_cart_product(
             session=session,
             user_id=user_id,
         )
@@ -36,7 +36,7 @@ class CartProduct(BaseModel):
          session: AsyncSession,
          user_id: UUID
     ) -> list["CartProduct"]:
-     put_product_cart = await tables.CartProductTable.put_cart_product(
+     put_product_cart = await tbls.CartProductTable.put_cart_product(
          session=session,
          user_id=user_id,
      )
@@ -73,7 +73,7 @@ class GetProductsResponse(BaseModel):
             like_order: OrderDirection,
             sort: list[str]
     ) -> list["GetProductsResponse"]:
-        products_data = await tables.ProductTable.find_products_or_null(
+        products_data = await tbls.ProductTable.find_products_or_null(
             session=session,
             name=name,
             tag=tag,
@@ -135,7 +135,7 @@ class SelfUserRes(BaseModel):
         )
 
     @staticmethod
-    def create_by_user_table(tbl: tables.UserTable):
+    def create_by_user_table(tbl: tbls.UserTable):
         if tbl.user_icon_uuid is None:
             user_icon = None
         else:

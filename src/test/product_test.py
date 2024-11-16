@@ -27,7 +27,7 @@ async def product_table_saved(session) -> tbls.ProductTable:
 
 
 @pytest.mark.asyncio
-async def test_read_products(client, session,product_table_saved):  # ←　これ実行すると、なぜかデータベース消える意味わからんw
+async def test_read_products(client, session, product_table_saved):
     result = await client.get(
         "/products"
     )

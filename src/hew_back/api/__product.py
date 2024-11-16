@@ -27,16 +27,6 @@ async def read_products(
         ),
         session: AsyncSession = Depends(deps.DbDeps.session)
 ) -> list[reses.GetProductsResponse]:
-    # order_by: Literal["created_at", "updated_at"] = "created_at"とできることを後で知ったが、実装した後になって修正するのはめんどくさい
-
-    # query_items = {
-    #     "name": name,
-    #     "start_datetime": start_datetime,
-    #     "end_datetime": end_datetime,
-    #     "following": following,
-    #     "read_limit_number": read_limit_number
-    # }
-
     if start_datetime and end_datetime and start_datetime > end_datetime:
         raise HTTPException(status_code=400, detail="start_datetime cannot be greater than end_datetime")
 

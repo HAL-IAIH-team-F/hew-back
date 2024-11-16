@@ -175,11 +175,3 @@ class ProductTable(BaseTable):
         products = result.scalars().all()
 
         return products
-
-        # return query
-
-# # データベースエンジンの作成とテーブルの作成
-# from sqlalchemy import create_engine
-#
-# engine = create_engine('sqlite:///products.db')
-# Base.metadata.create_all(engine)
