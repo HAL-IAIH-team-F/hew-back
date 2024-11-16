@@ -2,14 +2,16 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import tbls, bodies, reses, mdls, ENV
+from hew_back import tbls, mdls, ENV
+from hew_back.user.__res import SelfUserRes
+from hew_back.user.__user_body import PostUserBody
 from hew_back.util import keycloak, tks
 from test.conftest import session
 
 
 @pytest.fixture
-def post_user_body(session) -> bodies.PostUserBody:
-    return bodies.PostUserBody(
+def post_user_body(session) -> PostUserBody:
+    return PostUserBody(
         user_name="PostUserBody_user_name",
         user_icon_uuid=None,
     )
@@ -44,7 +46,7 @@ async def test_create_user(session, client, newuser_access_token, post_user_body
     assert result.status_code == 200, f"invalid status code {result.json()}"
     body = result.json()
     assert body is not None
-    body = reses.SelfUserRes(**body)
+    body = SelfUserRes(**body)
     result = await session.execute(
         sqlalchemy.select(sqlalchemy.func.count())
         .select_from(tbls.UserTable)
@@ -62,7 +64,7 @@ async def test_get_self(client, login_access_token, session, login_user, login_k
     assert result.status_code == 200, f"invalid status code {result.read()}"
     body = result.json()
     assert body is not None
-    body = reses.SelfUserRes(**body)
+    body = SelfUserRes(**body)
     assert body.user_id == login_keycloak_profile.sub
     assert body.user_mail == login_keycloak_profile.email
     assert body.user_name == login_user.user_name

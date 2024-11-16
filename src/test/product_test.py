@@ -5,9 +5,9 @@ import pytest
 import pytest_asyncio
 import sqlalchemy
 
-from hew_back import reses, tbls
+from hew_back import tbls
+from hew_back.product.__res import GetProductsResponse
 from test.conftest import session
-
 
 
 @pytest_asyncio.fixture
@@ -48,11 +48,10 @@ async def test_read_products(client, session, product_table_saved):
     # データの個々の検証
     for i in range(len(records)):
         record = records[i]
-        product = reses.GetProductsResponse(**body[i])
+        product = GetProductsResponse(**body[i])
 
         assert record.product_id == product.product_id
         assert record.product_date == product.product_date
         assert record.product_text == product.product_text
         assert record.product_title == product.product_title
         assert record.product_price == product.product_price
-

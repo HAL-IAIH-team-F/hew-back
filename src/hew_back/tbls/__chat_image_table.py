@@ -1,5 +1,6 @@
 import uuid
 
+import sqlalchemy
 from sqlalchemy import Column, ForeignKey, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped
@@ -14,13 +15,22 @@ class ChatImageTable(BaseTable):
     image_uuid: Mapped[uuid.UUID | None] = Column(UUID(as_uuid=True), nullable=True)
 
     @staticmethod
+    async def find_messages(session: AsyncSession, message: tbls.ChatMessageTable):
+        res = await session.execute(
+            sqlalchemy.select(ChatImageTable)
+            .where(ChatImageTable.chat_message_id == message.chat_message_id)
+        )
+        records = res.scalars().all()
+        return records
+
+    @staticmethod
     def create(
-            chat: tbls.ChatTable,
+            message: tbls.ChatMessageTable,
             image_uuid: uuid.UUID,
             session: AsyncSession
     ) -> 'ChatImageTable':
         table = ChatImageTable(
-            chat_id=chat.chat_id,
+            chat_message_id=message.chat_message_id,
             image_uuid=image_uuid,
         )
         session.add(table)
