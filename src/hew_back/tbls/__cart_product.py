@@ -10,7 +10,7 @@ from sqlalchemy import Column, UUID, ForeignKey, select, update
 
 from datetime import datetime
 
-from hew_back import tables
+from hew_back import tbls
 
 from zoneinfo import ZoneInfo
 
@@ -30,11 +30,11 @@ class CartProductTable(BaseTable):
     ):
         # 該当するユーザー
         stmt = (
-            select(tables.ProductTable)
-            .join(tables.CartProductTable, tables.ProductTable.product_id == tables.CartProductTable.product_id)
-            .join(tables.CartTable, tables.CartProductTable.cart_id == tables.CartTable.cart_id)
-            .where(tables.CartTable.user_id == user_id)
-            .where(tables.CartTable.purchase_date == None)
+            select(tbls.ProductTable)
+            .join(tbls.CartProductTable, tbls.ProductTable.product_id == tbls.CartProductTable.product_id)
+            .join(tbls.CartTable, tbls.CartProductTable.cart_id == tbls.CartTable.cart_id)
+            .where(tbls.CartTable.user_id == user_id)
+            .where(tbls.CartTable.purchase_date == None)
         )
         result = await session.execute(stmt)
         product_cart = result.scalars().all()
@@ -46,14 +46,14 @@ class CartProductTable(BaseTable):
         user_id: uuid.UUID,
     ):
         subquery = (
-            select(tables.CartTable.cart_id)
-            .where(tables.CartTable.user_id == user_id)
-            .where(tables.CartTable.purchase_date == None)
+            select(tbls.CartTable.cart_id)
+            .where(tbls.CartTable.user_id == user_id)
+            .where(tbls.CartTable.purchase_date == None)
         )
 
         stmt = (
-            update(tables.CartTable)
-            .where(tables.CartTable.cart_id.in_(subquery))
+            update(tbls.CartTable)
+            .where(tbls.CartTable.cart_id.in_(subquery))
             .values(purchase_date=datetime.now(ZoneInfo("Asia/Tokyo")).replace(tzinfo=None))
         )
 

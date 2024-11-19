@@ -21,10 +21,10 @@ class ChatTable(BaseTable):
             .join(tbls.ChatUserTable)
             .where(tbls.ChatUserTable.user_id == user.user_id)
         )
-        tables: list[ChatTable] = []
+        tbls: list[ChatTable] = []
         for tbl in res.scalars().all():
-            tables.append(tbl)
-        return tables
+            tbls.append(tbl)
+        return tbls
 
     @staticmethod
     def create(

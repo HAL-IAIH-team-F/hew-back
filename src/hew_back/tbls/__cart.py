@@ -10,7 +10,7 @@ from fastapi import Query
 
 from sqlalchemy import Column, UUID, Boolean, ForeignKey, select, update, DateTime
 
-from hew_back import tables
+from hew_back import tbls
 
 class CartTable(BaseTable):
     __tablename__ = 'TBL_CART'

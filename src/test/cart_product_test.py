@@ -85,44 +85,19 @@ def to_dict(instance):
 @pytest.mark.asyncio
 async def test_read_cart_product(
     client,
-    # session,
-    token_info,
+    session,
+    login_user_deps,
     cart_product_result
 ):
 
 
-    print(f"token_info--->{token_info},token_info.token--->{token_info.token}")
-    # print(f"これがtoken_info------------------>{token_info}")
+    print(f"login_user_deps--->{login_user_deps},token_info.token--->{login_user_deps.user_table.user_id}")
 
-    # import jwt
-    # class ENV:
-    #     class token:
-    #         secret_key = "secret"
-
-    #     class db:
-    #         host = "hew"
-    #         port = 5433
-    #         username = "postgres"
-    #         password = "postgres"
-    #
-    # # シークレットキーはデコードに必要です
-    # secret_key = ENV.token.secret_key
-    #
-    # # JWT トークンをデコードしてペイロードを取得
-    # decoded_token = jwt.decode(token_info.token, secret_key, algorithms=["HS256"])
-    #
-    # # ペイロードから `sub` にアクセス
-    # user_id = decoded_token["profile"]["sub"]
-    # print(f"これがuser_id--------------------->{user_id}")
-
-    # ユーザーが存在するか確認
-    # user = await session.get(UserTable, user_id)
-    # assert user is not None, "Userは存在しません！！！！！！！！！！！！！！！！！！！！！！！！！！！！"
 
     # 非同期的にGETリクエストを送信
     response = await client.get(
         "/cart_product",
-        token_info.token
+        # token_info.token
     )
     assert response.status_code == 200, f"Unexpected status code: {response.status_code}, {response.json()}"
     # assert response.json() == cart_product_result, f"Unexpected response: {response.json()}"
