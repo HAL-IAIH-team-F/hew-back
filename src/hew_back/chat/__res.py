@@ -17,11 +17,13 @@ class ChatRes(BaseModel):
             users=users,
         )
 
+
 class MessageRes(BaseModel):
     chat_message_id: uuid.UUID
     index: int
     message: str
     images: list[uuid.UUID]
+    post_user_id: uuid.UUID
 
     @staticmethod
     def create(
@@ -29,12 +31,14 @@ class MessageRes(BaseModel):
             index: int,
             message: str,
             images: list[uuid.UUID],
+            post_user_id: uuid.UUID,
     ):
         return MessageRes(
             chat_message_id=chat_message_id,
             index=index,
             message=message,
             images=images,
+            post_user_id=post_user_id,
         )
 
 
@@ -51,6 +55,7 @@ class ChatMessagesRes(BaseModel):
             chat_id=chat_id,
             messages=messages,
         )
+
 
 class ChatMessageRes(BaseModel):
     chat_id: uuid.UUID
