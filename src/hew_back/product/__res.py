@@ -15,7 +15,7 @@ from hew_back.util import OrderDirection
 # table → model → api
 
 class GetProductsResponse(BaseModel):
-    product_text: str
+    product_description: str
     product_id: uuid.UUID
     product_thumbnail_uuid: uuid.UUID
     product_price: int
@@ -64,3 +64,36 @@ class GetProductsResponse(BaseModel):
 
     class Config:
         from_attributes = True  # SQLAlchemyオブジェクトからPydanticモデルへの変換を有効に
+
+
+class ProductRes(BaseModel):
+    product_id: uuid.UUID
+    product_price: int
+    product_title: str
+    product_description: str
+    listing_date: datetime
+    product_thumbnail_uuid: uuid.UUID
+    product_contents_uuid: uuid.UUID
+    creator_id: uuid.UUID
+
+    @staticmethod
+    def create(
+            product_id: uuid.UUID,
+            product_price: int,
+            product_title: str,
+            product_description: str,
+            listing_date: datetime,
+            product_thumbnail_uuid: uuid.UUID,
+            product_contents_uuid: uuid.UUID,
+            creator_id: uuid.UUID,
+    ):
+        return ProductRes(
+            product_id=product_id,
+            product_price=product_price,
+            product_title=product_title,
+            product_description=product_description,
+            listing_date=listing_date,
+            product_thumbnail_uuid=product_thumbnail_uuid,
+            product_contents_uuid=product_contents_uuid,
+            creator_id=creator_id,
+        )

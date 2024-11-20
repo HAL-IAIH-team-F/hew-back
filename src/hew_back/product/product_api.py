@@ -5,7 +5,8 @@ from fastapi import Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps
-from hew_back.product.__res import GetProductsResponse
+from hew_back.product.__body import PostProductBody
+from hew_back.product.__res import GetProductsResponse, ProductRes
 from hew_back.util import OrderDirection
 
 
@@ -60,11 +61,11 @@ async def read_products(
     )
     return search_products
 
-@app.post("/api/chat")
-async def pc(
-        body: PostChatBody,
+@app.post("/api/product")
+async def pp(
+        body: PostProductBody,
         session: AsyncSession = Depends(deps.DbDeps.session),
-        user: deps.UserDeps = Depends(deps.UserDeps.get),
-) -> ChatRes:
-    res = await body.save_new(user, session)
-    return res.to_chat_res()
+        creator: deps.CreatorDeps = Depends(deps.CreatorDeps.get),
+) -> ProductRes:
+    res = await body.save_new(creator, session)
+    return res.to_product_res()

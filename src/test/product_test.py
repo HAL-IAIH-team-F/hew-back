@@ -16,8 +16,8 @@ async def product_table_saved(session) -> tbls.ProductTable:
         session,
         product_price=100,
         product_title="title",
-        product_text="text",
-        product_date=datetime.now(),
+        product_description="text",
+        listing_date=datetime.now(),
         product_contents_uuid=uuid.uuid4(),
         product_thumbnail_uuid=uuid.uuid4(),
     )
@@ -45,7 +45,7 @@ async def test_read_products(client, session, product_table_saved):
         product = GetProductsResponse(**body[i])
 
         assert record.product_id == product.product_id
-        assert record.product_date == product.product_date
-        assert record.product_text == product.product_text
+        assert record.listing_date == product.product_date
+        assert record.product_description == product.product_description
         assert record.product_title == product.product_title
         assert record.product_price == product.product_price
