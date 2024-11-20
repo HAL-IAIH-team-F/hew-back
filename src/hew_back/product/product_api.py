@@ -6,12 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps
 from hew_back.product.__body import PostProductBody
+from hew_back.product.__finder import ProductFinder
 from hew_back.product.__res import GetProductsResponse, ProductRes
 from hew_back.util import OrderDirection
 
 
-@app.get("/products")
-async def read_products(
+@app.get("/api/products")
+async def gps(
         name: Union[List[str], None] = Query(default=None, description="for_0_to_multiple_product_or_tag_name_post_by"),
         tag: Union[List[str], None] = Query(default=None, description="tag_related_product"),
         post_by: Union[List[str], None] = Query(default=None, description="created_by"),
@@ -45,7 +46,7 @@ async def read_products(
     # if isinstance(time_order, list):
     #     raise HTTPException(status_code=400, detail="time_order should be specified only once.")
 
-    search_products = await GetProductsResponse.get_products(
+    search_products = await ProductFinder.find_products(
         session=session,
         name=name,
         tag=tag,
@@ -59,7 +60,7 @@ async def read_products(
         like_order=like_order,
         sort=sort
     )
-    return search_products
+    return search_products.to_get_products_res()
 
 @app.post("/api/product")
 async def pp(
