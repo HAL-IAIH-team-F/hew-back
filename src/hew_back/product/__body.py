@@ -27,9 +27,12 @@ class PostProductBody(BaseModel):
             product_contents_uuid=self.product_contents_uuid,
         )
         await session.flush()
+        await session.refresh(product)
         creator_product = tbls.CreatorProductTable.insert(
             session, creator.creator_table, product
         )
+        await session.flush()
+        await session.refresh(creator_product)
         return PostCreatorResult(
             product, creator_product
         )

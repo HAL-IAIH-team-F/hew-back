@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from hew_back import tbls
 from hew_back.creator.__res import CreatorResponse
 
@@ -15,3 +17,9 @@ class CreatorResult:
             contact_address=self.creator.contact_address,
             transfer_target=self.creator.transfer_target,
         )
+
+    async def refresh(self, session: AsyncSession):
+        for wait in [
+            session.refresh(self.creator),
+        ]:
+            await wait

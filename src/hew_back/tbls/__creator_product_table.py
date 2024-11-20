@@ -22,8 +22,8 @@ class CreatorProductTable(BaseTable):
             product: tbls.ProductTable,
     ) -> 'CreatorProductTable':
         table = CreatorProductTable(
-            creator_id=creator,
-            product_id=product,
+            creator_id=creator.creator_id,
+            product_id=product.product_id,
         )
         session.add(table)
         return table
