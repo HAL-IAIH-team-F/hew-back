@@ -5,12 +5,14 @@ from fastapi import Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps
-from hew_back.product.__res import GetProductsResponse
+from hew_back.product.__body import PostProductBody
+from hew_back.product.__finder import ProductFinder
+from hew_back.product.__res import GetProductsResponse, ProductRes
 from hew_back.util import OrderDirection
 
 
-@app.get("/products")
-async def read_products(
+@app.get("/api/products")
+async def gps(
         name: Union[List[str], None] = Query(default=None, description="for_0_to_multiple_product_or_tag_name_post_by"),
         tag: Union[List[str], None] = Query(default=None, description="tag_related_product"),
         post_by: Union[List[str], None] = Query(default=None, description="created_by"),
@@ -44,7 +46,7 @@ async def read_products(
     # if isinstance(time_order, list):
     #     raise HTTPException(status_code=400, detail="time_order should be specified only once.")
 
-    search_products = await GetProductsResponse.get_products(
+    search_products = await ProductFinder.find_products(
         session=session,
         name=name,
         tag=tag,
@@ -58,10 +60,13 @@ async def read_products(
         like_order=like_order,
         sort=sort
     )
-    return search_products
+    return search_products.to_get_products_res()
 
-# True
-# http://127.0.0.1:8000/products/?name=AdoのTシャツ&start_datetime=2024-01-01T00:00:00Z&end_datetime=2024-01-31T23:59:59Z&read_limit_number=10
-
-# Error
-# http://127.0.0.1:8000/products/?name=Ado&name=グッズ&start_datetime=2024-01-31T23:59:59Z&end_datetime=2024-01-01T00:00:00Z
+@app.post("/api/product")
+async def pp(
+        body: PostProductBody,
+        session: AsyncSession = Depends(deps.DbDeps.session),
+        creator: deps.CreatorDeps = Depends(deps.CreatorDeps.get),
+) -> ProductRes:
+    res = await body.save_new(creator, session)
+    return res.to_product_res()

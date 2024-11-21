@@ -8,6 +8,8 @@ from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from hew_back import main, ENV, deps, mdls
+from hew_back.creator.__body import PostCreatorBody
+from hew_back.creator.__result import CreatorResult
 from hew_back.db import BaseTable
 from hew_back.deps import JwtTokenDeps, UserDeps
 from hew_back.user.__res import SelfUserRes
@@ -88,6 +90,17 @@ async def login_user(session, login_keycloak_profile) -> SelfUserRes:
     )
     res = await body.save_new(session, login_keycloak_profile)
     return res.to_self_user_res()
+
+
+@pytest_asyncio.fixture
+async def login_creator(session, login_user_deps) -> CreatorResult:
+    body = PostCreatorBody(
+        contact_address="test@example.com",
+        transfer_target="transfer_target",
+    )
+    res = await body.save_new(login_user_deps, session)
+    await session.commit()
+    return res
 
 
 @pytest.fixture

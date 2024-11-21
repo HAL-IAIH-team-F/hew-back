@@ -1,3 +1,6 @@
+from typing import Union
+
+import sqlalchemy
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import uuid
@@ -8,6 +11,7 @@ from sqlalchemy.orm import Mapped
 
 from hew_back import tbls
 from hew_back.db import BaseTable
+from hew_back.util import err
 
 
 # from asyncpg.pgproto.pgproto import UUID
@@ -19,6 +23,25 @@ class CreatorTable(BaseTable):
     user_id: Mapped[uuid.UUID] = Column(UUID(as_uuid=True), ForeignKey('TBL_USER.user_id'), nullable=False)
     contact_address = Column(String(64), nullable=False)
     transfer_target = Column(String(64), nullable=False)  # 振込先
+
+    @staticmethod
+    async def find_one_or_none_by_user_id(
+            session: AsyncSession,
+            user_id: uuid.UUID
+    ) -> Union['CreatorTable', None]:
+        res = await session.execute(
+            sqlalchemy.select(CreatorTable)
+            .where(CreatorTable.user_id == user_id)
+        )
+        tbl = res.scalar_one_or_none()
+        return tbl
+
+    @staticmethod
+    async def find_one(session: AsyncSession, user_id: uuid.UUID) -> 'CreatorTable':
+        tbl = await CreatorTable.find_one_or_none_by_user_id(session, user_id)
+        if tbl is None:
+            raise err.ErrorIdException(err.ErrorIds.CREATOR_NOT_FOUND)
+        return tbl
 
     def save_new(self, session: AsyncSession):
         session.add(self)

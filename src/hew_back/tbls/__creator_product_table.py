@@ -1,11 +1,13 @@
 import uuid
 
-from sqlalchemy import Column, String, ForeignKey, UUID
-# from asyncpg.pgproto.pgproto import UUID
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, ForeignKey, UUID
+from sqlalchemy.ext.asyncio import AsyncSession
 
-
+from hew_back import tbls
 from hew_back.db import BaseTable
+
+
+# from asyncpg.pgproto.pgproto import UUID
 
 
 class CreatorProductTable(BaseTable):
@@ -13,5 +15,15 @@ class CreatorProductTable(BaseTable):
     creator_id = Column(UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), primary_key=True, default=uuid.uuid4)
     product_id = Column(UUID(as_uuid=True), ForeignKey('TBL_PRODUCT.product_id'), primary_key=True, default=uuid.uuid4)
 
-
-
+    @staticmethod
+    def insert(
+            session: AsyncSession,
+            creator: tbls.CreatorTable,
+            product: tbls.ProductTable,
+    ) -> 'CreatorProductTable':
+        table = CreatorProductTable(
+            creator_id=creator.creator_id,
+            product_id=product.product_id,
+        )
+        session.add(table)
+        return table
