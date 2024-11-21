@@ -4,16 +4,16 @@ from hew_back import app, deps, responses
 from typing import Union
 
 
-@app.get("/cart_product")
-async def read_product_curt(
+@app.get("/api/cart_product")
+async def read_product_cart(
      session: AsyncSession = Depends(deps.DbDeps.session),
      user_deps: Union[deps.UserDeps, None] = Depends(deps.UserDeps.get),
      ):
 
-     user_id = user_deps.user_table.user_id
-
      if user_deps is None:
          raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+     user_id = user_deps.user_table.user_id
 
      product_cart = await responses.CartProduct.get_cart_product(
          session=session,
@@ -21,7 +21,8 @@ async def read_product_curt(
      )
      return product_cart
 
-@app.put("/cart_product")
+
+@app.put("/api/cart_product")
 async def put_cart_product(
     session: AsyncSession = Depends(deps.DbDeps.session),
      user_deps: Union[deps.UserDeps, None] = Depends(deps.UserDeps.get),

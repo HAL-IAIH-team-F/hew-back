@@ -48,13 +48,13 @@ class CartProduct(BaseModel):
 # table → model → api
 
 class GetProductsResponse(BaseModel):
-    product_text: str
     product_id: UUID
-    product_thumbnail_uuid: UUID
     product_price: int
     product_title: str
+    product_text: str
     product_date: datetime
     product_contents_uuid: UUID
+    product_thumbnail_uuid: UUID
 
 
 
