@@ -24,7 +24,7 @@ class CartProduct(BaseModel):
             session: AsyncSession,
             user_id: UUID,
     ) -> list["CartProduct"]:
-        get_product_cart = await tbls.CartProductTable.get_cart_product(
+        get_product_cart = await tbls.CartProductTable.get_cart_products(
             session=session,
             user_id=user_id,
         )
@@ -32,11 +32,11 @@ class CartProduct(BaseModel):
 
 
     @staticmethod
-    async  def put_cart_product(
+    async  def cart_buy(
          session: AsyncSession,
          user_id: UUID
     ) -> list["CartProduct"]:
-     put_product_cart = await tbls.CartProductTable.put_cart_product(
+     put_product_cart = await tbls.CartProductTable.cart_buy(
          session=session,
          user_id=user_id,
      )

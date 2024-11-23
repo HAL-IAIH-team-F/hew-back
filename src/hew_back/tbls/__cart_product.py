@@ -24,7 +24,7 @@ class CartProductTable(BaseTable):
     product_id = Column(UUID(as_uuid=True), ForeignKey('TBL_PRODUCT.product_id'), primary_key=True)
 
     @staticmethod
-    async def get_cart_product(
+    async def get_cart_products(
             session: AsyncSession,
             user_id: uuid.UUID,
     ):
@@ -41,7 +41,7 @@ class CartProductTable(BaseTable):
         return product_cart
 
     @staticmethod
-    async def put_cart_product(
+    async def cart_buy(
         session: AsyncSession,
         user_id: uuid.UUID,
     ):
@@ -61,4 +61,4 @@ class CartProductTable(BaseTable):
         await session.execute(stmt)
         await session.commit()  # コミットして変更を適用
 
-        return await CartProductTable.get_cart_product(session, user_id)
+        return await CartProductTable.get_cart_products(session, user_id)

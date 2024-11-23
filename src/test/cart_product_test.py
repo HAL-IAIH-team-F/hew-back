@@ -142,7 +142,7 @@ async def test_read_product_cart(
 
     # 非同期的にGETリクエストを送信
     response = await client.get(
-        "/api/cart_product",
+        "/api/product_cart",
         login_access_token.token
     )
     assert response.status_code == 200, f"Unexpected status code: {response.status_code}, {response.json()}"
@@ -182,7 +182,7 @@ async def test_read_product_cart(
 
 
 @pytest.mark.asyncio
-async def test_put_cart_product(
+async def test_cart_buy(
         client,
         session,
         login_access_token,
@@ -202,7 +202,7 @@ async def test_put_cart_product(
 
 
     response = await client.put(
-        "/api/cart_product",
+        "/api/cart/buy",
         cart_product_mock,
         login_access_token.token
     )
