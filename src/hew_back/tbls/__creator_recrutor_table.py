@@ -13,10 +13,9 @@ class CreatorRecruitTable(BaseTable):
     title = Column(String(64), nullable=False)
     context = Column(String(255), nullable=False)
 
-    @staticmethod
-    async def post_recruit_creator(
-        session: AsyncSession,
-        user_id: uuid.UUID,
-    ):
+    # @staticmethod
+    # async def post_recruit_creator(
+    #     session: AsyncSession,
+    #     user_id: uuid.UUID,
+    # ):
 
-    stmt = select(ProductTable)
