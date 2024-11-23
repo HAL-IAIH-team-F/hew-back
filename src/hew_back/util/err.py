@@ -19,6 +19,7 @@ class ErrorIds(Enum):
 
     PASSWORD_EMPTY = ErrorId.create("password is empty", 400)
     USER_NOT_FOUND = ErrorId.create("user not found", 404)
+    CREATOR_NOT_FOUND = ErrorId.create("creator not found", 404)
 
     UNAUTHORIZED = ErrorId.create("unauthorized", 401)
     UNAUTHORIZED_TOKEN = ErrorId.create("unauthorized token", 401)

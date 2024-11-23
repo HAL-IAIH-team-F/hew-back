@@ -55,3 +55,18 @@ class UserDeps:
             session.refresh(self.user_table),
         ]:
             await wait
+@dataclass
+class CreatorDeps:
+    creator_table: tbls.CreatorTable
+
+    @staticmethod
+    async def get(
+            session: AsyncSession = Depends(DbDeps.session),
+            token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token),
+    ) -> 'CreatorDeps':
+        table = await tbls.CreatorTable.find_one(session, token.profile.sub)
+        table.user_mail = token.profile.email
+        table.user_screen_id = token.profile.preferred_username
+        await session.flush()
+        await session.refresh(table)
+        return CreatorDeps(table)
