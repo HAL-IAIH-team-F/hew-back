@@ -39,8 +39,8 @@ async def mock_product(session)-> ProductTable:
         product_id=product_id,
         product_price=300,
         product_title="缶バッジ",
-        product_text="ランダムで全20種類",
-        product_date=datetime(2024,11,9,23,15, 34),
+        product_description="ランダムで全20種類",
+        listing_date=datetime(2024,11,9,23,15, 34),
         product_contents_uuid=uuid.UUID("3c4b6ab2-b82f-3cad-0cf4-a3a6612b7236"),
         product_thumbnail_uuid=uuid.UUID("0325de47-2abe-d6d9-e99e-da1a0c3c1f3e"),
     )
@@ -160,8 +160,8 @@ async def test_read_product_cart(
 
     # 必須キー 確認
     required_keys = {
-        'product_id', 'product_title', 'product_text',
-        'product_thumbnail_uuid', 'product_date',
+        'product_id', 'product_title', 'product_description',
+        'product_thumbnail_uuid', 'listing_date',
         'product_price', 'product_contents_uuid'
     }
     assert required_keys <= data[0].keys(), "レスポンスデータに必須キーが不足しています"
@@ -170,9 +170,9 @@ async def test_read_product_cart(
     # 値の型 確認
     assert isinstance(data[0]['product_id'], str), "product_idは文字列ではありません"
     assert isinstance(data[0]['product_title'], str), "product_titleは文字列ではありません"
-    assert isinstance(data[0]['product_text'], str), "product_textは文字列ではありません"
+    assert isinstance(data[0]['product_description'], str), "product_descriptionは文字列ではありません"
     assert isinstance(data[0]['product_thumbnail_uuid'], str), "product_thumbnail_uuidは文字列ではありません"
-    assert isinstance(data[0]['product_date'], str), "product_dateは文字列ではありません"
+    assert isinstance(data[0]['listing_date'], str), "listing_dateは文字列ではありません"
     assert isinstance(data[0]['product_price'], int), "product_priceは整数ではありません"
     assert isinstance(data[0]['product_contents_uuid'], str), "product_contents_uuidは文字列ではありません"
 
