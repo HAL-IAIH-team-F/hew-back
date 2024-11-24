@@ -31,7 +31,7 @@ class UserTable(BaseTable):
             user_screen_id: str,
             user_icon_uuid: uuid.UUID | None,
             user_mail: str,
-    ):
+    ) -> 'UserTable':
         tbl = UserTable(
             user_id=user_id,
             user_name=user_name,

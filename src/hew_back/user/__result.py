@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from pydantic.dataclasses import dataclass
 
 from hew_back import tbls
 from hew_back.user.__res import SelfUserRes
