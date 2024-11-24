@@ -16,7 +16,7 @@ async def __insert_product(
         product_price=body.price,
         product_title=body.product_title,
         product_description=body.product_description,
-        listing_date=body.purchase_date,
+        purchase_date=body.purchase_date,
         product_thumbnail_uuid=body.product_thumbnail_uuid,
         product_contents_uuid=body.product_contents_uuid,
     )

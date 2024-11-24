@@ -1,16 +1,14 @@
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps
 from hew_back.user import __post_user
 from hew_back.user.__res import SelfUserRes
-from hew_back.user.__user_body import PostUserBody
 from hew_back.util import err
 
 
 @app.post("/api/user")
 async def post_user(
-        result= Depends(__post_user.post_user),
+        result=Depends(__post_user.post_user),
 ) -> SelfUserRes:
     return result.to_self_user_res()
 

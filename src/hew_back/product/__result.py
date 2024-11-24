@@ -15,7 +15,7 @@ class ProductsResult:
             product_thumbnail_uuid=product.product_thumbnail_uuid,
             product_price=product.product_price,
             product_title=product.product_title,
-            listing_date=product.listing_date,
+            listing_date=product.purchase_date,
             product_contents_uuid=product.product_contents_uuid,
         ) for product in self.products]
 
@@ -31,7 +31,7 @@ class PostCreatorResult:
             product_price=self.product.product_price,
             product_title=self.product.product_title,
             product_description=self.product.product_description,
-            listing_date=self.product.listing_date,
+            listing_date=self.product.purchase_date,
             product_thumbnail_uuid=self.product.product_thumbnail_uuid,
             product_contents_uuid=self.product.product_contents_uuid,
             creator_id=self.creator_product.creator_id,
