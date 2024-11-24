@@ -5,7 +5,7 @@ from fastapi import Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps
-from hew_back.product.__body import PostProductBody
+from hew_back.product import __post_product
 from hew_back.product.__finder import ProductFinder
 from hew_back.product.__res import GetProductsResponse, ProductRes
 from hew_back.util import OrderDirection
@@ -62,11 +62,9 @@ async def gps(
     )
     return search_products.to_get_products_res()
 
+
 @app.post("/api/product")
 async def pp(
-        body: PostProductBody,
-        session: AsyncSession = Depends(deps.DbDeps.session),
-        creator: deps.CreatorDeps = Depends(deps.CreatorDeps.get),
+        result=Depends(__post_product.post_product),
 ) -> ProductRes:
-    res = await body.save_new(creator, session)
-    return res.to_product_res()
+    return result.to_product_res()

@@ -1,10 +1,12 @@
+import uuid
+
 import pytest
 import pytest_asyncio
 import sqlalchemy
 
 from hew_back import tbls, mdls, ENV
+from hew_back.user.__post_user import PostUserBody
 from hew_back.user.__res import SelfUserRes
-from hew_back.user.__user_body import PostUserBody
 from hew_back.util import keycloak, tks
 from test.conftest import session
 
@@ -19,7 +21,7 @@ def post_user_body(session) -> PostUserBody:
 
 @pytest_asyncio.fixture
 async def newuser_keycloak_profile(session) -> keycloak.KeycloakUserProfile:
-    uid = "917ebffb-0e86-4189-87d1-604f7246be29"
+    uid = uuid.UUID("917ebffb-0e86-4189-87d1-604f7246be29")
     return keycloak.KeycloakUserProfile(
         sub=uid,
         email_verified=True,

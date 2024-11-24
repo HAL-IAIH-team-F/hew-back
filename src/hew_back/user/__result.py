@@ -1,10 +1,10 @@
-from dataclasses import dataclass
+import dataclasses
 
 from hew_back import tbls
 from hew_back.user.__res import SelfUserRes
 
 
-@dataclass
+@dataclasses.dataclass
 class UserResult:
     user: tbls.UserTable
 

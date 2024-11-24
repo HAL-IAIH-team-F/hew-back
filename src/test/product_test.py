@@ -18,7 +18,7 @@ async def product_table_saved(session) -> tbls.ProductTable:
         product_price=100,
         product_title="title",
         product_description="text",
-        listing_date=datetime.now(),
+        purchase_date=datetime.now(),
         product_contents_uuid=uuid.uuid4(),
         product_thumbnail_uuid=uuid.uuid4(),
     )
@@ -33,7 +33,7 @@ def post_product_body(session) -> PostProductBody:
         price=1,
         product_title="",
         product_description="",
-        listing_date=datetime(2024, 11, 20, 6, 38, 10, 656199),
+        purchase_date=datetime(2024, 11, 20, 6, 38, 10, 656199),
         product_thumbnail_uuid=uuid.UUID('0ac01606-a086-47b2-acab-c9cda7dc3bb9'),
         product_contents_uuid=uuid.UUID('44f4ef3e-d667-4f0f-9fa4-bc13bb1fd98a'),
     )
@@ -65,7 +65,7 @@ async def test_post_product(
     product_table: tbls.ProductTable = record.scalar_one()
     assert post_product_body.product_title == product_table.product_title
     assert post_product_body.product_description == product_table.product_description
-    assert post_product_body.listing_date == product_table.listing_date
+    assert post_product_body.purchase_date == product_table.purchase_date
     assert post_product_body.product_thumbnail_uuid == product_table.product_thumbnail_uuid
     assert post_product_body.product_contents_uuid == product_table.product_contents_uuid
 
@@ -97,7 +97,7 @@ async def test_read_products(client, session, product_table_saved):
         product = GetProductsResponse(**body[i])
 
         assert record.product_id == product.product_id
-        assert record.listing_date == product.product_date
+        assert record.purchase_date == product.product_date
         assert record.product_description == product.product_description
         assert record.product_title == product.product_title
         assert record.product_price == product.product_price

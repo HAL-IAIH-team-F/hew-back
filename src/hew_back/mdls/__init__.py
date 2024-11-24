@@ -1,12 +1,11 @@
 import uuid
 # noinspection PyUnresolvedReferences
 from dataclasses import dataclass
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import field_serializer, BaseModel
+from pydantic import field_serializer, BaseModel, AfterValidator, PlainSerializer
 
-from hew_back.util import urls
-from hew_back.util.err import ErrorIds
 from .__token import *
 
 
@@ -49,27 +48,6 @@ class State(str, Enum):
     private = "Private"
 
 
-class ImagePreferenceRequest(BaseModel):
-    state: State
-
-    @staticmethod
-    def crete(state: State) -> 'ImagePreferenceRequest':
-        return ImagePreferenceRequest(state=state)
-
-    def post_preference(self, img_uuid: uuid.UUID):
-        (ENV.img_url.join_path(f"/preference/{img_uuid}")
-         .to_request()
-         .set_method(urls.HttpMethod.PUT)
-         .body(self.model_dump_json().encode())
-         .content_type(urls.ContentType.JSON)
-         .fetch()
-         .on_status_code(404, lambda s: ErrorIds.CONTENT_IMAGE_NOT_FOUND.to_exception("img id not found").raise_self())
-         .on(lambda s: s.status_code != 200,
-             lambda s: ErrorIds.INTERNAL_API_ERROR.to_exception(f"{s.status_code}: {s.body()}").raise_self())
-         .body()
-         )
-
-
 class Img(BaseModel):
     image_uuid: uuid.UUID
     token: str | None
@@ -80,3 +58,18 @@ class Img(BaseModel):
             image_uuid=img_uuid,
             token=token,
         )
+
+
+def __validate_datetime(prev: datetime):
+    return prev.astimezone(timezone.utc).replace(tzinfo=None,microsecond=0)
+
+
+def __serialize_datetime(prev: datetime):
+    return prev.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+
+Datetime = Annotated[
+    datetime,
+    AfterValidator(__validate_datetime),
+    PlainSerializer(__serialize_datetime),
+]

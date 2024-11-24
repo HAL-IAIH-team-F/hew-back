@@ -1,3 +1,4 @@
+import dataclasses
 import datetime
 import uuid
 from typing import Union, List
@@ -17,17 +18,17 @@ from hew_back.util import OrderDirection
 
 # from hew_back import table
 
-
+@dataclasses.dataclass
 class ProductTable(BaseTable):
     __tablename__ = 'TBL_PRODUCT'
 
-    product_id = Column(UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4)
+    product_id: uuid.UUID = Column(UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4)
     product_price = Column(sqlalchemy.Integer, nullable=False)
     product_title = Column(String(64), nullable=False)
     product_description = Column(String(255), nullable=False)
-    listing_date = Column(DateTime, default=datetime.datetime.now)
-    product_thumbnail_uuid = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
-    product_contents_uuid = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
+    purchase_date: datetime.datetime = Column(DateTime, default=datetime.datetime.now)
+    product_thumbnail_uuid: uuid.UUID = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
+    product_contents_uuid: uuid.UUID = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
 
     @staticmethod
     def insert(
@@ -35,7 +36,7 @@ class ProductTable(BaseTable):
             product_price: int,
             product_title: str,
             product_description: str,
-            listing_date: datetime.datetime,
+            purchase_date: datetime.datetime,
             product_thumbnail_uuid: uuid.UUID,
             product_contents_uuid: uuid.UUID,
     ) -> 'ProductTable':
@@ -43,7 +44,7 @@ class ProductTable(BaseTable):
             product_price=product_price,
             product_title=product_title,
             product_description=product_description,
-            listing_date=listing_date,
+            purchase_date=purchase_date,
             product_thumbnail_uuid=product_thumbnail_uuid,
             product_contents_uuid=product_contents_uuid,
         )
@@ -91,11 +92,11 @@ class ProductTable(BaseTable):
 
         if start_datetime is not None:
             start_datetime = start_datetime.replace(tzinfo=None)
-            stmt = stmt.where(ProductTable.listing_date >= start_datetime)
+            stmt = stmt.where(ProductTable.purchase_date >= start_datetime)
 
         if end_datetime is not None:
             end_datetime = end_datetime.replace(tzinfo=None)
-            stmt = stmt.where(ProductTable.listing_date <= end_datetime)
+            stmt = stmt.where(ProductTable.purchase_date <= end_datetime)
 
         if post_by is not None and len(post_by) > 0:
             post_by_subquery = (
@@ -132,9 +133,9 @@ class ProductTable(BaseTable):
 
         # time_order に基づいて product_date のソートを追加
         if time_order == OrderDirection.ASC:
-            stmt = stmt.order_by(ProductTable.listing_date.asc())
+            stmt = stmt.order_by(ProductTable.purchase_date.asc())
         elif time_order == OrderDirection.DESC:
-            stmt = stmt.order_by(ProductTable.listing_date.desc())
+            stmt = stmt.order_by(ProductTable.purchase_date.desc())
         #
         # name_order に基づいて product_title のソートを追加
         if name_order == OrderDirection.ASC:
@@ -162,7 +163,7 @@ class ProductTable(BaseTable):
             for sort_field in sort:
                 print(sort_field)
                 if sort_field == "datetime":
-                    stmt = stmt.order_by(ProductTable.listing_date.desc())  # datetime のデフォルトは降順
+                    stmt = stmt.order_by(ProductTable.purchase_date.desc())  # datetime のデフォルトは降順
                 elif sort_field == "name":
                     stmt = stmt.order_by(ProductTable.product_title.asc())  # name のデフォルトは昇順
                 elif sort_field == "like":

@@ -31,9 +31,9 @@ class JwtTokenData(tks.AbcJwtTokenData[TokenType]):
             token_type: TokenType, profile: keycloak.KeycloakUserProfile
     ) -> 'JwtTokenData':
         if token_type == TokenType.access:
-            exp = datetime.now(timezone.utc) + timedelta(ENV.token.access_token_expire_minutes)
+            exp = datetime.now(timezone.utc) + timedelta(minutes=ENV.token.access_token_expire_minutes)
         elif token_type == TokenType.refresh:
-            exp = datetime.now(timezone.utc) + timedelta(ENV.token.refresh_token_expire_minutes)
+            exp = datetime.now(timezone.utc) + timedelta(minutes=ENV.token.refresh_token_expire_minutes)
         else:
             raise ValueError(f"Unknown token type: {token_type}")
         return JwtTokenData(
