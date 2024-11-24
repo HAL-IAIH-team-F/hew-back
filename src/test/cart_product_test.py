@@ -9,8 +9,6 @@ from test.conftest import session, login_keycloak_profile, login_user_deps
 
 
 
-
-
 # 商品データ
 @pytest_asyncio.fixture
 async def mock_product(session)-> ProductTable:
@@ -88,7 +86,7 @@ def cart_product_mock():
         listing_date=datetime(2022,12,9,23,15, 34),
         product_contents_uuid="31fa694d-f5fa-4e75-880c-9bce43bfbe39",
         product_thumbnail_uuid="ee3cb623-15a0-487b-960a-7a23f6e9fea9",
-    ).dict()
+    )
 
 
 @pytest.mark.asyncio
@@ -152,13 +150,12 @@ async def test_cart_buy(
 
     response = await client.put(
         path="/api/cart_buy",
-        json_data=cart_product_mock,
         token=login_access_token.token,
     )
     assert response.status_code == 200
     response_data = response.json()
     assert response_data == {}
 
-    tbls.CartProductに書いてある場所をProductaに移動させて、その関数をfixtureに書く
-    returnされる型を明示的にする
+    # tbls.CartProductに書いてある場所をProductaに移動させて、その関数をfixtureに書く
+    # returnされる型を明示的にする
 

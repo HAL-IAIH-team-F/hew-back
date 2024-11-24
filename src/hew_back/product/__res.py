@@ -8,6 +8,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tbls
+from hew_back.tbls import ProductTable
 
 
 class CartProduct(BaseModel):
@@ -22,9 +23,9 @@ class CartProduct(BaseModel):
     @staticmethod
     async def get_cart_product(
             session: AsyncSession,
-            user_id: UUID,
-    ) -> list["CartProduct"]:
-        get_product_cart = await tbls.CartProductTable.get_cart_products(
+            user_id: tbls.UserTable.user_id,
+    ) -> list["ProductTable"]:
+        get_product_cart = await tbls.ProductTable.get_cart_products(
             session=session,
             user_id=user_id,
         )
@@ -32,11 +33,11 @@ class CartProduct(BaseModel):
 
 
     @staticmethod
-    async  def cart_buy(
+    async def cart_buy(
          session: AsyncSession,
-         user_id: UUID
-    ) -> list["CartProduct"]:
-     cart_buy = await tbls.CartProductTable.cart_buy(
+         user_id: tbls.UserTable.user_id
+    ) -> "ProductTable":
+     cart_buy = await tbls.ProductTable.cart_buy(
          session=session,
          user_id=user_id,
      )
