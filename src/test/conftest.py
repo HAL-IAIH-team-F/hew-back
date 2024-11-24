@@ -7,7 +7,7 @@ from _pytest.fixtures import FixtureRequest
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from hew_back import main, ENV, deps, mdls
+from hew_back import main, ENV, deps, mdls, product
 from hew_back.creator.__body import PostCreatorBody
 from hew_back.creator.__result import CreatorResult
 from hew_back.db import BaseTable

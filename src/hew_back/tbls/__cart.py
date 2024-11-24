@@ -1,20 +1,15 @@
-from pygments.lexer import default
-
 from hew_back.db import BaseTable
-from sqlalchemy.ext.asyncio import AsyncSession
 
 import uuid
-from typing import Union
 
-from fastapi import Query
 
-from sqlalchemy import Column, UUID, Boolean, ForeignKey, select, update, DateTime
+from sqlalchemy import Column, UUID, ForeignKey, DateTime
 
 from hew_back import tbls
 
 class CartTable(BaseTable):
     __tablename__ = 'TBL_CART'
 
-    cart_id = Column(UUID(as_uuid=True), primary_key=True)
+    cart_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey('TBL_USER.user_id'))
     purchase_date = Column(DateTime,  nullable=True)

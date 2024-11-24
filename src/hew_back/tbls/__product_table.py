@@ -175,3 +175,5 @@ class ProductTable(BaseTable):
         products = result.scalars().all()
 
         return products
+
+

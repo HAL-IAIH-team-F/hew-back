@@ -14,7 +14,7 @@ from hew_back import tbls
 
 from zoneinfo import ZoneInfo
 
-
+from hew_back.tbls import ProductTable
 
 
 class CartProductTable(BaseTable):
@@ -26,7 +26,7 @@ class CartProductTable(BaseTable):
     @staticmethod
     async def get_cart_products(
             session: AsyncSession,
-            user_id: uuid.UUID,
+            user_id: tbls.UserTable.user_id,
     ):
         # 該当するユーザー
         stmt = (
@@ -43,7 +43,7 @@ class CartProductTable(BaseTable):
     @staticmethod
     async def cart_buy(
         session: AsyncSession,
-        user_id: uuid.UUID,
+        user_id: tbls.UserTable.user_id,
     ):
         subquery = (
             select(tbls.CartTable.cart_id)
@@ -57,8 +57,7 @@ class CartProductTable(BaseTable):
             .values(purchase_date=datetime.now(ZoneInfo("Asia/Tokyo")).replace(tzinfo=None))
         )
 
-
         await session.execute(stmt)
-        await session.commit()  # コミットして変更を適用
+        await session.commit()
 
         return await CartProductTable.get_cart_products(session, user_id)
