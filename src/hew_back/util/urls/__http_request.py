@@ -79,6 +79,7 @@ class HttpRequest:
 
     def fetch(self):
         from . import HttpClient
+        print(self)
         return HttpClient.fetch(self)
 
     def print_self(self) -> Self:
