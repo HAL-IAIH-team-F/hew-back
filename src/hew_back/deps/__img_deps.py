@@ -25,7 +25,7 @@ class ImageDeps:
             (ENV.img_url.join_path(f"/preference/{img_uuid}")
              .to_request()
              .set_method(urls.HttpMethod.PUT)
-             .body(RootModel(self).encode())
+             .body(RootModel(self).model_dump_json().encode())
              .content_type(urls.ContentType.JSON)
              .fetch()
              .on_status_code(404,
