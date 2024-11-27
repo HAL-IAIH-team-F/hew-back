@@ -19,7 +19,6 @@ from hew_back.user.__res import SelfUserRes
 from hew_back.user.__result import UserResult
 from hew_back.util import keycloak, tks
 from test.base import Client
-from hew_back.product import __res
 
 
 @pytest.fixture(scope="session")

@@ -76,7 +76,6 @@ pydantic-core==2.18.4
     # via pydantic
 pygments==2.18.0
     # via rich
-pyjwt==2.9.0
 pytest==8.3.3
     # via pytest-asyncio
 pytest-asyncio==0.24.0
@@ -112,7 +111,6 @@ typing-extensions==4.12.2
     # via pydantic-core
     # via sqlalchemy
     # via typer
-tzdata==2024.2
 ujson==5.10.0
     # via fastapi
 uvicorn==0.30.1

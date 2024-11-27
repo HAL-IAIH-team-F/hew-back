@@ -10,7 +10,6 @@ from .__token import *
 
 
 @dataclass
-
 class ImgTokens:
     upload: tks.TokenInfo
 

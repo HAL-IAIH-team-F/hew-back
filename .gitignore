@@ -9,5 +9,6 @@ wheels/
 # venv
 .venv
 /src/.env.local
-/src/.env.test
+/.env.test
 /temp/
+/src/.env.test

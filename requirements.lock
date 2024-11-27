@@ -69,7 +69,6 @@ pydantic-core==2.18.4
     # via pydantic
 pygments==2.18.0
     # via rich
-pyjwt==2.9.0
 python-dotenv==1.0.1
     # via uvicorn
 python-jose==3.3.0
@@ -101,7 +100,6 @@ typing-extensions==4.12.2
     # via pydantic-core
     # via sqlalchemy
     # via typer
-tzdata==2024.2
 ujson==5.10.0
     # via fastapi
 uvicorn==0.30.1

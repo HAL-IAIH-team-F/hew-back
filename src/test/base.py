@@ -5,7 +5,6 @@ from typing import Any
 import pydantic
 from fastapi import FastAPI
 from httpx import AsyncClient
-from pygments.lexer import default
 from pydantic import BaseModel, TypeAdapter
 from pydantic.dataclasses import is_pydantic_dataclass
 
