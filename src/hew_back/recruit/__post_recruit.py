@@ -27,8 +27,8 @@ async def __insert_recruit(
 
 
 async def post_recruit(
-        recruit=Depends(__insert_recruit),
+        recruit: RecruitTable = Depends(__insert_recruit),
 ) -> PostRecruitRes:
     return PostRecruitRes(
-        recruit.id, recruit.creator_id, recruit.title, recruit.description
+        recruit.recruit_id, recruit.creator_id, recruit.title, recruit.description
     )
