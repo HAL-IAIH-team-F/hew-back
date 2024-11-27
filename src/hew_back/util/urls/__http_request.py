@@ -12,6 +12,10 @@ class ContentType(Enum):
     GITHUB_JSON = "application/vnd.github+json"
 
 
+class UserAgent(Enum):
+    APPLICATION = "Application"
+
+
 class HttpMethod(str, Enum):
     PUT = "PUT"
 
@@ -38,6 +42,7 @@ class HttpRequest:
 
     def __init__(self, url_request: request.Request):
         self._url_request = url_request
+        self.user_agent(UserAgent.APPLICATION)
 
     @staticmethod
     def by_url(url: URL):
@@ -60,6 +65,10 @@ class HttpRequest:
 
     def content_type(self, content_type: ContentType) -> Self:
         self.add_header("Content-Type", content_type.value)
+        return self
+
+    def user_agent(self, user_agent: UserAgent) -> Self:
+        self.add_header("User-Agent", user_agent.value)
         return self
 
     def authorization(self, value: AuthorizationValue) -> Self:

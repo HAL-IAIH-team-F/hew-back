@@ -1,13 +1,15 @@
+import dataclasses
 from typing import Union
 
 from hew_back import tbls
 from .__db_deps import *
+from .__img_deps import *
 from .__token_deps import *
 from ..chat.__result import ChatsResult, ChatUsersResult
 from ..user.__res import SelfUserRes
 
 
-@dataclass
+@dataclasses.dataclass
 class UserDeps:
     user_table: tbls.UserTable
 
@@ -55,6 +57,8 @@ class UserDeps:
             session.refresh(self.user_table),
         ]:
             await wait
+
+
 @dataclass
 class CreatorDeps:
     creator_table: tbls.CreatorTable

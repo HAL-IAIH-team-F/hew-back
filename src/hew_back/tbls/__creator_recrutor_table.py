@@ -12,10 +12,3 @@ class CreatorRecruitTable(BaseTable):
     creator_id = Column(UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False, default=uuid.uuid4)
     title = Column(String(64), nullable=False)
     context = Column(String(255), nullable=False)
-
-    # @staticmethod
-    # async def post_recruit_creator(
-    #     session: AsyncSession,
-    #     user_id: uuid.UUID,
-    # ):
-

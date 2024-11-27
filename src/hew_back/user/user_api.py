@@ -1,20 +1,16 @@
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps
+from hew_back.user import __post_user
 from hew_back.user.__res import SelfUserRes
-from hew_back.user.__user_body import PostUserBody
 from hew_back.util import err
 
 
 @app.post("/api/user")
 async def post_user(
-        body: PostUserBody,
-        session: AsyncSession = Depends(deps.DbDeps.session),
-        token: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_access_token),
+        result=Depends(__post_user.post_user),
 ) -> SelfUserRes:
-    model = await body.save_new(session, token.profile)
-    return model.to_self_user_res()
+    return result.to_self_user_res()
 
 
 @app.get("/api/user/self")
