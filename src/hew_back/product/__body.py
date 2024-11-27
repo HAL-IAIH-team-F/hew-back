@@ -1,7 +1,5 @@
 import uuid
-from datetime import datetime
 
-from pydantic import field_serializer
 from pydantic.dataclasses import dataclass
 
 from hew_back import mdls
@@ -15,4 +13,3 @@ class PostProductBody:
     purchase_date: mdls.Datetime
     product_thumbnail_uuid: uuid.UUID
     product_contents_uuid: uuid.UUID
-
