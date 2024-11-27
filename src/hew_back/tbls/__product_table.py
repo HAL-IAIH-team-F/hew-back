@@ -203,7 +203,7 @@ class ProductTable(BaseTable):
         stmt = (
             update(tbls.CartTable)
             .where(tbls.CartTable.cart_id.in_(subquery))
-            .values(purchase_date=datetime.datetime.now(ZoneInfo("Asia/Tokyo")).replace(tzinfo=None))
+            .values(purchase_date=datetime.datetime.now(datetime.UTC).replace(tzinfo=None))
         )
 
         await session.execute(stmt)

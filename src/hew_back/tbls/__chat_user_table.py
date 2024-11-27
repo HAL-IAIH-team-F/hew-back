@@ -33,11 +33,11 @@ class ChatUserTable(BaseTable):
             users: list[tbls.UserTable],
             session: AsyncSession
     ) -> list['ChatUserTable']:
-        tbls: list[ChatUserTable] = []
+        tables: list[ChatUserTable] = []
         for user in users:
             table = ChatUserTable.create(chat, user, session)
-            tbls.append(table)
-        return tbls
+            tables.append(table)
+        return tables
 
     @staticmethod
     async def find_all_by_chat(session: AsyncSession, user: tbls.ChatTable) -> list['ChatUserTable']:
@@ -45,7 +45,7 @@ class ChatUserTable(BaseTable):
             sqlalchemy.select(ChatUserTable)
             .where(tbls.ChatUserTable.chat_id == user.chat_id)
         )
-        tbls: list[ChatUserTable] = []
+        tables: list[ChatUserTable] = []
         for tbl in res.scalars().all():
-            tbls.append(tbl)
-        return tbls
+            tables.append(tbl)
+        return tables
