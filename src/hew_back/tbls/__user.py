@@ -4,7 +4,6 @@ from typing import Union
 
 import sqlalchemy
 from sqlalchemy import Column, String, DateTime, UUID
-# # from asyncpg.pgproto.pgproto import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped
 
