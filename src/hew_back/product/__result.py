@@ -36,3 +36,4 @@ class PostCreatorResult:
             product_contents_uuid=self.product.product_contents_uuid,
             creator_id=self.creator_product.creator_id,
         )
+
