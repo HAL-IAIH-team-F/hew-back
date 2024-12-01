@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps
 
-from hew_back.user_follow.__body import UserFollow
+from hew_back.follow.__body import UserFollow
 
 
 @app.post("/api/user_follow")

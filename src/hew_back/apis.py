@@ -9,7 +9,8 @@ import hew_back.creator.creator_api
 # noinspection PyUnresolvedReferences
 import hew_back.user.user_api
 from hew_back import app
-import hew_back.user_follow.user_follow_api
+# noinspection PyUnresolvedReferences
+import hew_back.follow.user_follow_api
 
 
 @app.get("/health")

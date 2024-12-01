@@ -27,10 +27,8 @@ class Client:
         if isinstance(json_data, BaseModel):
             result = await self.client.post(path, content=json_data.model_dump_json(), headers=headers)
         elif is_pydantic_dataclass(type(json_data)):
-            print(f"base.pyより--->{json_data}")
             result = await self.client.post(path, content=TypeAdapter(type(json_data)).dump_json(json_data), headers=headers)
         else:
-            print(f"base.pyより--->{json_data}")
             raise ValueError
 
         return result
