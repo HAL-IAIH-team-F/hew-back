@@ -15,11 +15,11 @@ class PostRecruitBody:
 async def __insert_recruit(
         body: PostRecruitBody,
         session=Depends(deps.DbDeps.session),
-        creator=Depends(deps.CreatorDeps.get),
+        creator: deps.CreatorDeps = Depends(deps.CreatorDeps.get),
 ) -> RecruitTable:
     result = tbls.RecruitTable.insert(
         session,
-        creator, body.title, body.description
+        creator.creator_table, body.title, body.description
     )
     await session.flush()
     await session.refresh(result)
