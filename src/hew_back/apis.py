@@ -10,6 +10,8 @@ import hew_back.token.token_api
 import hew_back.creator.creator_api
 # noinspection PyUnresolvedReferences
 import hew_back.user.user_api
+# noinspection PyUnresolvedReferences
+import hew_back.recruit.recruit_api
 from hew_back import app
 # noinspection PyUnresolvedReferences
 import hew_back.follow.user_follow_api
