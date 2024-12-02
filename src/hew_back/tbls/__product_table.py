@@ -4,7 +4,8 @@ import uuid
 from typing import Union, List
 
 import sqlalchemy
-from sqlalchemy import Column, String, DateTime, UUID
+
+from sqlalchemy import Column, String, DateTime, UUID, select, update
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,8 +16,7 @@ from hew_back.util import OrderDirection
 
 # from asyncpg.pgproto.pgproto import UUID
 
-
-# from hew_back import table
+from zoneinfo import ZoneInfo
 
 @dataclasses.dataclass
 class ProductTable(BaseTable):
@@ -175,12 +175,48 @@ class ProductTable(BaseTable):
 
         return products
 
+
+    @staticmethod
+    async def get_cart_products(
+            session: AsyncSession,
+            user_id: tbls.UserTable,
+    ) -> List['ProductTable']:
+        # 該当するユーザー
+        stmt = (
+            select(tbls.ProductTable)
+            .join(tbls.CartProductTable, tbls.ProductTable.product_id == tbls.CartProductTable.product_id)
+            .join(tbls.CartTable, tbls.CartProductTable.cart_id == tbls.CartTable.cart_id)
+            .where(tbls.CartTable.user_id == user_id)
+            .where(tbls.CartTable.purchase_date == None)
+        )
+        result = await session.execute(stmt)
+        product_cart = result.scalars().all()
+        return list(product_cart)
+
+    @staticmethod
+    async def cart_buy(
+        session: AsyncSession,
+        user_id: tbls.UserTable,
+    ):
+        subquery = (
+            select(tbls.CartTable.cart_id)
+            .where(tbls.CartTable.user_id == user_id)
+            .where(tbls.CartTable.purchase_date == None)
+        )
+
+        stmt = (
+            update(tbls.CartTable)
+            .where(tbls.CartTable.cart_id.in_(subquery))
+            .values(purchase_date=datetime.datetime.now(datetime.UTC).replace(tzinfo=None))
+        )
+
+        await session.execute(stmt)
+        await session.commit()
+
     @staticmethod
     def get_recommend(
             product_id:uuid.UUID,
             session: AsyncSession,
             user : deps.UserDeps,
     ) -> 'ProductRecommendTable':
-
-
 

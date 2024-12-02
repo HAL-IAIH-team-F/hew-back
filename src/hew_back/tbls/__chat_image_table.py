@@ -42,8 +42,8 @@ class ChatImageTable(BaseTable):
             image_uuids: list[uuid.UUID],
             session: AsyncSession
     ) -> list['ChatImageTable']:
-        tables: list[ChatImageTable] = []
+        tbls: list[ChatImageTable] = []
         for image_uuid in image_uuids:
             table = ChatImageTable.create(chat, image_uuid, session)
-            tables.append(table)
-        return tables
+            tbls.append(table)
+        return tbls

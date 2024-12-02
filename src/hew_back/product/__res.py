@@ -3,11 +3,47 @@ from datetime import datetime
 
 from pydantic import BaseModel, field_serializer
 
+from uuid import UUID
 
-# 例:文字列のクエリパラメーターを受け取る
-# api → model → table
-# 最終的にtableでjoin句などを使用して、product_idなどを返し、それをapiに伝える
-# table → model → api
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from hew_back import tbls
+from hew_back.tbls import ProductTable
+
+
+class CartProduct(BaseModel):
+    product_id: UUID
+    product_price: int
+    product_title: str
+    product_text: str
+    product_date: datetime
+    product_contents_uuid: UUID
+    product_thumbnail_uuid: UUID
+
+    @staticmethod
+    async def get_cart_product(
+            session: AsyncSession,
+            user_id: tbls.UserTable.user_id,
+    ) -> list["ProductTable"]:
+        get_product_cart = await tbls.ProductTable.get_cart_products(
+            session=session,
+            user_id=user_id,
+        )
+        return get_product_cart
+
+
+    @staticmethod
+    async def cart_buy(
+         session: AsyncSession,
+         user_id: tbls.UserTable.user_id
+    ) -> "ProductTable":
+     cart_buy = await tbls.ProductTable.cart_buy(
+         session=session,
+         user_id=user_id,
+     )
+     return cart_buy
+
+
 
 class GetProductsResponse(BaseModel):
     product_description: str
@@ -18,9 +54,6 @@ class GetProductsResponse(BaseModel):
     product_date: datetime
     product_contents_uuid: uuid.UUID
 
-    # @field_serializer("sub")
-    # def serialize_sub(self, sub: uuid.UUID) -> str:
-    #     return str(sub)
 
     @staticmethod
     def create(

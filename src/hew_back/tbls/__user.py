@@ -4,7 +4,6 @@ from typing import Union
 
 import sqlalchemy
 from sqlalchemy import Column, String, DateTime, UUID
-# # from asyncpg.pgproto.pgproto import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped
 
@@ -18,7 +17,6 @@ class UserTable(BaseTable):
 
     user_id: Mapped[uuid.UUID] = Column(UUID(as_uuid=True), primary_key=True, autoincrement=False)
     user_name = Column(String(64), nullable=False)
-    # アットマーク
     user_screen_id = Column(String(64), nullable=False)
     user_icon_uuid: Mapped[uuid.UUID | None] = Column(UUID(as_uuid=True), nullable=True)
     user_date = Column(DateTime, default=datetime.datetime.now)
