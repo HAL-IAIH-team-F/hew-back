@@ -8,7 +8,7 @@ from sqlalchemy import Column, String, DateTime, UUID
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tbls
+from hew_back import tbls, deps
 from hew_back.db import BaseTable
 from hew_back.util import OrderDirection
 
@@ -175,10 +175,12 @@ class ProductTable(BaseTable):
 
         return products
 
-        # return query
+    @staticmethod
+    def get_recommend(
+            product_id:uuid.UUID,
+            session: AsyncSession,
+            user : deps.UserDeps,
+    ) -> 'ProductRecommendTable':
 
-# # データベースエンジンの作成とテーブルの作成
-# from sqlalchemy import create_engine
-#
-# engine = create_engine('sqlite:///products.db')
-# Base.metadata.create_all(engine)
+
+
