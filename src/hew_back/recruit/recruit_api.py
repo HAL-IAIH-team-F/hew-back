@@ -1,12 +1,12 @@
 from fastapi import Depends
 
 from hew_back import app
+from hew_back.product.__res import ProductRes
 from hew_back.recruit.__post_recruit import post_recruit
-from hew_back.recruit.__reses import PostRecruitRes
 
 
 @app.post("/api/recruit")
 async def pr(
-        response: PostRecruitRes = Depends(post_recruit),
-) -> PostRecruitRes:
-    return response
+        result=Depends(post_recruit),
+) -> ProductRes:
+    return result.to_product_res()
