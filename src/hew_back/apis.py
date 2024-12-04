@@ -20,5 +20,5 @@ import hew_back.recruit.get_recruits
 
 
 @app.get("/health")
-async def health():
+async def health() -> dict:
     return {"ok": True}
