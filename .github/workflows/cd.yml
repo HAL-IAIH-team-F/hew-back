@@ -2,12 +2,13 @@ name: cd
 
 on:
   push:
-    branches:
-      - "develop"
 
 jobs:
+  test:
+    uses: ./.github/workflows/test.yaml
   cd:
-
+    needs: [test]
+    if: github.ref == 'refs/heads/develop'
     strategy:
       matrix:
         conf:
