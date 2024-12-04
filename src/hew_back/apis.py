@@ -15,6 +15,8 @@ import hew_back.recruit.recruit_api
 from hew_back import app
 # noinspection PyUnresolvedReferences
 import hew_back.follow.user_follow_api
+# noinspection PyUnresolvedReferences
+import hew_back.recruit.get_recruits
 
 
 @app.get("/health")

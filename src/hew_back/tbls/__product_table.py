@@ -58,7 +58,7 @@ class ProductTable(BaseTable):
             start_datetime: Union[datetime, None],
             end_datetime: Union[datetime, None],
             following: Union[bool, None],
-            read_limit_number: Union[int, None],
+            limit: Union[int, None],
             time_order: OrderDirection,
             name_order: OrderDirection,
             like_order: OrderDirection,
@@ -126,8 +126,8 @@ class ProductTable(BaseTable):
                 .where(tbls.CreatorProductTable.creator_id.in_(following_subquery))
             )
 
-        if read_limit_number is not None and read_limit_number > 0:
-            stmt = stmt.limit(read_limit_number)
+        if limit is not None and limit > 0:
+            stmt = stmt.limit(limit)
 
         # time_order に基づいて product_date のソートを追加
         if time_order == OrderDirection.ASC:
