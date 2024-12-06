@@ -5,7 +5,10 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/test.yml
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ${{ github.ref }}
+#    uses: ./.github/workflows/test.yml
   cd:
     needs: [test]
 #    if: github.ref == 'refs/heads/develop'
@@ -23,7 +26,7 @@ jobs:
     steps:
       # checkout
       - uses: actions/checkout@v4
-      - run: echo {{ github.ref }}
+      - run: echo ${{ github.ref }}
       - name: preBuild
         if: ${{ matrix.conf.preDockerBuildCmd }}
         run: ${{ matrix.conf.preDockerBuildCmd }}
