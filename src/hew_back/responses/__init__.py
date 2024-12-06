@@ -57,27 +57,27 @@ class SelfUserRes(BaseModel):
 
 
 class TokenRes(BaseModel):
-    access: tks.TokenInfo
-    refresh: tks.TokenInfo
+    access: tks.TokenInfoOld
+    refresh: tks.TokenInfoOld
 
     @staticmethod
     def from_tokens(tokens: mdls.Tokens):
         return TokenRes.create(tokens.access, tokens.refresh)
 
     @staticmethod
-    def create(access: tks.TokenInfo, refresh: tks.TokenInfo):
+    def create(access: tks.TokenInfoOld, refresh: tks.TokenInfoOld):
         return TokenRes(access=access, refresh=refresh)
 
 
 class ImgTokenRes(BaseModel):
-    upload: tks.TokenInfo
+    upload: tks.TokenInfoOld
 
     @staticmethod
     def from_img_tokens(tokens: mdls.ImgTokens):
         return ImgTokenRes.create(tokens.upload)
 
     @staticmethod
-    def create(upload: tks.TokenInfo):
+    def create(upload: tks.TokenInfoOld):
         return ImgTokenRes(upload=upload)
 
 
