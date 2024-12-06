@@ -12,6 +12,8 @@ from hew_back.tbls import RecruitTable
 def search_stmt(
         name: Union[list[str], None] = Query(default=None),
 ) -> ColumnElement[bool]:
+    if name is None or len(name) == 0:
+        return sqlalchemy.true()
     return sqlalchemy.and_(
         *[sqlalchemy.or_(
             RecruitTable.title.like(f"%{keyword}%"),
