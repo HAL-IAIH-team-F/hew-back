@@ -1,4 +1,4 @@
-name: cd
+name: {{  }}
 
 on:
   push:
@@ -8,7 +8,7 @@ jobs:
     uses: ./.github/workflows/test.yml
   cd:
     needs: [test]
-    if: github.ref == 'refs/heads/develop'
+#    if: github.ref == 'refs/heads/develop'
     strategy:
       matrix:
         conf:
@@ -23,7 +23,7 @@ jobs:
     steps:
       # checkout
       - uses: actions/checkout@v4
-
+      - run: echo {{ github.ref }}
       - name: preBuild
         if: ${{ matrix.conf.preDockerBuildCmd }}
         run: ${{ matrix.conf.preDockerBuildCmd }}
