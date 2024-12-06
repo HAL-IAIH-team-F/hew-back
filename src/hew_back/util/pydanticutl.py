@@ -5,7 +5,7 @@ from pydantic import AfterValidator, PlainSerializer
 
 
 def __validate_datetime(prev: datetime):
-    return prev.astimezone(timezone.utc).replace(tzinfo=None, microsecond=0)
+    return prev.astimezone(timezone.utc).replace(microsecond=0)
 
 
 def __serialize_datetime(prev: datetime):

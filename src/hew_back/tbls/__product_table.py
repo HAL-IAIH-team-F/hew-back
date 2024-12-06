@@ -24,7 +24,7 @@ class ProductTable(BaseTable):
     product_price = Column(sqlalchemy.Integer, nullable=False)
     product_title = Column(String(64), nullable=False)
     product_description = Column(String(255), nullable=False)
-    purchase_date: datetime.datetime = Column(DateTime, default=datetime.datetime.now)
+    purchase_date: datetime.datetime = Column(DateTime(timezone=True), default=datetime.datetime.now)
     product_thumbnail_uuid: uuid.UUID = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
     product_contents_uuid: uuid.UUID = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
 
