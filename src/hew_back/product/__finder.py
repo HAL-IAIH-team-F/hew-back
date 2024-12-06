@@ -35,7 +35,7 @@ class ProductFinder:
             start_datetime=start_datetime,
             end_datetime=end_datetime,
             following=following,
-            read_limit_number=read_limit_number,
+            limit=read_limit_number,
             time_order=time_order,
             name_order=name_order,
             like_order=like_order,

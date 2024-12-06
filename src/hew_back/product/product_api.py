@@ -20,7 +20,7 @@ async def gps(
         end_datetime: Union[datetime, None] = Query(default=None, description="end_datetime"),
         following: Union[bool, None] = Query(default=None, description="user_following"),
         # ← settion通信？してUserテーブルからログインしているユーザーがフォローしているか取ってくるコードが必要なのでは？
-        read_limit_number: Union[int, None] = Query(default=20, description="read_product_limit_number"),
+        limit: Union[int, None] = Query(default=20, description="read_product_limit_number"),
         time_order: OrderDirection = Query(default=None, description="time_direction asc/desc"),
         name_order: OrderDirection = Query(default=None, description="name_direction asc/desc"),
         like_order: OrderDirection = Query(default=None, description="like_direction asc/desc"),
@@ -54,7 +54,7 @@ async def gps(
         start_datetime=start_datetime,
         end_datetime=end_datetime,
         following=following,
-        read_limit_number=read_limit_number,
+        read_limit_number=limit,
         time_order=time_order,
         name_order=name_order,
         like_order=like_order,

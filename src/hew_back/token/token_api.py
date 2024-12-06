@@ -4,20 +4,20 @@ from fastapi import Depends
 
 from hew_back import app, deps, mdls
 from hew_back.token.__token_body import PostTokenBody
-from hew_back.token.__token_res import TokenRes, ImgTokenRes
+from hew_back.token.__reses import TokenResOld, ImgTokenRes
 
 
 @app.post("/api/token")
-async def post_token(body: PostTokenBody) -> TokenRes:
+async def post_token(body: PostTokenBody) -> TokenResOld:
     tokens = body.new_tokens()
-    return TokenRes.from_tokens(tokens)
+    return TokenResOld.from_tokens(tokens)
 
 
 @app.get("/api/token/refresh")
 async def token_refresh(
         token: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_refresh_token)
-) -> TokenRes:
-    return TokenRes.from_tokens(token.renew_tokens())
+) -> TokenResOld:
+    return TokenResOld.from_tokens(token.renew_tokens())
 
 
 @app.get("/api/token/image")

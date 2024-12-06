@@ -32,6 +32,7 @@ class ErrorIds(Enum):
     CONTENT_IMAGE_NOT_FOUND = ErrorId.create("content image not found", 404)
     THUMBNAIL_NOT_FOUND = ErrorId.create("thumbnail not found", 404)
 
+    DATETIME_CONFLICT = ErrorId.create("datetime conflict", 409)
     USER_NAME_CONFLICT = ErrorId.create("user name conflict", 409)
     TOKEN_CONFLICT = ErrorId.create("token conflict", 409)
     TOKEN_EXPIRED = ErrorId.create("token expired", 409)

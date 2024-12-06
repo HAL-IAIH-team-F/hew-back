@@ -2,7 +2,7 @@ import pydantic.dataclasses
 from fastapi import Depends
 
 from hew_back import tbls, deps
-from hew_back.recruit.__reses import PostRecruitRes
+from hew_back.recruit.__reses import RecruitRes
 from hew_back.tbls import RecruitTable
 
 
@@ -28,7 +28,7 @@ async def __insert_recruit(
 
 async def post_recruit(
         recruit: RecruitTable = Depends(__insert_recruit),
-) -> PostRecruitRes:
-    return PostRecruitRes(
+) -> RecruitRes:
+    return RecruitRes(
         recruit.recruit_id, recruit.creator_id, recruit.title, recruit.description
     )
