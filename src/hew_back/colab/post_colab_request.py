@@ -1,5 +1,6 @@
 from typing import Union, Sequence
 
+import pydantic.dataclasses
 import sqlalchemy.ext.asyncio
 from fastapi import Depends, Query
 from sqlalchemy import ColumnElement
@@ -23,7 +24,6 @@ def search_stmt(
 
 
 async def find_recruits(
-        session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
         search: ColumnElement[bool] = Depends(search_stmt),
         limit: Union[int, None] = Query(default=20),
 ) -> Sequence[RecruitTable]:
@@ -37,11 +37,20 @@ async def find_recruits(
     for recruit in result:
         await session.refresh(recruit)
     return result
+@pydantic.dataclasses.dataclass
+class PostColabRequest:
+    def __init__(
+            self,
+        session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
+    ):
+        self.session = session
 
+    def send_request(self):
+        tbls
 
 @app.post("/api/colab/request")
 async def pcr(
-        recruits: Sequence[RecruitTable] = Depends(find_recruits),
+        recruits: PostColabRequest = Depends(PostColabRequest),
 ) -> list[RecruitRes]:
     result: list[RecruitRes] = []
 
