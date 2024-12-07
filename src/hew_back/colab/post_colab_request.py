@@ -23,8 +23,18 @@ class Service:
         self.sender = sender
         self.body = body
 
-    async def insert_notification(self) -> tbls.NotificationTable:
-        notification = tbls.NotificationTable()
+    async def receiver(self, recruit: tbls.RecruitTable) -> tbls.CreatorTable:
+        receiver_creator = await self.session.execute(
+            sqlalchemy.select(tbls.CreatorTable)
+            .where(tbls.CreatorTable.creator_id == recruit.creator_id)
+        )
+        return receiver_creator.scalar_one()
+
+    async def insert_notification(self, recruit: tbls.RecruitTable) -> tbls.NotificationTable:
+        receiver = await self.receiver(recruit)
+        notification = tbls.NotificationTable(
+            receive_user=receiver.user_id
+        )
         self.session.add(notification)
         await self.session.flush()
         await self.session.refresh(notification)
@@ -38,8 +48,8 @@ class Service:
         return recruit.scalar_one()
 
     async def insert_colab_notification(self) -> tbls.NotificationCollaboTable:
-        notification = await self.insert_notification()
         recruit = await self.select_recruit()
+        notification = await self.insert_notification(recruit)
         colab = tbls.NotificationCollaboTable(
             notification_id=notification.notification_id,
             sender_creator_id=self.sender.creator_table.creator_id,

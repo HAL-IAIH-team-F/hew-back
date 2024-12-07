@@ -1,6 +1,7 @@
 import dataclasses
 import uuid
 
+import sqlalchemy
 from sqlalchemy import Column, UUID
 from sqlalchemy.orm import Mapped
 
@@ -13,4 +14,7 @@ class NotificationTable(BaseTable):
 
     notification_id: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
+    )
+    receive_user: Mapped[uuid.UUID] = Column(
+        UUID(as_uuid=True), sqlalchemy.ForeignKey('TBL_USER.user_id'), nullable=False, default=uuid.uuid4
     )
