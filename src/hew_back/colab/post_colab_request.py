@@ -44,8 +44,7 @@ class PostColabRequestBody:
     recruit_id: uuid.UUID
 
 
-@pydantic.dataclasses.dataclass
-class __Service:
+class Service:
     def __init__(
             self,
             body: PostColabRequestBody,
@@ -59,6 +58,7 @@ class __Service:
     async def insert_notification(self) -> tbls.NotificationTable:
         notification = tbls.NotificationTable()
         self.session.add(notification)
+        await self.session.flush()
         await self.session.refresh(notification)
         return notification
 
@@ -77,6 +77,9 @@ class __Service:
             sender_creator_id=self.sender.creator_table.creator_id,
             receive_creator_id=recruit.creator_id,
         )
+        self.session.add(colab)
+        await self.session.flush()
+        await self.session.refresh(colab)
         return colab
 
     async def send_request(self):
@@ -85,7 +88,7 @@ class __Service:
 
 @app.post("/api/colab/request")
 async def pcr(
-        service: __Service = Depends(__Service),
+        service: Service = Depends(),
 ) -> None:
     await service.send_request()
     return
