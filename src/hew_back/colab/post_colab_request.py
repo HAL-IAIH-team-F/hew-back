@@ -1,42 +1,10 @@
 import uuid
-from typing import Union, Sequence
 
 import pydantic.dataclasses
 import sqlalchemy.ext.asyncio
-from fastapi import Depends, Query
-from sqlalchemy import ColumnElement
+from fastapi import Depends
 
 from hew_back import deps, app, tbls
-from hew_back.tbls import RecruitTable
-
-
-def search_stmt(
-        name: Union[list[str], None] = Query(default=None),
-) -> ColumnElement[bool]:
-    if name is None or len(name) == 0:
-        return sqlalchemy.true()
-    return sqlalchemy.and_(
-        *[sqlalchemy.or_(
-            RecruitTable.title.like(f"%{keyword}%"),
-            RecruitTable.description.like(f"%{keyword}%"),
-        ) for keyword in name]
-    )
-
-
-async def find_recruits(
-        search: ColumnElement[bool] = Depends(search_stmt),
-        limit: Union[int, None] = Query(default=20),
-) -> Sequence[RecruitTable]:
-    result = await session.execute(
-        sqlalchemy.select(RecruitTable)
-        .where(search)
-        .limit(limit)
-    )
-    result = result.scalars().all()
-    await session.flush()
-    for recruit in result:
-        await session.refresh(recruit)
-    return result
 
 
 @pydantic.dataclasses.dataclass
