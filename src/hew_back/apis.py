@@ -19,6 +19,8 @@ import hew_back.follow.user_follow_api
 import hew_back.recruit.get_recruits
 # noinspection PyUnresolvedReferences
 import hew_back.token.get_token
+# noinspection PyUnresolvedReferences
+import hew_back.colab.post_colab_request
 
 
 @app.get("/health")
