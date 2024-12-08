@@ -9,6 +9,12 @@ class NotificationType(Enum):
 
 
 @pydantic.dataclasses.dataclass
+class ColabNotificationData:
+    sender_creator_id: uuid.UUID
+
+
+@pydantic.dataclasses.dataclass
 class NotificationRes:
     notification_id: uuid.UUID
     notification_type: NotificationType
+    data: ColabNotificationData

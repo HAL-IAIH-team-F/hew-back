@@ -1,13 +1,12 @@
 import dataclasses
 import uuid
-from typing import List
 
 import pydantic.dataclasses
 import sqlalchemy.ext.asyncio
 from fastapi import Depends
 
 from hew_back import deps, app, tbls
-from hew_back.notification.__reses import NotificationRes, NotificationType
+from hew_back.notification.__reses import NotificationRes, NotificationType, ColabNotificationData
 from hew_back.util import err
 
 
@@ -33,16 +32,21 @@ class Service:
 
     async def select_notifications(self) -> list[NotificationRecord]:
         query = await self.session.execute(
-            sqlalchemy.select(tbls.NotificationTable, tbls.NotificationCollaboTable)
+            sqlalchemy.select(
+                tbls.NotificationTable,
+                tbls.NotificationCollaboTable,
+            ).select_from(tbls.NotificationTable)
+            .join(
+                tbls.NotificationCollaboTable,
+                tbls.NotificationCollaboTable.notification_id == tbls.NotificationTable.notification_id, isouter=True
+            )
             .where(tbls.NotificationTable.receive_user == self.user.user_table.user_id)
         )
-        records = query.scalars().all()
+        records = query.all()
         result = list[NotificationRecord]()
         for record in records:
-            colab: tbls.NotificationCollaboTable | None = record
-            if colab.sender_creator_id is None and colab.receive_creator_id is None:
-                colab = None
-            result.append(NotificationRecord(record, colab))
+            colab: tbls.NotificationCollaboTable | None = record[1]
+            result.append(NotificationRecord(record[0], colab))
 
         return result
 
@@ -52,19 +56,21 @@ class Service:
 
         for notification in notifications:
             notification_type: NotificationType
+            data: ColabNotificationData
             if notification.collabo is not None:
                 notification_type = NotificationType.COLAB
+                data = ColabNotificationData(notification.collabo.sender_creator_id)
             else:
                 raise err.ErrorIds.NOTIFICATION_ERROR.to_exception("unknown notification type")
             results.append(NotificationRes(
                 notification.notification.notification_id,
-                notification_type
-
+                notification_type,
+                data,
             ))
         return results
 
 
-@app.post("/api/notification")
+@app.get("/api/notification")
 async def gns(
         service: Service = Depends(),
 ) -> list[NotificationRes]:
