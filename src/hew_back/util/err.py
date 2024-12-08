@@ -16,6 +16,7 @@ class ErrorIds(Enum):
     INTERNAL_ERROR = ErrorId.create("server internal error", 500)
     INTERNAL_API_ERROR = ErrorId.create("server internal api error", 500)
     GET_PROFILE_FAILED = ErrorId.create("get profile failed", 500)
+    NOTIFICATION_ERROR = ErrorId.create("notification error", 500)
 
     PASSWORD_EMPTY = ErrorId.create("password is empty", 400)
     USER_NOT_FOUND = ErrorId.create("user not found", 404)

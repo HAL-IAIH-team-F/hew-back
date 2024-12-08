@@ -21,6 +21,8 @@ import hew_back.recruit.get_recruits
 import hew_back.token.get_token
 # noinspection PyUnresolvedReferences
 import hew_back.colab.post_colab_request
+# noinspection PyUnresolvedReferences
+import hew_back.notification.get_notifications
 
 
 @app.get("/health")
