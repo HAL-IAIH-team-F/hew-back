@@ -28,7 +28,7 @@ class CollaboNotificationTable(BaseTable):
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
     )
     notification_id: Mapped[uuid.UUID] = Column(
-        UUID(as_uuid=True), ForeignKey('TBL_NOTIFICATION.notification_id'), primary_key=True, nullable=False,
+        UUID(as_uuid=True), ForeignKey('TBL_NOTIFICATION.notification_id'), unique=True, nullable=False,
         default=uuid.uuid4
     )
     sender_creator_id: Mapped[uuid.UUID] = Column(

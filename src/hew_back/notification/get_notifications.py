@@ -59,12 +59,15 @@ class Service:
             data: ColabNotificationData
             if notification.collabo is not None:
                 notification_type = NotificationType.COLAB
-                data = ColabNotificationData(notification.collabo.sender_creator_id)
+                data = ColabNotificationData(
+                    notification_type,
+                    notification.collabo.sender_creator_id,
+                    notification.collabo.notification_collabo_id,
+                )
             else:
                 raise err.ErrorIds.NOTIFICATION_ERROR.to_exception("unknown notification type")
             results.append(NotificationRes(
                 notification.notification.notification_id,
-                notification_type,
                 data,
             ))
         return results
