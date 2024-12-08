@@ -11,7 +11,7 @@ from .__token import *
 
 @dataclass
 class ImgTokens:
-    upload: tks.TokenInfo
+    upload: tks.TokenInfoOld
 
 
 class ImgTokenType(tks.AbcTokenType, Enum):
@@ -59,17 +59,3 @@ class Img(BaseModel):
             token=token,
         )
 
-
-def __validate_datetime(prev: datetime):
-    return prev.astimezone(timezone.utc).replace(tzinfo=None,microsecond=0)
-
-
-def __serialize_datetime(prev: datetime):
-    return prev.strftime('%Y-%m-%dT%H:%M:%SZ')
-
-
-Datetime = Annotated[
-    datetime,
-    AfterValidator(__validate_datetime),
-    PlainSerializer(__serialize_datetime),
-]

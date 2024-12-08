@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, tzinfo, timezone
 
 import pytest
 import pytest_asyncio
@@ -33,7 +33,7 @@ def post_product_body(session) -> PostProductBody:
         price=1,
         product_title="",
         product_description="",
-        purchase_date=datetime(2024, 11, 20, 6, 38, 10, 656199),
+        purchase_date=datetime(2024, 11, 20, 6, 38, 10, 656199).astimezone(timezone.utc),
         product_thumbnail_uuid=uuid.UUID('0ac01606-a086-47b2-acab-c9cda7dc3bb9'),
         product_contents_uuid=uuid.UUID('44f4ef3e-d667-4f0f-9fa4-bc13bb1fd98a'),
     )

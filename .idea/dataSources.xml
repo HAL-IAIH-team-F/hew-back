@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5433/hew</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="hew-dev@postgres-svc.hew-dev.svc.cluster.local" uuid="59e28dd5-b88d-4985-a166-ad5f0dc46102">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://postgres-svc.hew-dev.svc.cluster.local:5432/hew-dev</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

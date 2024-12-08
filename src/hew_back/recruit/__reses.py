@@ -4,7 +4,7 @@ from pydantic.dataclasses import dataclass
 
 
 @dataclass
-class PostRecruitRes:
+class RecruitRes:
     recruit_id: uuid.UUID
     creator_id: uuid.UUID
     title: str
