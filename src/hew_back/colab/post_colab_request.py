@@ -47,10 +47,10 @@ class Service:
         )
         return recruit.scalar_one()
 
-    async def insert_colab_notification(self) -> tbls.NotificationCollaboTable:
+    async def insert_colab_notification(self) -> tbls.CollaboNotificationTable:
         recruit = await self.select_recruit()
         notification = await self.insert_notification(recruit)
-        colab = tbls.NotificationCollaboTable(
+        colab = tbls.CollaboNotificationTable(
             notification_id=notification.notification_id,
             sender_creator_id=self.sender.creator_table.creator_id,
             receive_creator_id=recruit.creator_id,

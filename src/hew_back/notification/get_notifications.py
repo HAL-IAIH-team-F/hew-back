@@ -18,7 +18,7 @@ class PostColabRequestBody:
 @dataclasses.dataclass
 class NotificationRecord:
     notification: tbls.NotificationTable
-    collabo: tbls.NotificationCollaboTable | None
+    collabo: tbls.CollaboNotificationTable | None
 
 
 class Service:
@@ -34,18 +34,18 @@ class Service:
         query = await self.session.execute(
             sqlalchemy.select(
                 tbls.NotificationTable,
-                tbls.NotificationCollaboTable,
+                tbls.CollaboNotificationTable,
             ).select_from(tbls.NotificationTable)
             .join(
-                tbls.NotificationCollaboTable,
-                tbls.NotificationCollaboTable.notification_id == tbls.NotificationTable.notification_id, isouter=True
+                tbls.CollaboNotificationTable,
+                tbls.CollaboNotificationTable.notification_id == tbls.NotificationTable.notification_id, isouter=True
             )
             .where(tbls.NotificationTable.receive_user == self.user.user_table.user_id)
         )
         records = query.all()
         result = list[NotificationRecord]()
         for record in records:
-            colab: tbls.NotificationCollaboTable | None = record[1]
+            colab: tbls.CollaboNotificationTable | None = record[1]
             result.append(NotificationRecord(record[0], colab))
 
         return result
@@ -59,12 +59,15 @@ class Service:
             data: ColabNotificationData
             if notification.collabo is not None:
                 notification_type = NotificationType.COLAB
-                data = ColabNotificationData(notification.collabo.sender_creator_id)
+                data = ColabNotificationData(
+                    notification_type,
+                    notification.collabo.sender_creator_id,
+                    notification.collabo.notification_collabo_id,
+                )
             else:
                 raise err.ErrorIds.NOTIFICATION_ERROR.to_exception("unknown notification type")
             results.append(NotificationRes(
                 notification.notification.notification_id,
-                notification_type,
                 data,
             ))
         return results

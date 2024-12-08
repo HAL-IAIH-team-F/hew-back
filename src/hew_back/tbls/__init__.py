@@ -5,8 +5,6 @@ from .__chat_message_table import *
 from .__chat_image_table import *
 from .__creator_table import *
 from .__like_table import *
-from .__notification_collabo_table import *
-from .__notification_purchase_table import *
 from .__notification_table import *
 from .__product_table import *
 from .__creator_product_table import *
