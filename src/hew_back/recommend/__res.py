@@ -1,17 +1,12 @@
 import uuid
 
-from pydantic import BaseModel
+import pydantic
 
-class GetRecommendRes(BaseModel):
+
+@pydantic.dataclasses.dataclass
+class GetRecommendRes:
     product_id: uuid.UUID
     product_thumbnail_uuid: uuid.UUID
 
-    @staticmethod
-    def create(
-            product_id: uuid.UUID,
-            product_thumbnail_uuid: uuid.UUID,
-    ):
-        return GetRecommendRes(
-            product_id=product_id,
-            product_thumbnail_uuid=product_thumbnail_uuid,
-        )
+
+

@@ -7,9 +7,6 @@ from hew_back import tbls
 from hew_back.db import BaseTable
 
 
-# from asyncpg.pgproto.pgproto import UUID
-
-
 class CreatorProductTable(BaseTable):
     __tablename__ = 'TBL_CREATOR_PRODUCT'
     creator_id = Column(UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), primary_key=True, default=uuid.uuid4)
@@ -27,3 +24,5 @@ class CreatorProductTable(BaseTable):
         )
         session.add(table)
         return table
+
+

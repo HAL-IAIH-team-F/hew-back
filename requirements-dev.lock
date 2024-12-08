@@ -18,11 +18,17 @@ anyio==4.4.0
     # via starlette
     # via watchfiles
 asyncpg==0.29.0
+black==24.10.0
 certifi==2024.6.2
     # via httpcore
     # via httpx
 click==8.1.7
+    # via black
     # via typer
+    # via uvicorn
+colorama==0.4.6
+    # via click
+    # via pytest
     # via uvicorn
 dnspython==2.6.1
     # via email-validator
@@ -61,10 +67,17 @@ markupsafe==2.1.5
     # via mako
 mdurl==0.1.2
     # via markdown-it-py
+mypy-extensions==1.0.0
+    # via black
 orjson==3.10.5
     # via fastapi
 packaging==24.1
+    # via black
     # via pytest
+pathspec==0.12.1
+    # via black
+platformdirs==4.3.6
+    # via black
 pluggy==1.5.0
     # via pytest
 pyasn1==0.6.0
@@ -115,8 +128,6 @@ ujson==5.10.0
     # via fastapi
 uvicorn==0.30.1
     # via fastapi
-uvloop==0.21.0
-    # via uvicorn
 watchfiles==0.22.0
     # via uvicorn
 websockets==12.0

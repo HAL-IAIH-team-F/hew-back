@@ -45,5 +45,5 @@ async def gcms(
         session: AsyncSession = Depends(deps.DbDeps.session),
         user: deps.UserDeps = Depends(deps.UserDeps.get),
 ) -> ChatMessagesRes:
-    res = await ChatFinder.find_chat_messages(chat_id, session, user)
+    res = await ChatFinder.find_chat_messages(session, chat_id, user)
     return res.to_chat_messages_res()

@@ -1,10 +1,15 @@
-import uuid
 from dataclasses import dataclass
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from hew_back import tbls
-from hew_back.chat.__res import ChatRes, ChatMessageRes, MessageRes, ChatMessagesRes
+from hew_back.recommend.__res import GetRecommendRes
+
 
 @dataclass
-class ChatUsersResult
+class RecommendResult:
+    product: tbls.ProductTable
+
+    def products_res(self) -> GetRecommendRes:
+        return GetRecommendRes(
+            product_id=self.product.product_id,
+            product_thumbnail_uuid=self.product.product_thumbnail_uuid
+        )

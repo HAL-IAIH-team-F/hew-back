@@ -1,24 +1,24 @@
-import dataclasses
 import datetime
 import uuid
-from typing import Union, List
+from typing import Union, List, Sequence
 
 import sqlalchemy
 
-from sqlalchemy import Column, String, DateTime, UUID, select, update
-from sqlalchemy import select, or_, func
+from sqlalchemy import select, or_, func, Column, String, DateTime, UUID, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tbls, deps
+from hew_back import tbls
 from hew_back.db import BaseTable
+# from hew_back.tbls import
 from hew_back.util import OrderDirection
 
+from typing import TYPE_CHECKING
 
-# from asyncpg.pgproto.pgproto import UUID
+if TYPE_CHECKING:
+    from hew_back.tbls import ProductTag, CreatorProductTable, CreatorTable
 
-from zoneinfo import ZoneInfo
 
-@dataclasses.dataclass
+
 class ProductTable(BaseTable):
     __tablename__ = 'TBL_PRODUCT'
 
@@ -180,7 +180,7 @@ class ProductTable(BaseTable):
     async def get_cart_products(
             session: AsyncSession,
             user_id: tbls.UserTable,
-    ) -> List['ProductTable']:
+    ) -> Sequence["ProductTable"]:
         # 該当するユーザー
         stmt = (
             select(tbls.ProductTable)
@@ -213,10 +213,114 @@ class ProductTable(BaseTable):
         await session.execute(stmt)
         await session.commit()
 
-    @staticmethod
-    def get_recommend(
-            product_id:uuid.UUID,
-            session: AsyncSession,
-            user : deps.UserDeps,
-    ) -> 'ProductRecommendTable':
 
+
+
+    @staticmethod
+    async def get_tags_for_product(
+            session: AsyncSession,
+            product_id: uuid,
+    ) -> list[str]:
+        """商品IDから関連タグを取得"""
+        query = (
+            select(tbls.Tag.tag_name)
+            .join(ProductTag, tbls.Tag.tag_id == tbls.ProductTag.tag_id)
+            .where(ProductTag.item_id == product_id)
+        )
+        result = await session.execute(query)
+        return list(result.scalars())
+
+
+    @staticmethod
+    async def get_followed_creator_products_by_tags(
+            session: AsyncSession,
+            timeline_disp_user_id: tbls.UserTable.user_id,
+            size: int,
+            subquery_tags: list[str]
+    ) -> Sequence["ProductTable"]:
+        """フォロー中のクリエイター商品をタグに基づいて取得"""
+        query = (
+            select(ProductTable)
+            .join(tbls.CreatorProductTable, ProductTable.product_id == tbls.CreatorProductTable.product_id)
+            .join(tbls.UserFollowTable, tbls.CreatorProductTable.creator_id == tbls.UserFollowTable.creator_id)
+            .where(tbls.UserFollowTable.user_id == timeline_disp_user_id)  # ログインしているユーザー、または指定ユーザーがフォローしているクリエイター
+            .where(ProductTag.tag_id.in_(subquery_tags))
+            .order_by(ProductTable.purchase_date.desc())
+            .limit(size)
+        )
+        result = await session.execute(query)
+        return result.scalars().all()
+
+
+    @staticmethod
+    async def get_product_creator(
+            session: AsyncSession,
+            product_id: uuid,
+    ):
+        """クエリパラメーターからのproduct_idからクリエイターIDを取得"""
+        query = (
+            select(tbls.CreatorTable.creator_id)
+            .join(tbls.CreatorProductTable, CreatorTable.creator_id == tbls.CreatorProductTable.creator_id)
+            .join(tbls.ProductTable, CreatorProductTable.product_id == product_id)
+        )
+        product_creator_id = await session.execute(query)
+        return product_creator_id
+
+
+    @staticmethod
+    async def get_followed_creator_products_by_except_tags(
+        session: AsyncSession,
+        remaining_size: int,
+        product_id: product_id,
+        excluded_products: Sequence["ProductTable"],
+    ) -> Sequence["ProductTable"]:
+        """フォロー中のクリエイターの商品をタグ以外で取得"""
+        excluded_products = [product.product_id for product in excluded_products]
+        product_creator_id = ProductTable.get_product_creator(session, product_id)
+        query = (
+            select(ProductTable)
+            .join(tbls.CreatorProductTable, ProductTable.product_id == tbls.CreatorProductTable.product_id)
+            .join(tbls.UserFollowTable, tbls.CreatorProductTable.creator_id == tbls.UserFollowTable.creator_id)
+            .where(CreatorProductTable.product_id.notin_(excluded_products)) # ←　多分、ここ違う気がする
+            .where(product_creator_id == tbls.CreatorProductTable.creator_id)
+            .order_by(ProductTable.purchase_date.desc())
+            .limit(remaining_size)
+        )
+        result = await session.execute(query)
+        return result.scalars().all()
+
+    @staticmethod
+    async def get_products_from_tags_except_order1_order2(
+            session: AsyncSession,
+            remaining_size: int,
+            subquery_tags,
+            excluded_products: Sequence["ProductTable"],
+    ) -> Sequence["ProductTable"]:
+        """商品タグからProductTableから最新順に取得"""
+        product_tag = [product_tag for product_tag in subquery_tags]
+        query = (
+            select(ProductTable)
+            .join(ProductTag, ProductTable.product_id == tbls.ProductTag.item_id)
+            .where(ProductTag.tag_id.in_(product_tag))
+            .where(CreatorProductTable.product_id.notin_(excluded_products))
+            .order_by(ProductTable.purchase_date.desc())
+            .limit(remaining_size)
+        )
+        result = await session.execute(query)
+        return result.scalars().all()
+
+    @staticmethod
+    async def get_the_others_products(
+            session: AsyncSession,
+            remaining_size: int,
+            excluded_products: Sequence["ProductTable"],
+    ) -> Sequence["ProductTable"]:
+        """ProductTableから最新準に取得"""
+        query = (
+            select(ProductTable)
+            .where(CreatorProductTable.product_id.notin_(excluded_products))
+            .order_by(ProductTable.purchase_date.desc())
+            .limit(remaining_size)
+        )
+        result = await session.execute(query)
+        return result.scalars().all()
