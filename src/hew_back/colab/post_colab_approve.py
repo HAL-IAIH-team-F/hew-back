@@ -5,7 +5,7 @@ import sqlalchemy.ext.asyncio
 from fastapi import Depends
 
 from hew_back import deps, app, tbls
-from hew_back.tbls import ApproveNotificationTable
+from hew_back.tbls import CollaboApproveTable
 
 
 @pydantic.dataclasses.dataclass
@@ -24,45 +24,47 @@ class __Service:
         self.sender = sender
         self.body = body
 
-    async def receiver(self, collabo: tbls.CollaboNotificationTable) -> tbls.CreatorTable:
+    async def receiver(self, collabo: tbls.CollaboTable) -> tbls.CreatorTable:
         receiver_creator = await self.session.execute(
             sqlalchemy.select(tbls.CreatorTable)
             .where(tbls.CreatorTable.creator_id == collabo.sender_creator_id)
         )
         return receiver_creator.scalar_one()
 
-    async def insert_notification(self, collabo: tbls.CollaboNotificationTable) -> tbls.NotificationTable:
+    async def insert_notification(
+            self, collabo: tbls.CollaboTable,
+    ) -> tbls.NotificationTable:
+        approve = await self.insert_approve(collabo)
         receiver = await self.receiver(collabo)
         notification = tbls.NotificationTable(
-            receive_user=receiver.user_id
+            receive_user=receiver.user_id,
+            collabo_approve_id=approve.approve_id,
         )
         self.session.add(notification)
         await self.session.flush()
         await self.session.refresh(notification)
         return notification
 
-    async def select_collabo(self) -> tbls.CollaboNotificationTable:
+    async def select_collabo(self) -> tbls.CollaboTable:
         recruit = await self.session.execute(
-            sqlalchemy.select(tbls.CollaboNotificationTable)
-            .where(tbls.CollaboNotificationTable.notification_collabo_id == self.body.collabo_id)
+            sqlalchemy.select(tbls.CollaboTable)
+            .where(tbls.CollaboTable.collabo_id == self.body.collabo_id)
         )
         return recruit.scalar_one()
 
-    async def insert_approve_notification(self, collabo: tbls.CollaboNotificationTable) -> ApproveNotificationTable:
-        notification = await self.insert_notification(collabo)
-        colab = tbls.ApproveNotificationTable(
-            notification_id=notification.notification_id,
-            collabo_id=collabo.notification_collabo_id,
+    async def insert_approve(self, collabo: tbls.CollaboTable) -> CollaboApproveTable:
+        colab = tbls.CollaboApproveTable(
+            collabo_id=collabo.collabo_id,
         )
         self.session.add(colab)
         await self.session.flush()
         await self.session.refresh(colab)
         return colab
 
-    async def update_notification(self, collabo: tbls.CollaboNotificationTable):
+    async def update_notification(self, collabo: tbls.CollaboTable):
         query = await self.session.execute(
             sqlalchemy.select(tbls.NotificationTable)
-            .where(tbls.NotificationTable.notification_id == collabo.notification_id)
+            .where(tbls.NotificationTable.collabo_id == collabo.collabo_id)
         )
         collabo_notification: tbls.NotificationTable = query.scalar_one()
         collabo_notification.read = True
@@ -70,7 +72,7 @@ class __Service:
     async def approve(self):
         collabo = await self.select_collabo()
         await self.update_notification(collabo)
-        await self.insert_approve_notification(collabo)
+        await self.insert_notification(collabo)
 
 
 @app.post("/api/colab/approve")

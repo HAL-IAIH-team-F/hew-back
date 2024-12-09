@@ -31,9 +31,11 @@ class Service:
         return receiver_creator.scalar_one()
 
     async def insert_notification(self, recruit: tbls.RecruitTable) -> tbls.NotificationTable:
+        collabo = await self.insert_colab_notification(recruit)
         receiver = await self.receiver(recruit)
         notification = tbls.NotificationTable(
-            receive_user=receiver.user_id
+            receive_user=receiver.user_id,
+            collabo_id=collabo.collabo_id,
         )
         self.session.add(notification)
         await self.session.flush()
@@ -47,11 +49,10 @@ class Service:
         )
         return recruit.scalar_one()
 
-    async def insert_colab_notification(self) -> tbls.CollaboNotificationTable:
-        recruit = await self.select_recruit()
-        notification = await self.insert_notification(recruit)
-        colab = tbls.CollaboNotificationTable(
-            notification_id=notification.notification_id,
+    async def insert_colab_notification(
+            self, recruit: tbls.RecruitTable
+    ) -> tbls.CollaboTable:
+        colab = tbls.CollaboTable(
             sender_creator_id=self.sender.creator_table.creator_id,
             receive_creator_id=recruit.creator_id,
         )
@@ -61,12 +62,12 @@ class Service:
         return colab
 
     async def send_request(self):
-        await self.insert_colab_notification()
+        recruit = await self.select_recruit()
+        await self.insert_notification(recruit)
 
 
 @app.post("/api/colab/request")
 async def pcr(
         service: Service = Depends(),
 ) -> None:
-    await service.send_request()
-    return
+    return await service.send_request()
