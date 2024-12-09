@@ -6,7 +6,9 @@ import sqlalchemy.ext.asyncio
 from fastapi import Depends
 
 from hew_back import deps, app, tbls
-from hew_back.notification.__reses import NotificationRes, NotificationType, ColabNotificationData
+from hew_back.notification.__reses import NotificationRes, NotificationType, CollaboNotificationData, \
+    CollaboApproveNotificationData
+from hew_back.tbls import CollaboApproveTable
 from hew_back.util import err
 
 
@@ -18,7 +20,7 @@ class PostColabRequestBody:
 @dataclasses.dataclass
 class NotificationRecord:
     notification: tbls.NotificationTable
-    collabo: tbls.CollaboNotificationTable | None
+    data: tbls.CollaboTable
 
 
 class Service:
@@ -34,19 +36,33 @@ class Service:
         query = await self.session.execute(
             sqlalchemy.select(
                 tbls.NotificationTable,
-                tbls.CollaboNotificationTable,
+                tbls.CollaboTable,
+                tbls.CollaboApproveTable,
             ).select_from(tbls.NotificationTable)
             .join(
-                tbls.CollaboNotificationTable,
-                tbls.CollaboNotificationTable.notification_id == tbls.NotificationTable.notification_id, isouter=True
+                tbls.CollaboTable,
+                tbls.CollaboTable.collabo_id == tbls.NotificationTable.collabo_id, isouter=True
+            )
+            .join(
+                tbls.CollaboApproveTable,
+                tbls.CollaboApproveTable.approve_id == tbls.NotificationTable.collabo_approve_id, isouter=True
             )
             .where(tbls.NotificationTable.receive_user == self.user.user_table.user_id)
         )
         records = query.all()
         result = list[NotificationRecord]()
         for record in records:
-            colab: tbls.CollaboNotificationTable | None = record[1]
-            result.append(NotificationRecord(record[0], colab))
+            notification: tbls.NotificationTable = record[0]
+
+            data: tbls.CollaboTable | None
+            if notification.collabo_id is not None:
+                data = record[1]
+            elif notification.collabo_approve_id is not None:
+                data = record[2]
+            else:
+                raise err.ErrorIds.NOTIFICATION_ERROR.to_exception("unknown notification type 1")
+
+            result.append(NotificationRecord(notification, data))
 
         return result
 
@@ -56,13 +72,17 @@ class Service:
 
         for notification in notifications:
             notification_type: NotificationType
-            data: ColabNotificationData
-            if notification.collabo is not None:
-                notification_type = NotificationType.COLAB
-                data = ColabNotificationData(
-                    notification_type,
-                    notification.collabo.sender_creator_id,
-                    notification.collabo.notification_collabo_id,
+            if isinstance(notification.data, tbls.CollaboTable):
+                data = CollaboNotificationData(
+                    notification_type=NotificationType.COLAB,
+                    sender_creator_id=notification.data.sender_creator_id,
+                    collabo_id=notification.data.collabo_id
+                )
+            elif isinstance(notification.data, tbls.CollaboApproveTable):
+                data = CollaboApproveNotificationData(
+                    notification_type=NotificationType.COLAB_APPROVE,
+                    collabo_id=notification.data.collabo_id,
+                    approve_id=notification.data.approve_id,
                 )
             else:
                 raise err.ErrorIds.NOTIFICATION_ERROR.to_exception("unknown notification type")
