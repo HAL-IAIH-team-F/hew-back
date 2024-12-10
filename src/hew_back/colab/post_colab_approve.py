@@ -24,7 +24,7 @@ class __Service:
         self.sender = sender
         self.body = body
 
-    async def receiver(self, collabo: tbls.CollaboTable) -> tbls.CreatorTable:
+    async def receiver(self, collabo: tbls.ColabRequestTable) -> tbls.CreatorTable:
         receiver_creator = await self.session.execute(
             sqlalchemy.select(tbls.CreatorTable)
             .where(tbls.CreatorTable.creator_id == collabo.sender_creator_id)
@@ -32,7 +32,7 @@ class __Service:
         return receiver_creator.scalar_one()
 
     async def insert_notification(
-            self, collabo: tbls.CollaboTable,
+            self, collabo: tbls.ColabRequestTable,
     ) -> tbls.NotificationTable:
         approve = await self.insert_approve(collabo)
         receiver = await self.receiver(collabo)
@@ -45,14 +45,14 @@ class __Service:
         await self.session.refresh(notification)
         return notification
 
-    async def select_collabo(self) -> tbls.CollaboTable:
+    async def select_collabo(self) -> tbls.ColabRequestTable:
         recruit = await self.session.execute(
-            sqlalchemy.select(tbls.CollaboTable)
-            .where(tbls.CollaboTable.collabo_id == self.body.collabo_id)
+            sqlalchemy.select(tbls.ColabRequestTable)
+            .where(tbls.ColabRequestTable.collabo_id == self.body.collabo_id)
         )
         return recruit.scalar_one()
 
-    async def insert_approve(self, collabo: tbls.CollaboTable) -> CollaboApproveTable:
+    async def insert_approve(self, collabo: tbls.ColabRequestTable) -> CollaboApproveTable:
         colab = tbls.CollaboApproveTable(
             collabo_id=collabo.collabo_id,
         )
@@ -61,7 +61,7 @@ class __Service:
         await self.session.refresh(colab)
         return colab
 
-    async def update_notification(self, collabo: tbls.CollaboTable):
+    async def update_notification(self, collabo: tbls.ColabRequestTable):
         query = await self.session.execute(
             sqlalchemy.select(tbls.NotificationTable)
             .where(tbls.NotificationTable.collabo_id == collabo.collabo_id)

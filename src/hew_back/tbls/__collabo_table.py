@@ -1,6 +1,7 @@
 import dataclasses
 import uuid
 
+import sqlalchemy
 from sqlalchemy import Column, UUID, ForeignKey
 from sqlalchemy.orm import Mapped
 
@@ -8,8 +9,8 @@ from hew_back.db import BaseTable
 
 
 @dataclasses.dataclass
-class CollaboTable(BaseTable):
-    __tablename__ = 'TBL_COLLABO'
+class ColabRequestTable(BaseTable):
+    __tablename__ = 'TBL_COLLABO_REQUEST'
 
     collabo_id: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
@@ -30,8 +31,21 @@ class CollaboApproveTable(BaseTable):
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
     )
     collabo_id: Mapped[uuid.UUID] = Column(
-        UUID(as_uuid=True), ForeignKey('TBL_COLLABO.collabo_id'), nullable=False
+        UUID(as_uuid=True), ForeignKey('TBL_COLLABO_REQUEST.collabo_id'), nullable=False
     )
+
+
+@dataclasses.dataclass
+class ColabTable(BaseTable):
+    __tablename__ = 'TBL_COLLABO'
+
+    collabo_id: Mapped[uuid.UUID] = Column(
+        UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
+    )
+    owner_creator_id: Mapped[uuid.UUID] = Column(
+        sqlalchemy.Uuid, ForeignKey('TBL_CREATOR.creator_id'), nullable=False
+    )
+
 
 @dataclasses.dataclass
 class CollaboCreatorTable(BaseTable):

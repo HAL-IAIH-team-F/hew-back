@@ -20,7 +20,7 @@ class PostColabRequestBody:
 @dataclasses.dataclass
 class NotificationRecord:
     notification: tbls.NotificationTable
-    data: tbls.CollaboTable
+    data: tbls.ColabRequestTable
 
 
 class Service:
@@ -36,12 +36,12 @@ class Service:
         query = await self.session.execute(
             sqlalchemy.select(
                 tbls.NotificationTable,
-                tbls.CollaboTable,
+                tbls.ColabRequestTable,
                 tbls.CollaboApproveTable,
             ).select_from(tbls.NotificationTable)
             .join(
-                tbls.CollaboTable,
-                tbls.CollaboTable.collabo_id == tbls.NotificationTable.collabo_id, isouter=True
+                tbls.ColabRequestTable,
+                tbls.ColabRequestTable.collabo_id == tbls.NotificationTable.collabo_id, isouter=True
             )
             .join(
                 tbls.CollaboApproveTable,
@@ -54,7 +54,7 @@ class Service:
         for record in records:
             notification: tbls.NotificationTable = record[0]
 
-            data: tbls.CollaboTable | None
+            data: tbls.ColabRequestTable | None
             if notification.collabo_id is not None:
                 data = record[1]
             elif notification.collabo_approve_id is not None:
@@ -72,7 +72,7 @@ class Service:
 
         for notification in notifications:
             notification_type: NotificationType
-            if isinstance(notification.data, tbls.CollaboTable):
+            if isinstance(notification.data, tbls.ColabRequestTable):
                 data = CollaboNotificationData(
                     notification_type=NotificationType.COLAB,
                     sender_creator_id=notification.data.sender_creator_id,

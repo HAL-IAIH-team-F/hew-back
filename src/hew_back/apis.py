@@ -5,6 +5,8 @@ import hew_back.colab.post_colab_approve
 # noinspection PyUnresolvedReferences
 import hew_back.colab.post_colab_request
 # noinspection PyUnresolvedReferences
+import hew_back.colab.post_colab
+# noinspection PyUnresolvedReferences
 import hew_back.creator.creator_api
 # noinspection PyUnresolvedReferences
 import hew_back.follow.user_follow_api
