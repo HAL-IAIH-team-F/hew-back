@@ -48,13 +48,13 @@ class __Service:
     async def select_collabo(self) -> tbls.ColabRequestTable:
         recruit = await self.session.execute(
             sqlalchemy.select(tbls.ColabRequestTable)
-            .where(tbls.ColabRequestTable.collabo_id == self.body.collabo_id)
+            .where(tbls.ColabRequestTable.collabo_request_id == self.body.collabo_id)
         )
         return recruit.scalar_one()
 
     async def insert_approve(self, collabo: tbls.ColabRequestTable) -> CollaboApproveTable:
         colab = tbls.CollaboApproveTable(
-            collabo_id=collabo.collabo_id,
+            collabo_id=collabo.collabo_request_id,
         )
         self.session.add(colab)
         await self.session.flush()
@@ -64,7 +64,7 @@ class __Service:
     async def update_notification(self, collabo: tbls.ColabRequestTable):
         query = await self.session.execute(
             sqlalchemy.select(tbls.NotificationTable)
-            .where(tbls.NotificationTable.collabo_id == collabo.collabo_id)
+            .where(tbls.NotificationTable.collabo_request_id == collabo.collabo_request_id)
         )
         collabo_notification: tbls.NotificationTable = query.scalar_one()
         collabo_notification.read = True

@@ -12,7 +12,7 @@ from hew_back.db import BaseTable
 class ColabRequestTable(BaseTable):
     __tablename__ = 'TBL_COLLABO_REQUEST'
 
-    collabo_id: Mapped[uuid.UUID] = Column(
+    collabo_request_id: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
     )
     sender_creator_id: Mapped[uuid.UUID] = Column(

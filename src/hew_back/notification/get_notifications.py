@@ -41,7 +41,7 @@ class Service:
             ).select_from(tbls.NotificationTable)
             .join(
                 tbls.ColabRequestTable,
-                tbls.ColabRequestTable.collabo_id == tbls.NotificationTable.collabo_id, isouter=True
+                tbls.ColabRequestTable.collabo_request_id == tbls.NotificationTable.collabo_request_id, isouter=True
             )
             .join(
                 tbls.CollaboApproveTable,
@@ -55,7 +55,7 @@ class Service:
             notification: tbls.NotificationTable = record[0]
 
             data: tbls.ColabRequestTable | None
-            if notification.collabo_id is not None:
+            if notification.collabo_request_id is not None:
                 data = record[1]
             elif notification.collabo_approve_id is not None:
                 data = record[2]
@@ -76,7 +76,7 @@ class Service:
                 data = CollaboNotificationData(
                     notification_type=NotificationType.COLAB,
                     sender_creator_id=notification.data.sender_creator_id,
-                    collabo_id=notification.data.collabo_id
+                    collabo_id=notification.data.collabo_request_id
                 )
             elif isinstance(notification.data, tbls.CollaboApproveTable):
                 data = CollaboApproveNotificationData(
