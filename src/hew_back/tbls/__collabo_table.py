@@ -32,3 +32,17 @@ class CollaboApproveTable(BaseTable):
     collabo_id: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), ForeignKey('TBL_COLLABO.collabo_id'), nullable=False
     )
+
+@dataclasses.dataclass
+class CollaboCreatorTable(BaseTable):
+    __tablename__ = 'TBL_COLLABO_CREATOR'
+
+    collabo_creator_id: Mapped[uuid.UUID] = Column(
+        UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
+    )
+    collabo_id: Mapped[uuid.UUID] = Column(
+        UUID(as_uuid=True), ForeignKey('TBL_COLLABO.collabo_id'), nullable=False
+    )
+    creator_id: Mapped[uuid.UUID] = Column(
+        UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False, default=uuid.uuid4
+    )
