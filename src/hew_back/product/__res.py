@@ -1,10 +1,9 @@
 import uuid
 from datetime import datetime
-
-from pydantic import BaseModel, field_serializer
-
 from uuid import UUID
 
+import pydantic
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tbls
@@ -31,52 +30,28 @@ class CartProduct(BaseModel):
         )
         return get_product_cart
 
-
     @staticmethod
     async def cart_buy(
-         session: AsyncSession,
-         user_id: tbls.UserTable.user_id
+            session: AsyncSession,
+            user_id: tbls.UserTable.user_id
     ) -> "ProductTable":
-     cart_buy = await tbls.ProductTable.cart_buy(
-         session=session,
-         user_id=user_id,
-     )
-     return cart_buy
+        cart_buy = await tbls.ProductTable.cart_buy(
+            session=session,
+            user_id=user_id,
+        )
+        return cart_buy
 
 
-
-class GetProductsResponse(BaseModel):
+@pydantic.dataclasses.dataclass
+class GetProductsResponse:
     product_description: str
     product_id: uuid.UUID
     product_thumbnail_uuid: uuid.UUID
     product_price: int
     product_title: str
-    product_date: datetime
+    purchase_date: datetime
     product_contents_uuid: uuid.UUID
-
-
-    @staticmethod
-    def create(
-            product_description: str,
-            product_id: uuid.UUID,
-            product_thumbnail_uuid: uuid.UUID,
-            product_price: int,
-            product_title: str,
-            listing_date: datetime,
-            product_contents_uuid: uuid.UUID,
-    ) -> "GetProductsResponse":
-        return GetProductsResponse(
-            product_description=product_description,
-            product_id=product_id,
-            product_thumbnail_uuid=product_thumbnail_uuid,
-            product_price=product_price,
-            product_title=product_title,
-            product_date=listing_date,
-            product_contents_uuid=product_contents_uuid,
-        )
-
-    class Config:
-        from_attributes = True  # SQLAlchemyオブジェクトからPydanticモデルへの変換を有効に
+    creator_ids: list[uuid.UUID]
 
 
 class ProductRes(BaseModel):

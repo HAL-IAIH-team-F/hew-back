@@ -97,7 +97,7 @@ async def test_read_products(client, session, product_table_saved):
         product = GetProductsResponse(**body[i])
 
         assert record.product_id == product.product_id
-        assert record.purchase_date == product.product_date
+        assert record.purchase_date == product.purchase_date
         assert record.product_description == product.product_description
         assert record.product_title == product.product_title
         assert record.product_price == product.product_price
