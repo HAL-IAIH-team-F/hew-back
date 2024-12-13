@@ -81,7 +81,7 @@ async def test_post_product(
 @pytest.mark.asyncio
 async def test_read_products(client, session, product_table_saved):
     result = await client.get(
-        "/api/products"
+        "/api/product"
     )
     assert result.status_code == 200, f"invalid status code {result.read()}"
     body = result.json()
