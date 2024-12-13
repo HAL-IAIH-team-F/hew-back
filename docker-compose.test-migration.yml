@@ -65,6 +65,7 @@ services:
       DB_PASS: 'postgres'
       DB_NAME: "hew"
       DB_HOST: "postgres-test-migration"
+      DB_PORT: "5432"
     command:
       - bash
       - -c
