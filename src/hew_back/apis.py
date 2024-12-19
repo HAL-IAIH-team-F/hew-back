@@ -17,6 +17,8 @@ import hew_back.product.cart.cart_api
 # noinspection PyUnresolvedReferences
 import hew_back.product.product_api
 # noinspection PyUnresolvedReferences
+import hew_back.product.get_products
+# noinspection PyUnresolvedReferences
 import hew_back.recruit.get_recruits
 # noinspection PyUnresolvedReferences
 import hew_back.recruit.recruit_api
