@@ -56,7 +56,8 @@ class HttpResponse:
         """responseのbodyをjsonオブジェクトに変換する
         :return: jsonを表すディクショナリ
         """
-        return model.model_validate_json(self.body())
+        bdy = self.body()
+        return model.model_validate_json(bdy)
 
     def body(self):
         encoding = self.headers.get_content_charset('utf-8')
@@ -74,5 +75,16 @@ class HttpResponse:
             fn(self)
         return self
 
+    def __str__(self):
+        return (f"HttpResponse: '"
+                f"http_request: '{self.http_request}' "
+                f"headers: '{self.headers}' "
+                f"status_code: '{self.status_code}'"
+                f"'")
+
     def on_status_code(self, expect: int, fn: Callable[[Self], any]) -> Self:
         return self.on(lambda s: s.status_code == expect, fn)
+
+    def print_self(self) -> Self:
+        print(self)
+        return self

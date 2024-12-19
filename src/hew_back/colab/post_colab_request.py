@@ -35,7 +35,7 @@ class Service:
         receiver = await self.receiver(recruit)
         notification = tbls.NotificationTable(
             receive_user=receiver.user_id,
-            collabo_id=collabo.collabo_request_id,
+            collabo_request_id=collabo.collabo_request_id,
         )
         self.session.add(notification)
         await self.session.flush()

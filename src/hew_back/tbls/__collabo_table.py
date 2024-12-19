@@ -16,10 +16,10 @@ class ColabRequestTable(BaseTable):
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
     )
     sender_creator_id: Mapped[uuid.UUID] = Column(
-        UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False, default=uuid.uuid4
+        UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False
     )
     receive_creator_id: Mapped[uuid.UUID] = Column(
-        UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False, default=uuid.uuid4
+        UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False
     )
 
 
@@ -31,7 +31,7 @@ class CollaboApproveTable(BaseTable):
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
     )
     collabo_id: Mapped[uuid.UUID] = Column(
-        UUID(as_uuid=True), ForeignKey('TBL_COLLABO_REQUEST.collabo_id'), nullable=False
+        UUID(as_uuid=True), ForeignKey('TBL_COLLABO_REQUEST.collabo_request_id'), nullable=False
     )
 
 
