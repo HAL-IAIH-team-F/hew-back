@@ -33,6 +33,8 @@ class ColabTable(BaseTable):
     owner_creator_id: Mapped[uuid.UUID] = Column(
         sqlalchemy.Uuid, ForeignKey('TBL_CREATOR.creator_id'), nullable=False
     )
+    title: Mapped[str] = Column(sqlalchemy.String(64), nullable=False)
+    description: Mapped[str] = Column(sqlalchemy.String(255), nullable=False)
 
 
 @dataclasses.dataclass
