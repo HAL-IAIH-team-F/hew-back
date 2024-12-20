@@ -7,6 +7,8 @@ import hew_back.colab.post_colab
 # noinspection PyUnresolvedReferences
 import hew_back.creator.creator_api
 # noinspection PyUnresolvedReferences
+import hew_back.creator.get_creators
+# noinspection PyUnresolvedReferences
 import hew_back.follow.user_follow_api
 # noinspection PyUnresolvedReferences
 import hew_back.notification.get_notifications

@@ -1,13 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import Union
-from uuid import UUID
 
 from pydantic import BaseModel, field_serializer
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tbls, mdls
-from hew_back.util import tks, OrderDirection
+from hew_back.util import tks
 
 
 class SelfUserRes(BaseModel):
@@ -79,24 +76,3 @@ class ImgTokenRes(BaseModel):
     @staticmethod
     def create(upload: tks.TokenInfoOld):
         return ImgTokenRes(upload=upload)
-
-
-class CreatorResponse(BaseModel):
-    creator_id: uuid.UUID
-    user_id: uuid.UUID
-    contact_address: str
-    transfer_target: str
-
-    @staticmethod
-    def create(
-            creator_id: uuid.UUID,
-            user_id: uuid.UUID,
-            contact_address: str,
-            transfer_target: str,
-    ) -> 'CreatorResponse':
-        return CreatorResponse(
-            creator_id=creator_id,
-            user_id=user_id,
-            contact_address=contact_address,
-            transfer_target=transfer_target,
-        )
