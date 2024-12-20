@@ -12,13 +12,12 @@ from hew_back.tbls import CollaboCreatorTable
 @pydantic.dataclasses.dataclass
 class PostCollaboBody:
     collabo_id: uuid.UUID
-    approves: list[uuid.UUID]
+    creators: list[uuid.UUID]
 
 
 @dataclasses.dataclass
 class Record:
     request: tbls.ColabRequestTable
-    approve: tbls.CollaboApproveTable
 
 
 class __Service:
@@ -39,17 +38,13 @@ class __Service:
         )
         return receiver_creator.scalar_one()
 
-    async def select_approves_cloabs(self) -> list[Record]:
+    async def select_creators(self) -> list[tbls.CreatorTable]:
         st = await self.session.execute(
-            sqlalchemy.select(tbls.CollaboApproveTable, tbls.ColabRequestTable)
-            .select_from(tbls.CollaboApproveTable)
-            .join(tbls.ColabRequestTable)
-            .where(tbls.CollaboApproveTable.approve_id.in_(self.body.approves))
+            sqlalchemy.select(tbls.CreatorTable)
+            .where(tbls.CreatorTable.creator_id.in_(self.body.creators))
         )
         records = st.all()
-        return [Record(
-            record[0], record[1]
-        ) for record in records]
+        return [*records]
 
     async def insert_colab(self) -> tbls.ColabTable:
         colab = tbls.ColabTable(
@@ -63,12 +58,12 @@ class __Service:
     async def insert_colab_creators(
             self,
     ) -> list[CollaboCreatorTable]:
-        records = await self.select_approves_cloabs()
+        records = await self.select_creators()
         colab = await self.insert_colab()
         colab_creators = list[tbls.CollaboCreatorTable]()
         for record in records:
             colab_creator = tbls.CollaboCreatorTable(
-                creator_id=record.request.sender_creator_id,
+                creator_id=record.creator_id,
                 collabo_id=colab.collabo_id,
             )
             self.session.add(colab_creator)

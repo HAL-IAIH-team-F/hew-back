@@ -1,8 +1,6 @@
 # noinspection PyUnresolvedReferences
 import hew_back.chat.chat_api
 # noinspection PyUnresolvedReferences
-import hew_back.colab.post_colab_approve
-# noinspection PyUnresolvedReferences
 import hew_back.colab.post_colab_request
 # noinspection PyUnresolvedReferences
 import hew_back.colab.post_colab

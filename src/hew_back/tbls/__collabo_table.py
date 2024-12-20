@@ -24,18 +24,6 @@ class ColabRequestTable(BaseTable):
 
 
 @dataclasses.dataclass
-class CollaboApproveTable(BaseTable):
-    __tablename__ = 'TBL_COLLABO_APPROVE'
-
-    approve_id: Mapped[uuid.UUID] = Column(
-        UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
-    )
-    collabo_id: Mapped[uuid.UUID] = Column(
-        UUID(as_uuid=True), ForeignKey('TBL_COLLABO_REQUEST.collabo_request_id'), nullable=False
-    )
-
-
-@dataclasses.dataclass
 class ColabTable(BaseTable):
     __tablename__ = 'TBL_COLLABO'
 

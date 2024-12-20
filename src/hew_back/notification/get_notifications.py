@@ -8,7 +8,6 @@ from fastapi import Depends
 from hew_back import deps, app, tbls
 from hew_back.notification.__reses import NotificationRes, NotificationType, CollaboNotificationData, \
     CollaboApproveNotificationData
-from hew_back.tbls import CollaboApproveTable
 from hew_back.util import err
 
 
@@ -37,15 +36,10 @@ class Service:
             sqlalchemy.select(
                 tbls.NotificationTable,
                 tbls.ColabRequestTable,
-                tbls.CollaboApproveTable,
             ).select_from(tbls.NotificationTable)
             .join(
                 tbls.ColabRequestTable,
                 tbls.ColabRequestTable.collabo_request_id == tbls.NotificationTable.collabo_request_id, isouter=True
-            )
-            .join(
-                tbls.CollaboApproveTable,
-                tbls.CollaboApproveTable.approve_id == tbls.NotificationTable.collabo_approve_id, isouter=True
             )
             .where(tbls.NotificationTable.receive_user == self.user.user_table.user_id)
         )
@@ -57,8 +51,8 @@ class Service:
             data: tbls.ColabRequestTable | None
             if notification.collabo_request_id is not None:
                 data = record[1]
-            elif notification.collabo_approve_id is not None:
-                data = record[2]
+            # elif notification.collabo_approve_id is not None:
+            #     data = record[2]
             else:
                 raise err.ErrorIds.NOTIFICATION_ERROR.to_exception("unknown notification type 1")
 
@@ -78,12 +72,12 @@ class Service:
                     sender_creator_id=notification.data.sender_creator_id,
                     collabo_id=notification.data.collabo_request_id
                 )
-            elif isinstance(notification.data, tbls.CollaboApproveTable):
-                data = CollaboApproveNotificationData(
-                    notification_type=NotificationType.COLAB_APPROVE,
-                    collabo_id=notification.data.collabo_id,
-                    approve_id=notification.data.approve_id,
-                )
+            # elif isinstance(notification.data, tbls.CollaboApproveTable):
+            #     data = CollaboApproveNotificationData(
+            #         notification_type=NotificationType.COLAB_APPROVE,
+            #         collabo_id=notification.data.collabo_id,
+            #         approve_id=notification.data.approve_id,
+            #     )
             else:
                 raise err.ErrorIds.NOTIFICATION_ERROR.to_exception("unknown notification type")
             results.append(NotificationRes(
