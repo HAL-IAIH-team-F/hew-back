@@ -3,7 +3,6 @@ from fastapi import Depends
 
 from hew_back import deps, app, tbls
 from hew_back.creator.__res import CreatorResponse
-from test.conftest import session
 
 
 class __Service:
@@ -31,7 +30,7 @@ class __Service:
 
 
 @app.post("/api/creator")
-async def pc(
+async def gcs(
         service: __Service = Depends(),
 ) -> list[CreatorResponse]:
     return await service.process()
