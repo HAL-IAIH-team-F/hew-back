@@ -4,7 +4,7 @@ from typing import Union, List, Sequence
 
 import sqlalchemy
 
-from sqlalchemy import select, or_, func, Column, String, DateTime, UUID, update
+from sqlalchemy import select, or_, func, Column, String, DateTime, UUID, update, not_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tbls
@@ -224,8 +224,8 @@ class ProductTable(BaseTable):
         """商品IDから関連タグを取得"""
         query = (
             select(tbls.Tag.tag_name)
-            .join(ProductTag, tbls.Tag.tag_id == tbls.ProductTag.tag_id)
-            .where(ProductTag.item_id == product_id)
+            .join(tbls.ProductTag, tbls.Tag.tag_id == tbls.ProductTag.tag_id)
+            .where(tbls.ProductTag.item_id == product_id)
         )
         result = await session.execute(query)
         return list(result.scalars())
@@ -244,7 +244,7 @@ class ProductTable(BaseTable):
             .join(tbls.CreatorProductTable, ProductTable.product_id == tbls.CreatorProductTable.product_id)
             .join(tbls.UserFollowTable, tbls.CreatorProductTable.creator_id == tbls.UserFollowTable.creator_id)
             .where(tbls.UserFollowTable.user_id == timeline_disp_user_id)  # ログインしているユーザー、または指定ユーザーがフォローしているクリエイター
-            .where(ProductTag.tag_id.in_(subquery_tags))
+            .where(tbls.ProductTag.tag_id.in_(subquery_tags))
             .order_by(ProductTable.purchase_date.desc())
             .limit(size)
         )
@@ -270,19 +270,19 @@ class ProductTable(BaseTable):
     @staticmethod
     async def get_followed_creator_products_by_except_tags(
         session: AsyncSession,
+        user_id: tbls.UserTable.user_id,
         remaining_size: int,
-        product_id: product_id,
-        excluded_products: Sequence["ProductTable"],
+        tag_ids: list[str],
     ) -> Sequence["ProductTable"]:
-        """フォロー中のクリエイターの商品をタグ以外で取得"""
-        excluded_products = [product.product_id for product in excluded_products]
-        product_creator_id = ProductTable.get_product_creator(session, product_id)
+        """フォロー中のクリエイターの商品でタグ以外のProductTableを取得"""
         query = (
             select(ProductTable)
             .join(tbls.CreatorProductTable, ProductTable.product_id == tbls.CreatorProductTable.product_id)
             .join(tbls.UserFollowTable, tbls.CreatorProductTable.creator_id == tbls.UserFollowTable.creator_id)
-            .where(CreatorProductTable.product_id.notin_(excluded_products)) # ←　多分、ここ違う気がする
-            .where(product_creator_id == tbls.CreatorProductTable.creator_id)
+            .join(tbls.UserTable, tbls.UserFollowTable.user_id == user_id)
+            .where(tbls.UserFollowTable.user_id == user_id,
+                   not_(tbls.ProductTag.tag_id.in_(tag_ids))
+            )
             .order_by(ProductTable.purchase_date.desc())
             .limit(remaining_size)
         )
