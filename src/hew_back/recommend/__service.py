@@ -41,7 +41,7 @@ class __Service:
 
     async def request(self) -> list[RecommendResult]:
         if self.product_id and self.target_id:
-            return await self._fetch_protab_by_pro_id_tag_id()
+            return await self._fetch_protabs_by_pro_id_tag_id()
         elif self.target_id:
             return await self._fetch_protab_by_tar_id()
         elif self.product_id:
@@ -51,8 +51,8 @@ class __Service:
 
     async def _fetch_protabs_by_pro_id_tag_id(self) -> list[RecommendResult]:
         """フォロー中のクリエイターとタグを考慮して製品テーブルを取得"""
-        tag_id_list = await self._get_tags_by_product_id()
-        products = await self._fetch_products_with_priority(tag_id_list, self.target_id) # tag_idsと対象Userを渡せばいいのでは？
+        tag_id_list: TagListResult = await self._get_tags_by_product_id()
+        products = await self._fetch_products_with_priority(tag_id_list, self.target_id)
         return RecommendResult(products).to_get_products_res()
 
     async def _fetch_protabs_by_tar_id(self) -> list[RecommendResult]:
@@ -96,7 +96,7 @@ class __Service:
         )
         return TagListResult(tags=list(tags_ids.scalars().all()))
 
-    async def _fetch_products_with_priority(self, tag_ids: list[uuid.UUID], target_id: uuid.UUID):
+    async def _fetch_products_with_priority(self, tag_ids: TagListResult, target_id: uuid.UUID):
         """タイムライン対象のuser_idとタグに基づき製品を取得"""
         stmt = (
             select(tbls.ProductTable)
@@ -107,15 +107,14 @@ class __Service:
             .join(tbls.UserTable, CreatorTable.user_id == UserTable.user_id)
             .join(tbls.UserFollowTable, UserTable.user_id == tbls.UserFollowTable.user_id)
             .where(tbls.UserFollowTable.user_id == target_id)
-            .where(ProductTag.tag_id.in_(tag_ids))
-            .where()
-            # .order_by(ProductTable)
+            .where(ProductTag.tag_id.in_(tag_ids.tags)) # tag_idsがTagListResult型のオブジェクト→tag_idsからリストを抽出して使用する必要あり
             .limit(self.size)
         )
         protabls = await self.session.execute(stmt)
         return protabls.scalars().all()
 
 # 商品購入されているものとされていないものを再表示
+# 存在しないproduct_idがあれば、その例外処理を実装する
 
 
 
