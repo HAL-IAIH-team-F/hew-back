@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="dev" type="CompoundRunConfigurationType">
+    <toRun name="dev-db" type="docker-deploy" />
+    <toRun name="dev-server" type="Python.FastAPI" />
+    <method v="2" />
+  </configuration>
+</component>
