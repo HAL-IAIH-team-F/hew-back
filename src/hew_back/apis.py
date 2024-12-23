@@ -26,6 +26,7 @@ import hew_back.token.get_token
 import hew_back.token.token_api
 # noinspection PyUnresolvedReferences
 import hew_back.user.user_api
+import hew_back.recommend.recommend_api
 from hew_back import app
 
 

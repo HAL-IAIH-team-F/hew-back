@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tbls
 from hew_back.db import BaseTable
-# from hew_back.tbls import
 from hew_back.util import OrderDirection
 
 from typing import TYPE_CHECKING

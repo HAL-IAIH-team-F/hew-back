@@ -1,18 +1,14 @@
 import uuid
 from dataclasses import dataclass, field
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from hew_back import tbls, deps
-
 from hew_back.recommend.__result import RecommendResult
 from hew_back.tbls import ProductTable, ProductTag, UserTable, CreatorProductTable, CreatorTable
-
 from fastapi import Depends, Query
 from typing_extensions import Optional
-
 import sqlalchemy
 from sqlalchemy import select
+from hew_back.recommend.__res import GetRecommendRes
 
 
 @dataclass
@@ -36,7 +32,6 @@ class __Service:
         self.session = session
         self.size = size
         self.product_id = product_id
-        #
         self.target_id = search_user_id if search_user_id else user_deps.user_table.user_id
 
     async def request(self) -> list[RecommendResult]:
@@ -50,40 +45,26 @@ class __Service:
             return await self._fetch_latest_products_only()
 
     async def _fetch_protabs_by_pro_id_tag_id(self) -> list[RecommendResult]:
-        """フォロー中のクリエイターとタグを考慮して製品テーブルを取得"""
+        """
+        フォロー中のクリエイターとタグを考慮して製品テーブルを取得
+        """
         tag_id_list: TagListResult = await self._get_tags_by_product_id()
         products = await self._fetch_products_with_priority(tag_id_list, self.target_id)
-        return RecommendResult(products).to_get_products_res()
+        return [RecommendResult(products=products)]
 
     async def _fetch_protabs_by_tar_id(self) -> list[RecommendResult]:
-        """フォロー中のクリエイターから製品を取得"""
+        """
+        フォロー中のクリエイターから製品を取得
+        """
         followed_creators = await self._get_followed_creators()
         products = await self._fetch_products_case_2(followed_creators)
         return RecommendResult(products).to_get_products_res()
 
     async def _fetch_protabs_by_tag(self) -> list[RecommendResult]:
-        """product_idからタグを取得"""
-
-
-    async def get_products(self)-> list[ProductTable]:
-        stmt = sqlalchemy.select(tbls.ProductTable)
-        where = list[sqlalchemy.ColumnElement[bool]]
-        await self.target_id_query(stmt)
-        await self.product_id_query(stmt)
-        stmt = stmt.where(*where)
-        stmt = stmt.limit_query(self.size)
-        result = await self.session.execute(stmt)
-        products = result.scalars().all()
-        return [product for product in products]
-
-
-
-    async def request(self) -> list[RecommendResponse]:
-        recommend_products = RecommendResult(
-            await self.get_products()
-        )
-        return recommend_products.to_get_products_res()
-
+        """
+        product_idからタグを取得
+        """
+        pass
 
     # 共通処理
     async def _get_tags_by_product_id(self) -> TagListResult:
@@ -96,7 +77,7 @@ class __Service:
         )
         return TagListResult(tags=list(tags_ids.scalars().all()))
 
-    async def _fetch_products_with_priority(self, tag_ids: TagListResult, target_id: uuid.UUID):
+    async def _fetch_products_with_priority(self, tag_ids: TagListResult, target_id: uuid.UUID) -> list[tbls.ProductTable]:
         """タイムライン対象のuser_idとタグに基づき製品を取得"""
         stmt = (
             select(tbls.ProductTable)
@@ -111,7 +92,7 @@ class __Service:
             .limit(self.size)
         )
         protabls = await self.session.execute(stmt)
-        return protabls.scalars().all()
+        return list(protabls.scalars().all()) # ← 型がSequence、SQLAlqumeyのSequenceはlist型とのことだが、明示的にした。
 
 # 商品購入されているものとされていないものを再表示
 # 存在しないproduct_idがあれば、その例外処理を実装する
