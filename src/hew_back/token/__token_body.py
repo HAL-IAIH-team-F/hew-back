@@ -13,6 +13,7 @@ class PostTokenBody(BaseModel):
 
     def new_tokens(self):
         profile = self.fetch_keycloak_profile()
+        print(profile)
         return mdls.Tokens(
             access=mdls.JwtTokenData.new(
                 mdls.TokenType.access,

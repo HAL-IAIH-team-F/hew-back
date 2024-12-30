@@ -35,7 +35,7 @@ class Service:
         receiver = await self.receiver(recruit)
         notification = tbls.NotificationTable(
             receive_user=receiver.user_id,
-            collabo_id=collabo.collabo_id,
+            collabo_request_id=collabo.collabo_request_id,
         )
         self.session.add(notification)
         await self.session.flush()
@@ -51,8 +51,8 @@ class Service:
 
     async def insert_colab_notification(
             self, recruit: tbls.RecruitTable
-    ) -> tbls.CollaboTable:
-        colab = tbls.CollaboTable(
+    ) -> tbls.ColabRequestTable:
+        colab = tbls.ColabRequestTable(
             sender_creator_id=self.sender.creator_table.creator_id,
             receive_creator_id=recruit.creator_id,
         )

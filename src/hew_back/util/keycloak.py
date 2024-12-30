@@ -36,6 +36,8 @@ class KeycloakUserProfile(BaseModel):
                 .authorization(urls.BearerAuthorization(access_token))
                 .add_header("User-Agent", "Application")
                 .fetch()
-                .on_status_code(401, lambda s: err.ErrorIds.INVALID_KEYCLOAK_TOKEN.to_exception().raise_self())
+                .on_status_code(
+            401, lambda s: err.ErrorIds.INVALID_KEYCLOAK_TOKEN.to_exception(f"err: {s.body()}").raise_self()
+        )
                 .json_model(KeycloakUserProfile)
                 )

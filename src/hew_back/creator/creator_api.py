@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps
 from hew_back.creator.__body import PostCreatorBody
-from hew_back.responses import CreatorResponse
+from hew_back.creator.__res import CreatorResponse
 
 
 # FastAPIアプリケーションを作成します

@@ -11,11 +11,10 @@ class CreatorResult:
     creator: tbls.CreatorTable
 
     def to_creator_res(self):
-        return CreatorResponse.create(
+        return CreatorResponse(
             creator_id=self.creator.creator_id,
             user_id=self.creator.user_id,
             contact_address=self.creator.contact_address,
-            transfer_target=self.creator.transfer_target,
         )
 
     async def refresh(self, session: AsyncSession):
