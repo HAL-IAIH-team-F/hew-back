@@ -25,11 +25,10 @@ class __Service:
             creator_id=creator.creator_id,
             user_id=creator.user_id,
             contact_address=creator.contact_address,
-            transfer_target=creator.transfer_target,
         ) for creator in creators]
 
 
-@app.post("/api/creator")
+@app.get("/api/creator")
 async def gcs(
         service: __Service = Depends(),
 ) -> list[CreatorResponse]:

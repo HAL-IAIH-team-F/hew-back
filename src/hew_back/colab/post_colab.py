@@ -11,7 +11,8 @@ from hew_back.tbls import CollaboCreatorTable
 
 @pydantic.dataclasses.dataclass
 class PostCollaboBody:
-    collabo_id: uuid.UUID
+    title: str
+    description: str
     creators: list[uuid.UUID]
 
 
@@ -43,12 +44,14 @@ class __Service:
             sqlalchemy.select(tbls.CreatorTable)
             .where(tbls.CreatorTable.creator_id.in_(self.body.creators))
         )
-        records = st.all()
+        records = st.scalars().all()
         return [*records]
 
     async def insert_colab(self) -> tbls.ColabTable:
         colab = tbls.ColabTable(
             owner_creator_id=self.sender.creator_table.creator_id,
+            title=self.body.title,
+            description=self.body.description,
         )
         self.session.add(colab)
         await self.session.flush()
@@ -56,12 +59,10 @@ class __Service:
         return colab
 
     async def insert_colab_creators(
-            self,
+            self, creators: list[tbls.CreatorTable], colab: tbls.ColabTable
     ) -> list[CollaboCreatorTable]:
-        records = await self.select_creators()
-        colab = await self.insert_colab()
         colab_creators = list[tbls.CollaboCreatorTable]()
-        for record in records:
+        for record in creators:
             colab_creator = tbls.CollaboCreatorTable(
                 creator_id=record.creator_id,
                 collabo_id=colab.collabo_id,
@@ -73,8 +74,26 @@ class __Service:
             await self.session.refresh(colab_creator)
         return colab_creators
 
+    async def insert_notification(
+            self, creators: list[tbls.CreatorTable], colab: tbls.ColabTable
+    ):
+        notifications = list[tbls.NotificationTable]()
+        for creator in creators:
+            notification = tbls.NotificationTable(
+                receive_user=creator.user_id,
+                collabo_id=colab.collabo_id,
+            )
+            self.session.add(notification)
+        await self.session.flush()
+        for notification in notifications:
+            await self.session.refresh(notification)
+        return notifications
+
     async def process(self):
-        await self.insert_colab_creators()
+        colab = await self.insert_colab()
+        creators = await self.select_creators()
+        await self.insert_colab_creators(creators, colab)
+        await self.insert_notification(creators, colab)
 
 
 @app.post("/api/colab")

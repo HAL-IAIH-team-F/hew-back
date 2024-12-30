@@ -15,7 +15,6 @@ class CreatorResult:
             creator_id=self.creator.creator_id,
             user_id=self.creator.user_id,
             contact_address=self.creator.contact_address,
-            transfer_target=self.creator.transfer_target,
         )
 
     async def refresh(self, session: AsyncSession):

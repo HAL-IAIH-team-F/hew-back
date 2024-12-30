@@ -4,10 +4,11 @@ from typing import Optional
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
+from jose import jwt, ExpiredSignatureError
 
 from hew_back import mdls, ENV
 from hew_back.util import keycloak, err
+from hew_back.util.err import ErrorIds
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/refresh", auto_error=False)
 
@@ -35,8 +36,12 @@ class JwtTokenDeps:
     def get_token_or_none(token: str | None = Depends(oauth2_scheme)) -> Optional['JwtTokenDeps']:
         if token is None:
             return None
+        try:
+            result = jwt.decode(token, ENV.token.secret_key, algorithms=[ENV.token.algorithm])
+        except ExpiredSignatureError:
+            raise ErrorIds.TOKEN_EXPIRED.to_exception()
         return JwtTokenDeps(
-            mdls.JwtTokenData(**jwt.decode(token, ENV.token.secret_key, algorithms=[ENV.token.algorithm]))
+            mdls.JwtTokenData(**result)
         )
 
     @staticmethod
