@@ -6,7 +6,7 @@ import sqlalchemy.ext.asyncio
 from fastapi import Depends
 
 from hew_back import deps, app, tbls
-from hew_back.tbls import CollaboCreatorTable
+from hew_back.tbls import ColabCreatorTable
 
 
 @pydantic.dataclasses.dataclass
@@ -60,10 +60,10 @@ class __Service:
 
     async def insert_colab_creators(
             self, creators: list[tbls.CreatorTable], colab: tbls.ColabTable
-    ) -> list[CollaboCreatorTable]:
-        colab_creators = list[tbls.CollaboCreatorTable]()
+    ) -> list[ColabCreatorTable]:
+        colab_creators = list[tbls.ColabCreatorTable]()
         for record in creators:
-            colab_creator = tbls.CollaboCreatorTable(
+            colab_creator = tbls.ColabCreatorTable(
                 creator_id=record.creator_id,
                 collabo_id=colab.collabo_id,
             )

@@ -61,7 +61,7 @@ class Service:
         await self.session.refresh(colab)
         return colab
 
-    async def send_request(self):
+    async def process(self):
         recruit = await self.select_recruit()
         await self.insert_notification(recruit)
 
@@ -70,4 +70,4 @@ class Service:
 async def pcr(
         service: Service = Depends(),
 ) -> None:
-    return await service.send_request()
+    return await service.process()

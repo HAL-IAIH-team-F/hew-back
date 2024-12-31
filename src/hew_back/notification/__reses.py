@@ -6,6 +6,7 @@ import pydantic.dataclasses
 
 class NotificationType(Enum):
     COLAB_REQUEST = "colab_request"
+    COLAB_APPROVE = "colab_approve"
     COLAB = "colab"
 
 
@@ -24,6 +25,13 @@ class ColabNotificationData:
     title: str
     description: str
     creator_ids: list[uuid.UUID]
+
+@pydantic.dataclasses.dataclass
+class ColabApproveNotificationData:
+    notification_type: NotificationType
+    collabo_id: uuid.UUID
+    collabo_approve_id: uuid.UUID
+    colab_creator_id: str
 
 
 @pydantic.dataclasses.dataclass

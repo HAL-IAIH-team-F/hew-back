@@ -68,10 +68,10 @@ class Service:
 
         return result
 
-    async def select_colab_creators(self, colab: tbls.ColabTable) -> list[tbls.CollaboCreatorTable]:
+    async def select_colab_creators(self, colab: tbls.ColabTable) -> list[tbls.ColabCreatorTable]:
         raw = await self.session.execute(
-            sqlalchemy.select(tbls.CollaboCreatorTable)
-            .where(tbls.CollaboCreatorTable.collabo_id == colab.collabo_id)
+            sqlalchemy.select(tbls.ColabCreatorTable)
+            .where(tbls.ColabCreatorTable.collabo_id == colab.collabo_id)
         )
         return [*raw.scalars().all()]
 

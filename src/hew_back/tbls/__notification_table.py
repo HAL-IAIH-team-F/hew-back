@@ -15,6 +15,7 @@ class NotificationTable(BaseTable):
         sqlalchemy.CheckConstraint("""
         CASE collabo_id WHEN NULL THEN 0 ELSE 1 END 
         + CASE collabo_request_id WHEN NULL THEN 0 ELSE 1 END 
+        + CASE collabo_approve_id WHEN NULL THEN 0 ELSE 1 END 
         = 1
         ""","check_notification_children"),
     )
@@ -30,6 +31,9 @@ class NotificationTable(BaseTable):
         UUID(as_uuid=True), sqlalchemy.ForeignKey('TBL_COLLABO_REQUEST.collabo_request_id'), nullable=True
     )
     collabo_id: Mapped[uuid.UUID] = Column(
+        UUID(as_uuid=True), sqlalchemy.ForeignKey('TBL_COLLABO.collabo_id'), nullable=True
+    )
+    collabo_approve_id: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), sqlalchemy.ForeignKey('TBL_COLLABO.collabo_id'), nullable=True
     )
 
