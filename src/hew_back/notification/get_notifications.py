@@ -36,6 +36,7 @@ class Service:
             sqlalchemy.select(
                 tbls.NotificationTable,
                 tbls.ColabRequestTable,
+                tbls.ColabTable,
             ).select_from(tbls.NotificationTable)
             .join(
                 tbls.ColabRequestTable,

@@ -5,8 +5,8 @@ import pydantic.dataclasses
 
 
 class NotificationType(Enum):
-    COLAB_REQUEST = "colab"
-    COLAB = "colab_approve"
+    COLAB_REQUEST = "colab_request"
+    COLAB = "colab"
 
 
 @pydantic.dataclasses.dataclass
