@@ -18,7 +18,7 @@ class PostChatMessageBody(BaseModel):
         chat_message = tbls.ChatMessageTable.create(session, chat, last_index + 1, self.message, user.user_table)
         await session.flush()
         await session.refresh(chat_message)
-        images = tbls.ChatImageTable.create_all(chat, self.images, session)
+        images = tbls.ChatImageTable.create_all(chat_message, self.images, session)
         await session.flush()
         for image in images:
             await session.refresh(image)

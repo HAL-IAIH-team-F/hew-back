@@ -1,12 +1,9 @@
-import json
-from dataclasses import asdict, is_dataclass
 from typing import Any
 
 import pydantic
 from fastapi import FastAPI
 from httpx import AsyncClient
 from pydantic import BaseModel, TypeAdapter
-from pydantic.dataclasses import is_pydantic_dataclass
 
 
 class Client:
@@ -26,8 +23,9 @@ class Client:
             headers["Authorization"] = f"Bearer {token}"
         if isinstance(json_data, BaseModel):
             result = await self.client.post(path, content=json_data.model_dump_json(), headers=headers)
-        elif is_pydantic_dataclass(type(json_data)):
-            result = await self.client.post(path, content=TypeAdapter(type(json_data)).dump_json(json_data), headers=headers)
+        elif pydantic.dataclasses.is_pydantic_dataclass(type(json_data)):
+            result = await self.client.post(path, content=TypeAdapter(type(json_data)).dump_json(json_data),
+                                            headers=headers)
         else:
             raise ValueError
 
