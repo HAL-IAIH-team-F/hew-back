@@ -1,4 +1,3 @@
-import dataclasses
 import uuid
 
 import pydantic.dataclasses
@@ -6,8 +5,9 @@ import sqlalchemy.ext.asyncio
 from fastapi import Depends
 
 from hew_back import deps, app, tbls
-from hew_back.notification.__reses import NotificationRes, NotificationType, ColabRequestNotificationData, \
-    ColabNotificationData
+from hew_back.notification.__notification_data_type import ColabNotificationDataType, ColabRequestNotificationDataType, \
+    NotificationDataType
+from hew_back.notification.__reses import NotificationRes, NotificationData
 from hew_back.util import err
 
 
@@ -16,93 +16,55 @@ class PostColabRequestBody:
     recruit_id: uuid.UUID
 
 
-@dataclasses.dataclass
-class NotificationRecord:
-    notification: tbls.NotificationTable
-    data: tbls.ColabRequestTable
-
-
 class Service:
     def __init__(
             self,
             session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
             user: deps.UserDeps = Depends(deps.UserDeps.get),
+            colab_notification: ColabNotificationDataType = Depends(),
+            colab_request_notification: ColabRequestNotificationDataType = Depends(),
     ):
         self.session = session
         self.user = user
+        self.notification_data_types: list[NotificationDataType] = [
+            colab_notification, colab_request_notification,
+        ]
 
     async def select_raw_notifications(self):
+        st = sqlalchemy.select(
+            tbls.NotificationTable,
+            *[t.table() for t in self.notification_data_types]
+        ).select_from(tbls.NotificationTable)
+
+        for data_type in self.notification_data_types:
+            st = st.join(
+                data_type.table(),
+                data_type.join_condition(), isouter=True
+            )
+
         query = await self.session.execute(
-            sqlalchemy.select(
-                tbls.NotificationTable,
-                tbls.ColabRequestTable,
-                tbls.ColabTable,
-            ).select_from(tbls.NotificationTable)
-            .join(
-                tbls.ColabRequestTable,
-                tbls.ColabRequestTable.collabo_request_id == tbls.NotificationTable.collabo_request_id, isouter=True
-            )
-            .join(
-                tbls.ColabTable,
-                tbls.ColabTable.collabo_id == tbls.NotificationTable.collabo_id, isouter=True
-            )
-            .where(tbls.NotificationTable.receive_user == self.user.user_table.user_id)
+            st.where(tbls.NotificationTable.receive_user == self.user.user_table.user_id)
         )
         return query.all()
 
-    async def select_notifications(self) -> list[NotificationRecord]:
+    async def notifications(self) -> list[NotificationRes]:
         raw = await self.select_raw_notifications()
-        result = list[NotificationRecord]()
+        results = list[NotificationRes]()
         for record in raw:
             notification: tbls.NotificationTable = record[0]
-
-            data: tbls.ColabRequestTable | None
-            if notification.collabo_request_id is not None:
-                data = record[1]
-            elif notification.collabo_id is not None:
-                data = record[2]
-            else:
+            data: NotificationData | None = None
+            for i in range(len(self.notification_data_types)):
+                if self.notification_data_types[i].test_has_id(notification):
+                    data = await self.notification_data_types[i].create_data(notification, record[i + 1])
+                    break
+            if data is None:
                 raise err.ErrorIds.NOTIFICATION_ERROR.to_exception("unknown notification type 1")
 
-            result.append(NotificationRecord(notification, data))
-
-        return result
-
-    async def select_colab_creators(self, colab: tbls.ColabTable) -> list[tbls.ColabCreatorTable]:
-        raw = await self.session.execute(
-            sqlalchemy.select(tbls.ColabCreatorTable)
-            .where(tbls.ColabCreatorTable.collabo_id == colab.collabo_id)
-        )
-        return [*raw.scalars().all()]
-
-    async def notifications(self) -> list[NotificationRes]:
-        notifications = await self.select_notifications()
-        results = list[NotificationRes]()
-
-        for notification in notifications:
-            notification_type: NotificationType
-            if isinstance(notification.data, tbls.ColabRequestTable):
-                data = ColabRequestNotificationData(
-                    notification_type=NotificationType.COLAB_REQUEST,
-                    from_creator_id=notification.data.sender_creator_id,
-                    colab_request_id=notification.data.collabo_request_id
-                )
-            elif isinstance(notification.data, tbls.ColabTable):
-                creators = await self.select_colab_creators(notification.data)
-                data = ColabNotificationData(
-                    notification_type=NotificationType.COLAB,
-                    collabo_id=notification.data.collabo_id,
-                    owner_id=notification.data.owner_creator_id,
-                    title=notification.data.title,
-                    description=notification.data.description,
-                    creator_ids=[c.creator_id for c in creators],
-                )
-            else:
-                raise err.ErrorIds.NOTIFICATION_ERROR.to_exception("unknown notification type")
             results.append(NotificationRes(
-                notification.notification.notification_id,
+                notification.notification_id,
                 data,
             ))
+
         return results
 
 

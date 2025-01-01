@@ -26,6 +26,7 @@ class ColabNotificationData:
     description: str
     creator_ids: list[uuid.UUID]
 
+
 @pydantic.dataclasses.dataclass
 class ColabApproveNotificationData:
     notification_type: NotificationType
@@ -34,7 +35,10 @@ class ColabApproveNotificationData:
     colab_creator_id: str
 
 
+type NotificationData = ColabNotificationData | ColabRequestNotificationData | ColabApproveNotificationData
+
+
 @pydantic.dataclasses.dataclass
 class NotificationRes:
     notification_id: uuid.UUID
-    data: ColabRequestNotificationData | ColabNotificationData
+    data: NotificationData
