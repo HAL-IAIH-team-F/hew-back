@@ -20,6 +20,7 @@ app = FastAPI()
 class Main:
     def __init__(self, fast_api: FastAPI):
         self.app = fast_api
+        # noinspection PyTypeChecker
         fast_api.add_middleware(
             CORSMiddleware,
             allow_origins=ENV.cors_list.split(","),

@@ -3,9 +3,10 @@ import pytest_asyncio
 import sqlalchemy
 
 from hew_back import tbls
-from hew_back.chat.__body import PostChatBody, PostChatMessageBody
+from hew_back.chat.__body import PostChatMessageBody
 from hew_back.chat.__res import ChatMessageRes, ChatRes, ChatMessagesRes
-from hew_back.chat.__result import ChatMessageResult
+from hew_back.chat.__result import ChatMessageResult, ChatUsersResult
+from hew_back.chat.post_chat import PostChatBody
 
 
 @pytest.fixture
@@ -32,7 +33,25 @@ async def saved_chat(session, saved_user, login_user_deps) -> ChatRes:
             saved_user.user_id
         ]
     )
-    res = await body.save_new(login_user_deps, session)
+    users = tbls.UserTable.find_all(session, body.users)
+
+    chat = tbls.ChatTable.create(session)
+    await session.flush()
+    await session.refresh(chat)
+    users = await  users
+    users.append(login_user_deps.user_table)
+    for user in users:
+        await session.refresh(user)
+
+    users = tbls.ChatUserTable.create_all(chat, users, session)
+    await session.commit()
+    for user in users:
+        await session.refresh(user)
+    await session.refresh(chat)
+
+    res = ChatUsersResult(
+        chat, users
+    )
     return res.to_chat_res()
 
 

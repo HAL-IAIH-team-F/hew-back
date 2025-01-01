@@ -30,7 +30,7 @@ class JwtTokenDeps:
         return self.jwt_token_data.profile
 
     def renew_tokens(self) -> mdls.Tokens:
-        return self.jwt_token_data.renew_tokens()
+        return self.jwt_token_data.renew_tks()
 
     @staticmethod
     def get_token_or_none(token: str | None = Depends(oauth2_scheme)) -> Optional['JwtTokenDeps']:

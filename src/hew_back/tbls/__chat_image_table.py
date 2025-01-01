@@ -38,12 +38,12 @@ class ChatImageTable(BaseTable):
 
     @staticmethod
     def create_all(
-            chat: tbls.ChatTable,
+            chat_message: tbls.ChatMessageTable,
             image_uuids: list[uuid.UUID],
             session: AsyncSession
     ) -> list['ChatImageTable']:
-        tbls: list[ChatImageTable] = []
+        tables: list[ChatImageTable] = []
         for image_uuid in image_uuids:
-            table = ChatImageTable.create(chat, image_uuid, session)
-            tbls.append(table)
-        return tbls
+            table = ChatImageTable.create(chat_message, image_uuid, session)
+            tables.append(table)
+        return tables

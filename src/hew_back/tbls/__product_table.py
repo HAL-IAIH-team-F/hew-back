@@ -209,6 +209,6 @@ class ProductTable(BaseTable):
         )
 
         await session.execute(stmt)
-        await session.commit()
+        await session.flush()
 
 
