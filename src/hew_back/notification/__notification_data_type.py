@@ -97,7 +97,7 @@ class ColabApproveNotificationDataType(NotificationDataType[tbls.ColabApproveTab
         self.session = session
 
     async def select_colab_creator(self, table: tbls.ColabApproveTable) -> tbls.ColabCreatorTable:
-        raw = self.session.execute(
+        raw = await self.session.execute(
             sqlalchemy.select(tbls.ColabCreatorTable)
             .where(tbls.ColabCreatorTable.collabo_creator_id == table.colab_creator_id)
         )
@@ -108,7 +108,7 @@ class ColabApproveNotificationDataType(NotificationDataType[tbls.ColabApproveTab
     ) -> NotificationData:
         colab_creator = await self.select_colab_creator(table)
         return ColabApproveNotificationData(
-            notification_type=NotificationType.COLAB_REQUEST,
+            notification_type=NotificationType.COLAB_APPROVE,
             collabo_id=colab_creator.collabo_id,
             collabo_approve_id=table.collabo_approve_id,
             colab_creator_id=colab_creator.collabo_creator_id,
@@ -120,5 +120,5 @@ class ColabApproveNotificationDataType(NotificationDataType[tbls.ColabApproveTab
     def join_condition(self) -> ColumnElement[bool]:
         return tbls.ColabApproveTable.collabo_approve_id == tbls.NotificationTable.collabo_approve_id
 
-    def table(self) -> type[tbls.ColabRequestTable]:
-        return tbls.ColabRequestTable
+    def table(self) -> type[tbls.ColabApproveTable]:
+        return tbls.ColabApproveTable

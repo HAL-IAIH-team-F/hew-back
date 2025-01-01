@@ -34,7 +34,7 @@ class NotificationTable(BaseTable):
         UUID(as_uuid=True), sqlalchemy.ForeignKey('TBL_COLLABO.collabo_id'), nullable=True
     )
     collabo_approve_id: Mapped[uuid.UUID] = Column(
-        UUID(as_uuid=True), sqlalchemy.ForeignKey('TBL_COLLABO.collabo_id'), nullable=True
+        UUID(as_uuid=True), sqlalchemy.ForeignKey('TBL_COLLABO_APPROVE.collabo_approve_id'), nullable=True
     )
 
 
