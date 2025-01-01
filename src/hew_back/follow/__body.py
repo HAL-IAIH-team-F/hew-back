@@ -23,4 +23,4 @@ class UserFollow(BaseModel):
             creator_id=self.creator_id
         )
         session.add(new_follow)
-        await session.commit()
+        await session.flush()

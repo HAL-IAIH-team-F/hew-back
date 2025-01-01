@@ -11,6 +11,9 @@ from hew_back.db import BaseTable
 @dataclasses.dataclass
 class ColabApproveTable(BaseTable):
     __tablename__ = 'TBL_COLLABO_APPROVE'
+    __table_args__ = (
+        sqlalchemy.UniqueConstraint("colab_creator_id"),
+    )
 
     collabo_approve_id: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
@@ -51,6 +54,9 @@ class ColabTable(BaseTable):
 @dataclasses.dataclass
 class ColabCreatorTable(BaseTable):
     __tablename__ = 'TBL_COLLABO_CREATOR'
+    __table_args__ = (
+        sqlalchemy.UniqueConstraint("collabo_id","creator_id"),
+    )
 
     collabo_creator_id: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4

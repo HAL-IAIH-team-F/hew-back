@@ -1,3 +1,9 @@
-from .__orderdirection import * #OrderDirection
+import dataclasses
 
-# __all_ = ["OrderDirection"]
+from .__orderdirection import *
+
+
+@dataclasses.dataclass
+class Pair[A, B]:
+    first: A
+    second: B
