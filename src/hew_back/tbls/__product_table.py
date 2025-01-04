@@ -4,17 +4,14 @@ import uuid
 from typing import Union, List
 
 import sqlalchemy
-
-from sqlalchemy import Column, String, DateTime, UUID, select, update
+from sqlalchemy import Column, String, DateTime, UUID, update
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from hew_back import tbls
 from hew_back.db import BaseTable
 from hew_back.util import OrderDirection
 
-from hew_back import tbls
-
-from zoneinfo import ZoneInfo
 
 @dataclasses.dataclass
 class ProductTable(BaseTable):
@@ -27,27 +24,6 @@ class ProductTable(BaseTable):
     purchase_date: datetime.datetime = Column(DateTime(timezone=True), default=datetime.datetime.now)
     product_thumbnail_uuid: uuid.UUID = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
     product_contents_uuid: uuid.UUID = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
-
-    @staticmethod
-    def insert(
-            session: AsyncSession,
-            product_price: int,
-            product_title: str,
-            product_description: str,
-            purchase_date: datetime.datetime,
-            product_thumbnail_uuid: uuid.UUID,
-            product_contents_uuid: uuid.UUID,
-    ) -> 'ProductTable':
-        table = ProductTable(
-            product_price=product_price,
-            product_title=product_title,
-            product_description=product_description,
-            purchase_date=purchase_date,
-            product_thumbnail_uuid=product_thumbnail_uuid,
-            product_contents_uuid=product_contents_uuid,
-        )
-        session.add(table)
-        return table
 
     @staticmethod
     async def find_products_or_null(
@@ -173,7 +149,6 @@ class ProductTable(BaseTable):
 
         return products
 
-
     @staticmethod
     async def get_cart_products(
             session: AsyncSession,
@@ -193,8 +168,8 @@ class ProductTable(BaseTable):
 
     @staticmethod
     async def cart_buy(
-        session: AsyncSession,
-        user_id: tbls.UserTable,
+            session: AsyncSession,
+            user_id: tbls.UserTable,
     ):
         subquery = (
             select(tbls.CartTable.cart_id)
@@ -210,5 +185,3 @@ class ProductTable(BaseTable):
 
         await session.execute(stmt)
         await session.flush()
-
-
