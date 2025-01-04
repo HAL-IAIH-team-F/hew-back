@@ -13,3 +13,4 @@ class PostProductBody:
     purchase_date: pydanticutl.Datetime
     product_thumbnail_uuid: uuid.UUID
     product_contents_uuid: uuid.UUID
+    collaborator_ids: list[uuid.UUID]

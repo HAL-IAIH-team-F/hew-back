@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, tzinfo, timezone
+from datetime import datetime, timezone
 
 import pytest
 import pytest_asyncio
@@ -7,14 +7,13 @@ import sqlalchemy
 
 from hew_back import tbls
 from hew_back.product.__body import PostProductBody
-from hew_back.product.__res import GetProductsResponse, ProductRes
+from hew_back.product.__res import ProductRes
 from test.conftest import session
 
 
 @pytest_asyncio.fixture
 async def product_table_saved(session) -> tbls.ProductTable:
-    table = tbls.ProductTable.insert(
-        session,
+    table = tbls.ProductTable(
         product_price=100,
         product_title="title",
         product_description="text",
@@ -22,6 +21,7 @@ async def product_table_saved(session) -> tbls.ProductTable:
         product_contents_uuid=uuid.uuid4(),
         product_thumbnail_uuid=uuid.uuid4(),
     )
+    session.add(table)
     await session.commit()
     await session.refresh(table)
     return table
@@ -36,6 +36,7 @@ def post_product_body(session) -> PostProductBody:
         purchase_date=datetime(2024, 11, 20, 6, 38, 10, 656199).astimezone(timezone.utc),
         product_thumbnail_uuid=uuid.UUID('0ac01606-a086-47b2-acab-c9cda7dc3bb9'),
         product_contents_uuid=uuid.UUID('44f4ef3e-d667-4f0f-9fa4-bc13bb1fd98a'),
+        collaborator_ids=[]
     )
 
 
@@ -94,7 +95,7 @@ async def test_read_products(client, session, product_table_saved):
 
     for i in range(len(records)):
         record = records[i]
-        product = GetProductsResponse(**body[i])
+        product = ProductRes(**body[i])
 
         assert record.product_id == product.product_id
         assert record.purchase_date == product.purchase_date

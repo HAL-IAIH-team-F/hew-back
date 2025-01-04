@@ -8,7 +8,7 @@ from fastapi import Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import deps, app, tbls
-from hew_back.product.__res import GetProductsResponse
+from hew_back.product.__res import ProductRes
 from hew_back.tbls import CreatorProductTable
 from hew_back.util import OrderDirection
 
@@ -218,12 +218,12 @@ class __Service:
         creator_products = await self.select_creator_products(product)
         return [creator_product.creator_id for creator_product in creator_products]
 
-    async def response(self) -> list[GetProductsResponse]:
+    async def response(self) -> list[ProductRes]:
         products = await self.select_products()
-        result = list[GetProductsResponse]()
+        result = list[ProductRes]()
 
         for product in products:
-            result.append(GetProductsResponse(
+            result.append(ProductRes(
                 product_description=product.product_description,
                 product_id=product.product_id,
                 product_thumbnail_uuid=product.product_thumbnail_uuid,
@@ -239,5 +239,5 @@ class __Service:
 @app.get("/api/product")
 async def gps(
         service: __Service = Depends(),
-) -> list[GetProductsResponse]:
+) -> list[ProductRes]:
     return await service.response()
