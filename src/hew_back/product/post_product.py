@@ -83,6 +83,7 @@ class __Service:
     async def process(self):
         product = self.__product
         collaborators = self.__select_collaborators()
+        collaborators = await collaborators
         creator_product = self.__insert_creator_product(product, [*collaborators, self.__creator.creator_table])
 
         creator_product = await creator_product
