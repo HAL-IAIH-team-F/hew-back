@@ -23,6 +23,8 @@ import hew_back.product.post_product
 # noinspection PyUnresolvedReferences
 import hew_back.product.get_products
 # noinspection PyUnresolvedReferences
+import hew_back.product.get_product
+# noinspection PyUnresolvedReferences
 import hew_back.recruit.get_recruits
 # noinspection PyUnresolvedReferences
 import hew_back.recruit.recruit_api
