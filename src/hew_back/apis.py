@@ -19,6 +19,8 @@ import hew_back.notification.get_notifications
 # noinspection PyUnresolvedReferences
 import hew_back.product.cart.cart_api
 # noinspection PyUnresolvedReferences
+import hew_back.product.cart.post_cart
+# noinspection PyUnresolvedReferences
 import hew_back.product.post_product
 # noinspection PyUnresolvedReferences
 import hew_back.product.get_products
