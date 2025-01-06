@@ -1,7 +1,7 @@
 import dataclasses
 import datetime
 import uuid
-from typing import Union, List
+from typing import Union, List, Optional
 
 import sqlalchemy
 from sqlalchemy import Column, String, DateTime, UUID, update
@@ -153,7 +153,7 @@ class ProductTable(BaseTable):
     async def get_cart_products(
             session: AsyncSession,
             user_id: tbls.UserTable,
-    ) -> List['ProductTable']:
+    ) -> Optional['ProductTable']:
         # 該当するユーザー
         stmt = (
             select(tbls.ProductTable)
@@ -163,8 +163,8 @@ class ProductTable(BaseTable):
             .where(tbls.CartTable.purchase_date == None)
         )
         result = await session.execute(stmt)
-        product_cart = result.scalars().all()
-        return list(product_cart)
+        product_cart = result.scalar_one_or_none()
+        return product_cart
 
     @staticmethod
     async def cart_buy(

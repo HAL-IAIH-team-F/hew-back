@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 import pydantic
@@ -23,7 +24,7 @@ class CartProduct(BaseModel):
     async def get_cart_product(
             session: AsyncSession,
             user_id: tbls.UserTable.user_id,
-    ) -> list["ProductTable"]:
+    ) -> Optional["ProductTable"]:
         get_product_cart = await tbls.ProductTable.get_cart_products(
             session=session,
             user_id=user_id,
