@@ -20,19 +20,12 @@ class __Service:
         self.__response = response
         self.__cart_service = cart_service
 
-    async def __select_cart_product(self, cart: tbls.CartTable) -> list[tbls.CartProductTable]:
-        raw = await self.__session.execute(
-            sqlalchemy.select(tbls.CartProductTable)
-            .where(tbls.CartProductTable.cart_id == cart.cart_id)
-        )
-        return [*raw.scalars().all()]
-
-    async def process(self) -> CartRes | dict:
+    async def process(self) -> CartRes | str:
         cart = await self.__cart_service.select_cart()
         if cart is None:
             self.__response.status_code = fastapi.status.HTTP_204_NO_CONTENT
-            return {}
-        cart_products = await self.__select_cart_product(cart)
+            return ""
+        cart_products = await self.__cart_service.select_cart_product(cart)
         return CartRes(
             cart_id=cart.cart_id,
             user_id=cart.user_id,
@@ -43,5 +36,5 @@ class __Service:
 @app.get("/api/cart")
 async def gc(
         service: __Service = Depends(),
-) -> CartRes | dict:
+) -> CartRes | str:
     return await service.process()

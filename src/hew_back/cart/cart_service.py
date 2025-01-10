@@ -23,3 +23,10 @@ class CartService:
         )
         return raw.scalar_one_or_none()
 
+
+    async def select_cart_product(self, cart: tbls.CartTable) -> list[tbls.CartProductTable]:
+        raw = await self.__session.execute(
+            sqlalchemy.select(tbls.CartProductTable)
+            .where(tbls.CartProductTable.cart_id == cart.cart_id)
+        )
+        return [*raw.scalars().all()]
