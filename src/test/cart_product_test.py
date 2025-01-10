@@ -103,7 +103,7 @@ async def test_read_product_cart(
 ):
     # 非同期的にGETリクエストを送信
     response = await client.get(
-        "/api/product_cart",
+        "/api/cart",
         login_access_token.token
     )
     assert response.status_code == 200, f"Unexpected status code: {response.status_code}, {response.json()}"
@@ -113,22 +113,14 @@ async def test_read_product_cart(
     print(f"data----->{data}")
 
     # データがリストであることを確認
-    assert isinstance(data, list), "レスポンスデータはリストではありません"
-
-    # リストの中身が辞書であることを確認
-    assert isinstance(data[0], dict), "レスポンスデータの要素は辞書ではありません"
+    assert isinstance(data, dict), "レスポンスデータは辞書ではありません"
 
     # 値の型 確認
-    assert isinstance(data[0]['product_id'], str)
-    assert isinstance(data[0]['product_price'], int)
-    assert isinstance(data[0]['product_title'], str)
-    assert isinstance(data[0]['product_description'], str)
-    assert isinstance(data[0]['purchase_date'], str)
-    assert isinstance(data[0]['product_contents_uuid'], str)
-    assert isinstance(data[0]['product_thumbnail_uuid'], str)
-
-    # 値の正確性を確認（価格の値範囲チェック）
-    assert data[0]['product_price'] > 0, "product_priceが0以下です"
+    assert isinstance(data['cart_id'], str)
+    assert isinstance(data['user_id'], str)
+    assert isinstance(data['product_ids'], list)
+    for product_id in data['product_ids']:
+        assert isinstance(product_id, str)
 
 
 @pytest.mark.asyncio
