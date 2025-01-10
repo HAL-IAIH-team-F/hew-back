@@ -20,17 +20,6 @@ class CartProduct(BaseModel):
     product_thumbnail_uuid: UUID
 
     @staticmethod
-    async def get_cart_product(
-            session: AsyncSession,
-            user_id: tbls.UserTable.user_id,
-    ) -> list["ProductTable"]:
-        get_product_cart = await tbls.ProductTable.get_cart_products(
-            session=session,
-            user_id=user_id,
-        )
-        return get_product_cart
-
-    @staticmethod
     async def cart_buy(
             session: AsyncSession,
             user_id: tbls.UserTable.user_id

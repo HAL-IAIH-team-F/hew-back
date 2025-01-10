@@ -4,16 +4,7 @@ from fastapi import Depends
 
 from hew_back import app, deps
 from hew_back.product.__res import *
-from hew_back.product.cart.__get_carts import get_carts
-from hew_back.product.cart.__reses import CartRes
 from hew_back.util.err import ErrorIds
-
-
-@app.get("/api/product_cart")
-async def read_product_cart(
-        carts: list[CartRes] = Depends(get_carts),
-) -> list[CartRes]:
-    return carts
 
 
 @app.put("/api/cart_buy")

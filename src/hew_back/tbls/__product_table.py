@@ -150,23 +150,6 @@ class ProductTable(BaseTable):
         return products
 
     @staticmethod
-    async def get_cart_products(
-            session: AsyncSession,
-            user_id: tbls.UserTable,
-    ) -> List['ProductTable']:
-        # 該当するユーザー
-        stmt = (
-            select(tbls.ProductTable)
-            .join(tbls.CartProductTable, tbls.ProductTable.product_id == tbls.CartProductTable.product_id)
-            .join(tbls.CartTable, tbls.CartProductTable.cart_id == tbls.CartTable.cart_id)
-            .where(tbls.CartTable.user_id == user_id)
-            .where(tbls.CartTable.purchase_date == None)
-        )
-        result = await session.execute(stmt)
-        product_cart = result.scalars().all()
-        return list(product_cart)
-
-    @staticmethod
     async def cart_buy(
             session: AsyncSession,
             user_id: tbls.UserTable,
