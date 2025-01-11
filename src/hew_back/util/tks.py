@@ -4,7 +4,7 @@ from enum import Enum
 
 import pydantic.dataclasses
 from jose import jwt
-from pydantic import BaseModel
+from pydantic import RootModel, BaseModel
 
 from . import pydanticutl
 from .. import ENV
@@ -18,13 +18,13 @@ class AbcJwtTokenData[T: AbcTokenType](BaseModel, metaclass=abc.ABCMeta):
     exp: datetime
     token_type: T
 
-    def new_token_info(self, secret: str) -> 'TokenInfoOld':
+    def new_token_info(self, secret: str) -> 'TokenInfo':
         encoded_jwt = jwt.encode(
-            self.model_dump(),
+            RootModel(self).model_dump(),
             secret,
             algorithm=ENV.token.algorithm
         )
-        return TokenInfoOld(encoded_jwt, self.exp)
+        return TokenInfo(encoded_jwt, self.exp)
 
 
 @pydantic.dataclasses.dataclass
