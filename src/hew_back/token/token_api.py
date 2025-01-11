@@ -3,8 +3,8 @@ import uuid
 from fastapi import Depends
 
 from hew_back import app, deps, mdls
-from hew_back.token.__token_body import PostTokenBody
 from hew_back.token.__reses import TokenResOld, ImgTokenRes
+from hew_back.token.__token_body import PostTokenBody
 
 
 @app.post("/api/token")
@@ -27,15 +27,5 @@ async def gettfu(
     return ImgTokenRes.from_img_tokens(
         mdls.ImgJwtTokenData.new(
             mdls.ImgTokenType.upload, uuid.uuid4()
-        ).new_img_tokens()
-    )
-
-@app.get("/api/token/fi;e/access")
-async def gettfa(
-        _: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_access_token)
-) -> ImgTokenRes:
-    return ImgTokenRes.from_img_tokens(
-        mdls.ImgJwtTokenData.new(
-            mdls.ImgTokenType.access, uuid.uuid4()
         ).new_img_tokens()
     )

@@ -1,13 +1,12 @@
 import uuid
 # noinspection PyUnresolvedReferences
 from dataclasses import dataclass
-from idlelib.browser import file_open
-from typing import Annotated
 from uuid import UUID
 
-from pydantic import field_serializer, BaseModel, AfterValidator, PlainSerializer
+from pydantic import field_serializer, BaseModel
 
 from .__token import *
+from ..util import pydanticutl
 
 
 @dataclass
@@ -45,6 +44,26 @@ class ImgJwtTokenData(tks.AbcJwtTokenData[ImgTokenType]):
         )
 
 
+class FileAccessJwtTokenData(tks.AbcJwtTokenData[ImgTokenType]):
+    file_uuid: pydanticutl.Uuid
+
+    def new_img_tokens(self) -> tks.TokenInfo:
+        return self.new_token_info(ENV.token.img_secret_key)
+
+    @field_serializer("file_uuid")
+    def serialize_sub(self, uid: UUID) -> str:
+        return str(uid)
+
+    @staticmethod
+    def new(
+            token_type: ImgTokenType, file_uuid: UUID
+    ) -> 'FileAccessJwtTokenData':
+        exp = datetime.now(timezone.utc) + timedelta(ENV.token.access_token_expire_minutes)
+        return FileAccessJwtTokenData(
+            exp=exp, token_type=TokenType.access, file_uuid=file_uuid,
+        )
+
+
 class State(str, Enum):
     public = "Public"
     private = "Private"
@@ -60,4 +79,3 @@ class Img(BaseModel):
             image_uuid=img_uuid,
             token=token,
         )
-

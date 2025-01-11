@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tbls
+from hew_back.util.tks import TokenInfo
 
 
 class CartProduct(BaseModel):
@@ -32,6 +33,7 @@ class CartProduct(BaseModel):
 @pydantic.dataclasses.dataclass
 class PurchaseInfo:
     content_uuid: uuid.UUID
+    token: TokenInfo
 
 
 @pydantic.dataclasses.dataclass

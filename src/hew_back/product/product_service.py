@@ -2,8 +2,9 @@ import sqlalchemy
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import deps, tbls
+from hew_back import deps, tbls, mdls
 from hew_back.product.__res import PurchaseInfo
+from hew_back.responses import ImgTokenRes
 
 
 class ProductService:
@@ -33,6 +34,12 @@ class ProductService:
     def new_purchase_info(cart: tbls.CartTable | None, product: tbls.ProductTable):
         if cart is None:
             return None
+
+        token = mdls.FileAccessJwtTokenData.new(
+            mdls.ImgTokenType.access, product.product_contents_uuid
+        ).new_img_tokens()
+
         return PurchaseInfo(
             content_uuid=product.product_contents_uuid,
+            token=token,
         )
