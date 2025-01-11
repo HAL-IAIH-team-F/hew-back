@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import deps, app, tbls
 from hew_back.product.__res import ProductRes
+from hew_back.product.product_service import ProductService
 from hew_back.tbls import CreatorProductTable
 from hew_back.util import OrderDirection
 
@@ -36,11 +37,12 @@ class __Service:
                 default=None,
                 description="List may be included datetime or name or like,witch is gaven default asc or desc"
             ),
-            session: AsyncSession = Depends(deps.DbDeps.session)
+            session: AsyncSession = Depends(deps.DbDeps.session),
+            product_service: ProductService = Depends(),
     ):
         if start_datetime and end_datetime and start_datetime > end_datetime:
             raise HTTPException(status_code=400, detail="start_datetime cannot be greater than end_datetime")
-
+        self.product_service = product_service
         self.session = session
         self.name = name
         self.tag = tag
@@ -223,6 +225,7 @@ class __Service:
         result = list[ProductRes]()
 
         for product in products:
+            cart = await self.product_service.select_cart(product)
             result.append(ProductRes(
                 product_description=product.product_description,
                 product_id=product.product_id,
@@ -230,8 +233,8 @@ class __Service:
                 product_price=product.product_price,
                 product_title=product.product_title,
                 purchase_date=product.purchase_date,
-                product_contents_uuid=product.product_contents_uuid,
                 creator_ids=await self.creator_ids(product),
+                purchase_info=ProductService.new_purchase_info(cart, product),
             ))
         return result
 

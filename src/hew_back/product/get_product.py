@@ -6,16 +6,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps, tbls
 from hew_back.product.__res import ProductRes
+from hew_back.product.product_service import ProductService
 
 
 class __Service:
     def __init__(
             self,
             product_id: uuid.UUID,
-            session: AsyncSession = Depends(deps.DbDeps.session)
+            session: AsyncSession = Depends(deps.DbDeps.session),
+            user: deps.UserDeps = Depends(deps.UserDeps.get),
+            product_service: ProductService = Depends(),
     ):
         self.__session = session
         self.__product_id = product_id
+        self.__user = user
+        self.__product_service = product_service
 
     async def __select_product(self) -> tbls.ProductTable:
         raw = await self.__session.execute(
@@ -34,6 +39,7 @@ class __Service:
     async def process(self) -> ProductRes:
         product = await self.__select_product()
         creator_products = await self.__select_creator_products()
+        cart = await self.__product_service.select_cart(product)
         return ProductRes(
             product_description=product.product_description,
             product_id=product.product_id,
@@ -41,8 +47,8 @@ class __Service:
             product_price=product.product_price,
             product_title=product.product_title,
             purchase_date=product.purchase_date,
-            product_contents_uuid=product.product_contents_uuid,
             creator_ids=[c.creator_id for c in creator_products],
+            purchase_info=self.__product_service.new_purchase_info(cart, product),
         )
 
 
