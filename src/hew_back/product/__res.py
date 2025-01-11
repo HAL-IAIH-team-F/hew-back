@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tbls
-from hew_back.tbls import ProductTable
 
 
 class CartProduct(BaseModel):
@@ -23,12 +22,11 @@ class CartProduct(BaseModel):
     async def cart_buy(
             session: AsyncSession,
             user_id: tbls.UserTable.user_id
-    ) -> "ProductTable":
-        cart_buy = await tbls.ProductTable.cart_buy(
+    ):
+        await tbls.ProductTable.cart_buy(
             session=session,
             user_id=user_id,
         )
-        return cart_buy
 
 
 @pydantic.dataclasses.dataclass
