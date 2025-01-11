@@ -20,12 +20,22 @@ async def token_refresh(
     return TokenResOld.from_tokens(token.renew_tokens())
 
 
-@app.get("/api/token/image")
-async def image_token(
+@app.get("/api/token/file/upload")
+async def gettfu(
         _: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_access_token)
 ) -> ImgTokenRes:
     return ImgTokenRes.from_img_tokens(
         mdls.ImgJwtTokenData.new(
             mdls.ImgTokenType.upload, uuid.uuid4()
+        ).new_img_tokens()
+    )
+
+@app.get("/api/token/fi;e/access")
+async def gettfa(
+        _: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_access_token)
+) -> ImgTokenRes:
+    return ImgTokenRes.from_img_tokens(
+        mdls.ImgJwtTokenData.new(
+            mdls.ImgTokenType.access, uuid.uuid4()
         ).new_img_tokens()
     )

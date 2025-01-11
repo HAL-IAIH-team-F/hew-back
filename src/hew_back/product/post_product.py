@@ -94,7 +94,6 @@ class __Service:
             product_description=product.product_description,
             purchase_date=product.purchase_date,
             product_thumbnail_uuid=product.product_thumbnail_uuid,
-            product_contents_uuid=product.product_contents_uuid,
             creator_ids=[c.creator_id for c in creator_product],
         )
 
