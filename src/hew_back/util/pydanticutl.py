@@ -29,6 +29,6 @@ def __serialize_uuid(prev: uuid.UUID):
 
 Uuid = Annotated[
     datetime,
-    PlainValidator(__validate_datetime),
-    PlainSerializer(__serialize_datetime),
+    PlainValidator(__validate_uuid),
+    PlainSerializer(__serialize_uuid),
 ]
