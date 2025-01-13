@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import AfterValidator, PlainSerializer, PlainValidator
 
@@ -19,8 +19,9 @@ Datetime = Annotated[
     PlainSerializer(__serialize_datetime),
 ]
 
-def __validate_uuid(prev: str):
-    return uuid.UUID(prev)
+
+def __validate_uuid(prev: str | Any):
+    return uuid.UUID(str(prev))
 
 
 def __serialize_uuid(prev: uuid.UUID):
