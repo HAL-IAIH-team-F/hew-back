@@ -56,11 +56,11 @@ class FileAccessJwtTokenData(tks.AbcJwtTokenData[ImgTokenType]):
 
     @staticmethod
     def new(
-            token_type: ImgTokenType, file_uuid: UUID
+            file_uuid: UUID
     ) -> 'FileAccessJwtTokenData':
         exp = datetime.now(timezone.utc) + timedelta(ENV.token.access_token_expire_minutes)
         return FileAccessJwtTokenData(
-            exp=exp, token_type=TokenType.access, file_uuid=file_uuid,
+            exp=exp, token_type=ImgTokenType.access, file_uuid=file_uuid,
         )
 
 

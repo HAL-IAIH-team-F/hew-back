@@ -35,7 +35,7 @@ class ProductService:
             return None
 
         token = mdls.FileAccessJwtTokenData.new(
-            mdls.ImgTokenType.access, product.product_contents_uuid
+            product.product_contents_uuid
         ).new_img_tokens()
 
         return PurchaseInfo(
