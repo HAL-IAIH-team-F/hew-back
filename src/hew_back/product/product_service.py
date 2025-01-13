@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import deps, tbls, mdls
 from hew_back.product.__res import PurchaseInfo
-from hew_back.responses import ImgTokenRes
 
 
 class ProductService:
@@ -16,9 +15,9 @@ class ProductService:
         self.__session = session
         self.__user = user
 
-    async def select_cart(self, product: tbls.ProductTable):
+    async def select_cart(self, product: tbls.ProductTable) -> list[tbls.CartTable]:
         if self.__user is None:
-            return None
+            return []
         raw = await self.__session.execute(
             sqlalchemy.select(tbls.CartTable)
             .join(tbls.CartProductTable, tbls.CartTable.cart_id == tbls.CartProductTable.cart_id)
@@ -28,11 +27,11 @@ class ProductService:
                 tbls.CartTable.user_id == self.__user.user_table.user_id,
             ))
         )
-        return raw.scalar_one_or_none()
+        return [*raw.scalars().all()]
 
     @staticmethod
-    def new_purchase_info(cart: tbls.CartTable | None, product: tbls.ProductTable):
-        if cart is None:
+    def new_purchase_info(carts: list[tbls.CartTable] | None, product: tbls.ProductTable):
+        if len(carts) == 0:
             return None
 
         token = mdls.FileAccessJwtTokenData.new(

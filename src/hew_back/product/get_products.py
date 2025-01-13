@@ -225,7 +225,7 @@ class __Service:
         result = list[ProductRes]()
 
         for product in products:
-            cart = await self.product_service.select_cart(product)
+            carts = await self.product_service.select_cart(product)
             result.append(ProductRes(
                 product_description=product.product_description,
                 product_id=product.product_id,
@@ -234,7 +234,7 @@ class __Service:
                 product_title=product.product_title,
                 purchase_date=product.purchase_date,
                 creator_ids=await self.creator_ids(product),
-                purchase_info=ProductService.new_purchase_info(cart, product),
+                purchase_info=ProductService.new_purchase_info(carts, product),
             ))
         return result
 

@@ -39,7 +39,7 @@ class __Service:
     async def process(self) -> ProductRes:
         product = await self.__select_product()
         creator_products = await self.__select_creator_products()
-        cart = await self.__product_service.select_cart(product)
+        carts = await self.__product_service.select_cart(product)
         return ProductRes(
             product_description=product.product_description,
             product_id=product.product_id,
@@ -48,7 +48,7 @@ class __Service:
             product_title=product.product_title,
             purchase_date=product.purchase_date,
             creator_ids=[c.creator_id for c in creator_products],
-            purchase_info=self.__product_service.new_purchase_info(cart, product),
+            purchase_info=self.__product_service.new_purchase_info(carts, product),
         )
 
 
