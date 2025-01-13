@@ -8,8 +8,8 @@ from hew_back.util import tks, keycloak
 
 @dataclass
 class Tokens:
-    access: tks.TokenInfoOld
-    refresh: tks.TokenInfoOld
+    access: tks.TokenInfo
+    refresh: tks.TokenInfo
 
 
 class TokenType(tks.AbcTokenType, Enum):

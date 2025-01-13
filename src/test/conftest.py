@@ -137,7 +137,7 @@ async def login_creator(session, login_user_deps) -> CreatorResult:
 
 
 @pytest.fixture
-def login_access_token(session, login_keycloak_profile, login_user) -> tks.TokenInfoOld:
+def login_access_token(session, login_keycloak_profile, login_user) -> tks.TokenInfo:
     return mdls.JwtTokenData.new(
         mdls.TokenType.access,
         login_keycloak_profile

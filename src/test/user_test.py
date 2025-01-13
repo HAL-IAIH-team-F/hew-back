@@ -31,7 +31,7 @@ async def newuser_keycloak_profile(session) -> keycloak.KeycloakUserProfile:
 
 
 @pytest.fixture
-def newuser_access_token(session, newuser_keycloak_profile) -> tks.TokenInfoOld:
+def newuser_access_token(session, newuser_keycloak_profile) -> tks.TokenInfo:
     return mdls.JwtTokenData.new(
         mdls.TokenType.access,
         newuser_keycloak_profile

@@ -11,7 +11,7 @@ from ..util import pydanticutl
 
 @dataclass
 class ImgTokens:
-    upload: tks.TokenInfoOld
+    upload: tks.TokenInfo
 
 
 class ImgTokenType(tks.AbcTokenType, Enum):

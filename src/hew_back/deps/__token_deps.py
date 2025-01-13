@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, ExpiredSignatureError
 
 from hew_back import mdls, ENV
+from hew_back.mdls import TokenType
 from hew_back.util import keycloak, err
 from hew_back.util.err import ErrorIds
 
@@ -55,7 +56,7 @@ class JwtTokenDeps:
     def get_access_token_or_none(token=Depends(get_token_or_none)) -> Optional['JwtTokenDeps']:
         if token is None:
             return None
-        if token.token_type != token.TokenType.upload:
+        if token.token_type != TokenType.access:
             raise err.ErrorIdException(err.ErrorIds.INVALID_TOKEN)
         return token
 

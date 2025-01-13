@@ -28,12 +28,6 @@ class AbcJwtTokenData[T: AbcTokenType](BaseModel, metaclass=abc.ABCMeta):
 
 
 @pydantic.dataclasses.dataclass
-class TokenInfoOld:
-    token: str
-    expire: datetime
-
-
-@pydantic.dataclasses.dataclass
 class TokenInfo:
     token: str
     expire: pydanticutl.Datetime
