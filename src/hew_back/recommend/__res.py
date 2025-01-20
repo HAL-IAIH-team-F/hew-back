@@ -1,9 +1,10 @@
 import pydantic
 import uuid
 import datetime
+from dataclasses import dataclass
 
 
-@pydantic.dataclasses.dataclass
+@dataclass
 class GetRecommendRes:
     product_id: uuid.UUID
     product_price: int

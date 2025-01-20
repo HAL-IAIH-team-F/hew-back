@@ -11,7 +11,7 @@ import hew_back.follow.user_follow_api
 # noinspection PyUnresolvedReferences
 import hew_back.notification.get_notifications
 # noinspection PyUnresolvedReferences
-import hew_back.product.cart.cart_api
+import hew_back.cart.cart_api
 # noinspection PyUnresolvedReferences
 import hew_back.product.product_api
 # noinspection PyUnresolvedReferences

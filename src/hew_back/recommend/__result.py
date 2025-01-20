@@ -23,25 +23,3 @@ class RecommendResult:
             )
             for product in self.products
         ]
-
-        # [
-        #     GetRecommendRes(
-        #         product_id="123",
-        #         product_title="Product A",
-        #         product_thumbnail_uuid="abc",
-        #         product_contents_uuid="def",
-        #         product_price=1000,
-        #         product_description="This is Product A",
-        #         product_date="2024-01-01"
-        #     ),
-        #     GetRecommendRes(
-        #         product_id="456",
-        #         product_title="Product B",
-        #         product_thumbnail_uuid="xyz",
-        #         product_contents_uuid="uvw",
-        #         product_price=2000,
-        #         product_description="This is Product B",
-        #         product_date="2024-02-01"
-        #     )
-        # ]
-

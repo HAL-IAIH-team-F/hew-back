@@ -2,7 +2,7 @@ from fastapi import Depends
 
 from hew_back import deps
 from hew_back.product.__res import CartProduct
-from hew_back.product.cart.__reses import CartRes
+from hew_back.cart.__reses import CartRes
 
 
 async def get_carts(
