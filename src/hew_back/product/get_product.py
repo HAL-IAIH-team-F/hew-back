@@ -29,16 +29,9 @@ class __Service:
         )
         return raw.scalar_one()
 
-    async def __select_creator_products(self) -> list[tbls.CreatorProductTable]:
-        raw = await self.__session.execute(
-            sqlalchemy.select(tbls.CreatorProductTable)
-            .where(tbls.CreatorProductTable.product_id == self.__product_id)
-        )
-        return [*raw.scalars().all()]
-
     async def process(self) -> ProductRes:
         product = await self.__select_product()
-        creator_products = await self.__select_creator_products()
+        creator_products = await self.__product_service.select_creator_products(self.__product_id)
         carts = await self.__product_service.select_cart(product)
         return ProductRes(
             product_description=product.product_description,
