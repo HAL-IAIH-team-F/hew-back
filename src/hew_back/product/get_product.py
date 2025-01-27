@@ -14,12 +14,10 @@ class __Service:
             self,
             product_id: uuid.UUID,
             session: AsyncSession = Depends(deps.DbDeps.session),
-            user: deps.UserDeps = Depends(deps.UserDeps.get),
             product_service: ProductService = Depends(),
     ):
         self.__session = session
         self.__product_id = product_id
-        self.__user = user
         self.__product_service = product_service
 
     async def __select_product(self) -> tbls.ProductTable:

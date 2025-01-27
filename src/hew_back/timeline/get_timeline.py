@@ -1,5 +1,3 @@
-from typing import Union
-
 import sqlalchemy
 from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -63,9 +61,9 @@ class __Service:
                         + sqlalchemy.case((
                     tbls.CreatorProductTable.creator_id.in_([f.creator_id for f in following]), 2
                 ), else_=0)
-                        + sqlalchemy.case((
+                        + sqlalchemy.func.sum(sqlalchemy.case((
                     tbls.CreatorProductTable.creator_id.in_([f.creator_id for f in bought_creator]), 1
-                ), else_=0)
+                ), else_=0))
                 ).label("point")
             ).distinct()
             .join(tbls.LikeTable, tbls.LikeTable.product_id == tbls.ProductTable.product_id, isouter=True)
@@ -74,8 +72,10 @@ class __Service:
                 isouter=True
             )
             .where(sqlalchemy.not_(tbls.ProductTable.product_id.in_([b.product_id for b in bought])))
+            .group_by(tbls.ProductTable)
             .order_by("point")
             .limit(self.__limit)
+            .offset(self.__page * self.__limit)
         )
         return [*raw.scalars().all()]
 
