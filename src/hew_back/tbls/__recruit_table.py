@@ -1,5 +1,7 @@
+import datetime
 import uuid
 
+import sqlalchemy
 from sqlalchemy import Column, String, ForeignKey, UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +15,7 @@ class RecruitTable(BaseTable):
     creator_id = Column(UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False, default=uuid.uuid4)
     title = Column(String(64), nullable=False)
     description = Column(String(255), nullable=False)
+    post_date = Column(sqlalchemy.DateTime, nullable=False, server_default=sqlalchemy.func.now())
 
     @staticmethod
     def insert(

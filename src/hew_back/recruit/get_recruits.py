@@ -25,12 +25,15 @@ def search_stmt(
 async def find_recruits(
         session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
         search: ColumnElement[bool] = Depends(search_stmt),
-        limit: Union[int, None] = Query(default=20),
+        limit: int = Query(default=20),
+        page: int = Query(default=0),
 ) -> Sequence[RecruitTable]:
     result = await session.execute(
         sqlalchemy.select(RecruitTable)
         .where(search)
+        .order_by(RecruitTable.post_date.desc())
         .limit(limit)
+        .offset(page * limit)
     )
     result = result.scalars().all()
     await session.flush()
