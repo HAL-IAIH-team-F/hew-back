@@ -102,7 +102,7 @@ class __Service:
 
 
 @app.get("/api/timeline")
-async def gps(
+async def gts(
         service: __Service = Depends(),
 ) -> list[ProductRes]:
     return await service.process()
