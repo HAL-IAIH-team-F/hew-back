@@ -1,3 +1,5 @@
+import uuid
+
 import sqlalchemy
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +16,13 @@ class ProductService:
     ):
         self.__session = session
         self.__user = user
+
+    async def select_creator_products(self, product_id: uuid.UUID) -> list[tbls.CreatorProductTable]:
+        raw = await self.__session.execute(
+            sqlalchemy.select(tbls.CreatorProductTable)
+            .where(tbls.CreatorProductTable.product_id == product_id)
+        )
+        return [*raw.scalars().all()]
 
     async def select_cart(self, product: tbls.ProductTable) -> list[tbls.CartTable]:
         if self.__user is None:
