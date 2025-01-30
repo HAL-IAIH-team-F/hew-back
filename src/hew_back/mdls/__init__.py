@@ -3,10 +3,12 @@ import uuid
 from dataclasses import dataclass
 from uuid import UUID
 
+import pydantic
 from pydantic import field_serializer, BaseModel
 
 from .__token import *
 from ..util import pydanticutl
+from ..util.pydanticutl import Uuid
 
 
 @dataclass
@@ -68,14 +70,15 @@ class State(str, Enum):
     public = "Public"
     private = "Private"
 
-
-class Img(BaseModel):
-    image_uuid: uuid.UUID
+@pydantic.dataclasses.dataclass
+class File:
+    image_uuid: Uuid
     token: str | None
 
-    @staticmethod
-    def create(img_uuid: uuid.UUID, token: str | None) -> 'Img':
-        return Img(
-            image_uuid=img_uuid,
-            token=token,
-        )
+
+@pydantic.dataclasses.dataclass
+class UserData:
+    user_id: Uuid
+    name: str
+    screen_id: str
+    icon: File | None

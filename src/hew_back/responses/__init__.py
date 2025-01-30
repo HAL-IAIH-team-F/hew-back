@@ -11,7 +11,7 @@ class SelfUserRes(BaseModel):
     user_id: uuid.UUID
     user_name: str
     user_screen_id: str
-    user_icon: mdls.Img | None
+    user_icon: mdls.File | None
     user_date: datetime
     user_mail: str
 
@@ -24,7 +24,7 @@ class SelfUserRes(BaseModel):
             user_id: uuid.UUID,
             user_name: str,
             user_screen_id: str,
-            user_icon: mdls.Img | None,
+            user_icon: mdls.File | None,
             user_date: datetime,
             user_mail: str,
     ):
@@ -42,7 +42,10 @@ class SelfUserRes(BaseModel):
         if tbl.user_icon_uuid is None:
             user_icon = None
         else:
-            user_icon = mdls.Img.create(tbl.user_icon_uuid, None)
+            user_icon = mdls.File(
+                image_uuid=tbl.user_icon_uuid,
+                token=None
+            )
         return SelfUserRes.create(
             user_id=tbl.user_id,
             user_name=tbl.user_name,
