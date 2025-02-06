@@ -4,6 +4,7 @@ import sqlalchemy.ext.asyncio
 from fastapi import Depends
 
 from hew_back import deps, app, tbls, mdls
+from hew_back.creator.__creator_service import CreatorService
 from hew_back.creator.__res import CreatorResponse
 from hew_back.mdls import UserData
 
@@ -13,9 +14,11 @@ class __Service:
             self,
             creator_id: uuid.UUID,
             session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
+            creator_service: CreatorService = Depends(),
     ):
         self.session = session
         self.__creator_id = creator_id
+        self.__creator_service = creator_service
 
     async def select_creator(self) -> tbls.CreatorTable:
         records = await self.session.execute(
@@ -25,16 +28,9 @@ class __Service:
         records = records.scalar_one()
         return records
 
-    async def select_user(self, creator: tbls.CreatorTable) -> tbls.UserTable:
-        row = await self.session.execute(
-            sqlalchemy.select(tbls.UserTable)
-            .where(tbls.UserTable.user_id == creator.user_id)
-        )
-        return row.scalar_one()
-
     async def process(self) -> CreatorResponse:
         creator = await self.select_creator()
-        user = await self.select_user(creator)
+        user = await self.__creator_service.select_user(creator)
         return CreatorResponse(
             creator_id=creator.creator_id,
             contact_address=creator.contact_address,
