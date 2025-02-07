@@ -113,7 +113,7 @@ class __Service:
     async def process(self):
         cart = await self.__cart_service.select_or_insert_cart()
         registered_cart_products = await self.__cart_service.select_cart_product(cart)
-        unregistered_rm_product_ids = await self.process_rm(registered_cart_products)
+        unregistered_rm_product_ids = await self.process_rm(registered_cart_products, cart)
         unregistered_new_product_ids, registered_new_product_ids = await self.__cart_service.sort_new_product_ids(
             registered_cart_products, self.__body.new_products
         )
