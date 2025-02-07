@@ -1,3 +1,5 @@
+import uuid
+
 import sqlalchemy
 from fastapi import Depends
 
@@ -51,3 +53,15 @@ class CartService:
             )
         )
         return [*raw.scalars().all()]
+
+    @staticmethod
+    async def sort_new_product_ids(
+            registered_cart_products: list[tbls.CartProductTable], ids: tuple[uuid.UUID]
+    ) -> tuple[list[uuid.UUID], list[uuid.UUID]]:
+        unregistered = list[uuid.UUID](ids)
+        registered = list[uuid.UUID]()
+        for prev in registered_cart_products:
+            if prev.product_id in unregistered:
+                unregistered.remove(prev.product_id)
+                registered.append(prev.product_id)
+        return unregistered, registered

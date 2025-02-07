@@ -1,4 +1,5 @@
 import uuid
+from dataclasses import field
 
 import pydantic
 import sqlalchemy
@@ -10,9 +11,25 @@ from hew_back.cart.cart_service import CartService
 
 
 @pydantic.dataclasses.dataclass
+class PatchCartBodyRmProducts:
+    rm_products = tuple[uuid.UUID]()
+
+
+@pydantic.dataclasses.dataclass
+class PatchCartBodyRmAll:
+    rm_all: bool = False
+
+
+@pydantic.dataclasses.dataclass
 class PostCartBody:
     new_products = tuple[uuid.UUID]()
-    rm_products = tuple[uuid.UUID]()
+    rm: PatchCartBodyRmProducts | PatchCartBodyRmAll = field(default_factory=PatchCartBodyRmAll)
+
+
+@pydantic.dataclasses.dataclass
+class CartPatchRes:
+    new_products_filtered: list[uuid.UUID]
+    rm_products_filtered: list[uuid.UUID]
 
 
 class __Service:
@@ -51,19 +68,16 @@ class __Service:
             await self.__session.refresh(cart_product)
         return cart_products
 
-    async def __unregistered_new_product_ids(
-            self, registered_cart_products: list[tbls.CartProductTable]
-    ) -> list[uuid.UUID]:
-        ids = list[uuid.UUID](self.__body.new_products)
-        for prev in registered_cart_products:
-            if prev.product_id in ids:
-                ids.remove(prev.product_id)
-        return ids
-
-    async def __remove_cart_products(self) -> list[tbls.CartProductTable]:
+    async def __remove_cart_products(
+            self, ids: list[uuid.UUID], cart: tbls.CartTable
+    ) -> list[tbls.CartProductTable]:
         row = await self.__session.execute(
             sqlalchemy.select(tbls.CreatorProductTable)
-            .where(tbls.CreatorProductTable.product_id.in_(self.__body.rm_products))
+            .where(
+                tbls.CartProductTable.cart_id == cart.cart_id,
+                tbls.CreatorProductTable.product_id.in_(ids),
+                tbls.CartProductTable.removed == False
+            )
         )
         result: list[tbls.CartProductTable] = [*row.scalars().all()]
         for product in result:
@@ -71,13 +85,43 @@ class __Service:
         await self.__session.flush()
         return result
 
+    async def __remove_all_products(self, cart: tbls.CartTable):
+        row = await self.__session.execute(
+            sqlalchemy.select(
+                sqlalchemy.select(tbls.CartProductTable).where(
+                    tbls.CartProductTable.cart_id == cart.cart_id,
+                    tbls.CartProductTable.removed == False
+                )
+            )
+        )
+        result: list[tbls.CartProductTable] = [*row.scalars().all()]
+        for product in result:
+            product.removed = True
+        await self.__session.flush()
+
+    async def process_rm(self, registered_cart_products: list[tbls.CartProductTable], cart: tbls.CartTable):
+        if self.__body.rm is PatchCartBodyRmProducts:
+            unregistered_rm_product_ids, registered_rm_product_ids = await self.__cart_service.sort_new_product_ids(
+                registered_cart_products, self.__body.rm.rm_products
+            )
+            await self.__remove_cart_products(registered_rm_product_ids, cart)
+            return unregistered_rm_product_ids
+        elif self.__body.rm.rm_all:
+            await self.__remove_all_products(cart)
+            return []
+
     async def process(self):
         cart = await self.__cart_service.select_or_insert_cart()
         registered_cart_products = await self.__cart_service.select_cart_product(cart)
-        new_product_ids = await self.__unregistered_new_product_ids(registered_cart_products)
-        await self.__insert_cart_products(cart, new_product_ids)
-        await self.__remove_cart_products()
-        return
+        unregistered_rm_product_ids = await self.process_rm(registered_cart_products)
+        unregistered_new_product_ids, registered_new_product_ids = await self.__cart_service.sort_new_product_ids(
+            registered_cart_products, self.__body.new_products
+        )
+        await self.__insert_cart_products(cart, unregistered_new_product_ids)
+        return CartPatchRes(
+            new_products_filtered=registered_new_product_ids,
+            rm_products_filtered=unregistered_rm_product_ids,
+        )
 
 
 @app.patch("/api/cart")
