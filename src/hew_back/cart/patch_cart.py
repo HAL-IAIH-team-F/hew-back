@@ -12,8 +12,8 @@ from hew_back.util import err
 
 @pydantic.dataclasses.dataclass
 class PostCartBody:
-    new_products: list[uuid.UUID] = []
-    rm_products: list[uuid.UUID] = []
+    new_products = tuple[uuid.UUID]()
+    rm_products = tuple[uuid.UUID]()
 
 
 class __Service:
