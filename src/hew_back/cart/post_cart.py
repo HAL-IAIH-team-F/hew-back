@@ -52,7 +52,7 @@ class __Service:
                 product_id=product_id,
             )
             cart_products.append(cart_product)
-            self.__session.add_all(cart_products)
+        self.__session.add_all(cart_products)
         await self.__session.flush()
         for cart_product in cart_products:
             await self.__session.refresh(cart_product)

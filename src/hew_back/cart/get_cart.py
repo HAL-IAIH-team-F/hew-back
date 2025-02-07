@@ -2,7 +2,7 @@ import fastapi
 import sqlalchemy
 from fastapi import Depends
 
-from hew_back import deps, app, tbls
+from hew_back import deps, app
 from hew_back.cart.__reses import CartRes
 from hew_back.cart.cart_service import CartService
 
@@ -22,9 +22,6 @@ class __Service:
 
     async def process(self) -> CartRes | str:
         cart = await self.__cart_service.select_or_insert_cart()
-        if cart is None:
-            self.__response.status_code = fastapi.status.HTTP_204_NO_CONTENT
-            return ""
         cart_products = await self.__cart_service.select_cart_product(cart)
         return CartRes(
             cart_id=cart.cart_id,

@@ -12,7 +12,7 @@ from hew_back.cart.cart_service import CartService
 
 @pydantic.dataclasses.dataclass
 class PatchCartBodyRmProducts:
-    rm_products = tuple[uuid.UUID]()
+    rm_products: tuple[uuid.UUID] = field(default_factory=list)
 
 
 @pydantic.dataclasses.dataclass
@@ -21,8 +21,8 @@ class PatchCartBodyRmAll:
 
 
 @pydantic.dataclasses.dataclass
-class PostCartBody:
-    new_products = tuple[uuid.UUID]()
+class PatchCartBody:
+    new_products: list[uuid.UUID] = field(default_factory=list)
     rm: PatchCartBodyRmProducts | PatchCartBodyRmAll = field(default_factory=PatchCartBodyRmAll)
 
 
@@ -35,7 +35,7 @@ class CartPatchRes:
 class __Service:
     def __init__(
             self,
-            body: PostCartBody,
+            body: PatchCartBody,
             session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
             user: deps.UserDeps = Depends(deps.UserDeps.get),
             cart_service: CartService = Depends(),
@@ -62,7 +62,7 @@ class __Service:
                 product_id=product_id,
             )
             cart_products.append(cart_product)
-            self.__session.add_all(cart_products)
+        self.__session.add_all(cart_products)
         await self.__session.flush()
         for cart_product in cart_products:
             await self.__session.refresh(cart_product)
@@ -113,6 +113,7 @@ class __Service:
             return []
 
     async def process(self):
+        print(self.__body)
         cart = await self.__cart_service.select_or_insert_cart()
         registered_cart_products = await self.__cart_service.select_cart_product(cart)
         unregistered_rm_product_ids = await self.process_rm(registered_cart_products, cart)
