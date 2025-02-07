@@ -21,7 +21,7 @@ class __Service:
         self.__cart_service = cart_service
 
     async def process(self):
-        cart = await self.__cart_service.select_cart()
+        cart = await self.__cart_service.select_or_insert_cart()
         cart.purchase_date = datetime.now(UTC).replace(tzinfo=None)
         await self.__session.flush()
         cart_products = await self.__cart_service.select_cart_product(cart)

@@ -21,7 +21,7 @@ class __Service:
         self.__cart_service = cart_service
 
     async def process(self) -> CartRes | str:
-        cart = await self.__cart_service.select_cart()
+        cart = await self.__cart_service.select_or_insert_cart()
         if cart is None:
             self.__response.status_code = fastapi.status.HTTP_204_NO_CONTENT
             return ""

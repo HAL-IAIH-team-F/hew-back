@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps, tbls
 from hew_back.cart.cart_service import CartService
-from hew_back.util import err
 
 
 @pydantic.dataclasses.dataclass
@@ -37,12 +36,6 @@ class __Service:
         await self.__session.flush()
         await self.__session.refresh(cart)
         return cart
-
-    @staticmethod
-    async def __validate_cart_is_not_none(cart: tbls.CartTable):
-        if cart is not None:
-            return
-        raise err.ErrorIds.INTERNAL_ERROR.to_exception("A cart not exists for this user and has not been completed.")
 
     async def __insert_cart_products(self, cart: tbls.CartTable, new_product_ids: list[uuid.UUID]):
         cart_products = list[tbls.CartProductTable]()
@@ -79,8 +72,7 @@ class __Service:
         return result
 
     async def process(self):
-        cart = await self.__cart_service.select_cart()
-        await self.__validate_cart_is_not_none(cart)
+        cart = await self.__cart_service.select_or_insert_cart()
         registered_cart_products = await self.__cart_service.select_cart_product(cart)
         new_product_ids = await self.__unregistered_new_product_ids(registered_cart_products)
         await self.__insert_cart_products(cart, new_product_ids)
