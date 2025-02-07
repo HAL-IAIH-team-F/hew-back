@@ -4,7 +4,7 @@ import uuid
 from typing import Union, List
 
 import sqlalchemy
-from sqlalchemy import Column, String, DateTime, UUID, update
+from sqlalchemy import Column, String, DateTime, UUID
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -154,17 +154,14 @@ class ProductTable(BaseTable):
             session: AsyncSession,
             user_id: tbls.UserTable,
     ):
-        subquery = (
-            select(tbls.CartTable.cart_id)
+        row = await session.execute(
+            select(tbls.CartTable)
             .where(tbls.CartTable.user_id == user_id)
             .where(tbls.CartTable.purchase_date == None)
         )
+        cart: tbls.CartTable = row.scalar_one()
 
-        stmt = (
-            update(tbls.CartTable)
-            .where(tbls.CartTable.cart_id.in_(subquery))
-            .values(purchase_date=datetime.datetime.now(datetime.UTC).replace(tzinfo=None))
-        )
+        cart.purchase_date = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
 
-        await session.execute(stmt)
         await session.flush()
+        return cart
