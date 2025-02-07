@@ -3,6 +3,7 @@ import uuid
 import pydantic
 import sqlalchemy
 from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps, tbls
 from hew_back.cart.cart_service import CartService
@@ -11,8 +12,8 @@ from hew_back.util import err
 
 @pydantic.dataclasses.dataclass
 class PostCartBody:
-    new_products: list[uuid.UUID]
-    rm_products: list[uuid.UUID]
+    new_products: list[uuid.UUID] = []
+    rm_products: list[uuid.UUID] = []
 
 
 class __Service:
@@ -23,7 +24,7 @@ class __Service:
             user: deps.UserDeps = Depends(deps.UserDeps.get),
             cart_service: CartService = Depends(),
     ):
-        self.__session = session
+        self.__session: AsyncSession = session
         self.__user = user
         self.__body = body
         self.__cart_service = cart_service
@@ -57,21 +58,33 @@ class __Service:
             await self.__session.refresh(cart_product)
         return cart_products
 
-    async def __filter_registered_products(
-            self, prev_cart_products: list[tbls.CartProductTable]
+    async def __unregistered_new_product_ids(
+            self, registered_cart_products: list[tbls.CartProductTable]
     ) -> list[uuid.UUID]:
         ids = list[uuid.UUID](self.__body.new_products)
-        for prev in prev_cart_products:
+        for prev in registered_cart_products:
             if prev.product_id in ids:
                 ids.remove(prev.product_id)
         return ids
 
+    async def __remove_cart_products(self) -> list[tbls.CartProductTable]:
+        row = await self.__session.execute(
+            sqlalchemy.select(tbls.CreatorProductTable)
+            .where(tbls.CreatorProductTable.product_id.in_(self.__body.rm_products))
+        )
+        result: list[tbls.CartProductTable] = [*row.scalars().all()]
+        for product in result:
+            product.removed = True
+        await self.__session.flush()
+        return result
+
     async def process(self):
         cart = await self.__cart_service.select_cart()
         await self.__validate_cart_is_not_none(cart)
-        prev_cart_products = await self.__cart_service.select_cart_product(cart)
-        new_product_ids = await self.__filter_registered_products(prev_cart_products)
+        registered_cart_products = await self.__cart_service.select_cart_product(cart)
+        new_product_ids = await self.__unregistered_new_product_ids(registered_cart_products)
         await self.__insert_cart_products(cart, new_product_ids)
+        await self.__remove_cart_products()
         return
 
 
