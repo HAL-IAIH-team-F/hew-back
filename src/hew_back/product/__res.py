@@ -24,7 +24,7 @@ class CartProduct(BaseModel):
             session: AsyncSession,
             user_id: tbls.UserTable.user_id
     ):
-        await tbls.ProductTable.cart_buy(
+        return await tbls.ProductTable.cart_buy(
             session=session,
             user_id=user_id,
         )

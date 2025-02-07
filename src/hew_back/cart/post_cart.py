@@ -59,7 +59,7 @@ class __Service:
         return cart_products
 
     async def process(self):
-        cart = await self.__cart_service.select_cart()
+        cart = await self.__cart_service.select_or_insert_cart()
         await self.__validate_cart_is_none(cart)
         cart = await self.__insert_cart()
         cart_products= await self.__insert_cart_products(cart)
