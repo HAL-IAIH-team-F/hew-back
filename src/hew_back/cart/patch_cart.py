@@ -109,6 +109,8 @@ class __Service:
         elif self.__body.rm.rm_all:
             await self.__remove_all_products(cart)
             return []
+        else:
+            return []
 
     async def process(self):
         cart = await self.__cart_service.select_or_insert_cart()
