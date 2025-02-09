@@ -12,7 +12,7 @@ from hew_back.cart.cart_service import CartService
 
 @pydantic.dataclasses.dataclass
 class PatchCartBodyRmProducts:
-    rm_products: tuple[uuid.UUID] = field(default_factory=list)
+    rm_products: list[uuid.UUID] = field(default_factory=list)
 
 
 @pydantic.dataclasses.dataclass
@@ -113,7 +113,6 @@ class __Service:
             return []
 
     async def process(self):
-        print(self.__body)
         cart = await self.__cart_service.select_or_insert_cart()
         registered_cart_products = await self.__cart_service.select_cart_product(cart)
         unregistered_rm_product_ids = await self.process_rm(registered_cart_products, cart)

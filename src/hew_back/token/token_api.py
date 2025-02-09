@@ -26,6 +26,13 @@ async def gettfu(
 ) -> ImgTokenRes:
     return ImgTokenRes.from_img_tokens(
         mdls.ImgJwtTokenData.new(
-            mdls.ImgTokenType.upload, uuid.uuid4()
+            mdls.FileTokenType.upload, uuid.uuid4()
         ).new_img_tokens()
     )
+
+
+@app.get("/api/token/file/access")
+async def get_token_file_access___(
+        token: deps.FileAccessTokenDeps = Depends()
+) -> ImgTokenRes:
+    return ImgTokenRes.create(token.renew_tokens())
