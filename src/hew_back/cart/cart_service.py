@@ -56,7 +56,7 @@ class CartService:
 
     @staticmethod
     async def sort_new_product_ids(
-            registered_cart_products: list[tbls.CartProductTable], ids: tuple[uuid.UUID]
+            registered_cart_products: list[tbls.CartProductTable], ids: list[uuid.UUID]
     ) -> tuple[list[uuid.UUID], list[uuid.UUID]]:
         unregistered = list[uuid.UUID](ids)
         registered = list[uuid.UUID]()
