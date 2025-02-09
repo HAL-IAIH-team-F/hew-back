@@ -5,6 +5,7 @@ from hew_back import tbls
 from .__db_deps import *
 from .__img_deps import *
 from .__token_deps import *
+from .__file_token_deps import *
 from ..chat.__result import ChatsResult, ChatUsersResult
 from ..user.__res import SelfUserRes
 

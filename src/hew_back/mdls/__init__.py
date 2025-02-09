@@ -16,12 +16,12 @@ class ImgTokens:
     upload: tks.TokenInfo
 
 
-class ImgTokenType(tks.AbcTokenType, Enum):
+class FileTokenType(tks.AbcTokenType, Enum):
     upload = "Upload"
     access = "Access"
 
 
-class ImgJwtTokenData(tks.AbcJwtTokenData[ImgTokenType]):
+class ImgJwtTokenData(tks.AbcJwtTokenData[FileTokenType]):
     file_uuid: UUID
 
     def new_img_tokens(self) -> ImgTokens:
@@ -35,9 +35,9 @@ class ImgJwtTokenData(tks.AbcJwtTokenData[ImgTokenType]):
 
     @staticmethod
     def new(
-            token_type: ImgTokenType, file_uuid: UUID
+            token_type: FileTokenType, file_uuid: UUID
     ) -> 'ImgJwtTokenData':
-        if token_type == ImgTokenType.upload:
+        if token_type == FileTokenType.upload:
             exp = datetime.now(timezone.utc) + timedelta(ENV.token.access_token_expire_minutes)
         else:
             raise ValueError(f"Unknown token type: {token_type}")
@@ -46,15 +46,11 @@ class ImgJwtTokenData(tks.AbcJwtTokenData[ImgTokenType]):
         )
 
 
-class FileAccessJwtTokenData(tks.AbcJwtTokenData[ImgTokenType]):
+class FileAccessJwtTokenData(tks.AbcJwtTokenData[FileTokenType]):
     file_uuid: pydanticutl.Uuid
 
     def new_img_tokens(self) -> tks.TokenInfo:
         return self.new_token_info(ENV.token.img_secret_key)
-
-    @field_serializer("file_uuid")
-    def serialize_sub(self, uid: UUID) -> str:
-        return str(uid)
 
     @staticmethod
     def new(
@@ -62,7 +58,7 @@ class FileAccessJwtTokenData(tks.AbcJwtTokenData[ImgTokenType]):
     ) -> 'FileAccessJwtTokenData':
         exp = datetime.now(timezone.utc) + timedelta(ENV.token.access_token_expire_minutes)
         return FileAccessJwtTokenData(
-            exp=exp, token_type=ImgTokenType.access, file_uuid=file_uuid,
+            exp=exp, token_type=FileTokenType.access, file_uuid=file_uuid,
         )
 
 
