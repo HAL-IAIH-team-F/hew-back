@@ -45,4 +45,4 @@ class ProductRes:
     product_description: str
     purchase_date: datetime
     creator_ids: list[uuid.UUID]
-    purchase_info: PurchaseInfo | None = None
+    purchase_info: PurchaseInfo | None

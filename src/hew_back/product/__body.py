@@ -2,6 +2,7 @@ import uuid
 
 from pydantic.dataclasses import dataclass
 
+from hew_back import mdls
 from hew_back.util import pydanticutl
 
 
@@ -11,6 +12,6 @@ class PostProductBody:
     product_title: str
     product_description: str
     purchase_date: pydanticutl.Datetime
-    product_thumbnail_uuid: uuid.UUID
-    product_contents_uuid: uuid.UUID
-    collaborator_ids: list[uuid.UUID]
+    product_thumbnail_uuid: mdls.Uuid
+    product_contents_uuid: mdls.Uuid
+    collaborator_ids: list[mdls.Uuid]
