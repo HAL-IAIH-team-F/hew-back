@@ -31,19 +31,6 @@ class __Service:
         )
         return [*raw.scalars().all()]
 
-    async def __select_bought(self) -> list[tbls.CartProductTable]:
-        if self.__user is None:
-            return []
-        raw = await self.__session.execute(
-            sqlalchemy.select(tbls.CartProductTable)
-            .join(tbls.CartTable)
-            .where(sqlalchemy.and_(
-                tbls.CartTable.user_id == self.__user.user_table.user_id,
-                tbls.CartTable.purchase_date != None,
-            ))
-        )
-        return [*raw.scalars().all()]
-
     async def __select_bought_creator(self, bought: list[tbls.CartProductTable]) -> list[tbls.CreatorTable]:
         raw = await self.__session.execute(
             sqlalchemy.select(tbls.CreatorTable)
@@ -102,7 +89,7 @@ class __Service:
 
     async def process(self) -> list[ProductRes]:
         following = await self.__select_following()
-        bought = await self.__select_bought()
+        bought = await self.__product_service.select_bought_cart_table()
         bought_creator = await self.__select_bought_creator(bought)
         products = await self.__select_timeline(following, bought, bought_creator)
         result = list[ProductRes]()

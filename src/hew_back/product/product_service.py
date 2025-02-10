@@ -51,3 +51,16 @@ class ProductService:
             content_uuid=product.product_contents_uuid,
             token=token,
         )
+
+    async def select_bought_cart_table(self) -> list[tbls.CartProductTable]:
+        if self.__user is None:
+            return []
+        raw = await self.__session.execute(
+            sqlalchemy.select(tbls.CartProductTable)
+            .join(tbls.CartTable)
+            .where(sqlalchemy.and_(
+                tbls.CartTable.user_id == self.__user.user_table.user_id,
+                tbls.CartTable.purchase_date != None,
+                ))
+        )
+        return [*raw.scalars().all()]
