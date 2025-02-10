@@ -33,6 +33,7 @@ class __Service:
             time_order: OrderDirection = Query(default=None, description="time_direction asc/desc"),
             name_order: OrderDirection = Query(default=None, description="name_direction asc/desc"),
             like_order: OrderDirection = Query(default=None, description="like_direction asc/desc"),
+            is_bought: Union[bool, None] = Query(default=False, description="is_bought"),
             sort: list[str] = Query(
                 default=None,
                 description="List may be included datetime or name or like,witch is gaven default asc or desc"
@@ -42,7 +43,7 @@ class __Service:
     ):
         if start_datetime and end_datetime and start_datetime > end_datetime:
             raise HTTPException(status_code=400, detail="start_datetime cannot be greater than end_datetime")
-        self.product_service = product_service
+        self.__product_service = product_service
         self.session = session
         self.name = name
         self.tag = tag
@@ -55,6 +56,7 @@ class __Service:
         self.name_order = name_order
         self.like_order = like_order
         self.sort = sort
+        self.__is_bought = is_bought
 
     async def name_query(
             self, where: list[sqlalchemy.ColumnElement[bool]]
@@ -183,12 +185,20 @@ class __Service:
 
         return stmt
 
+    async def __filter_bought(self, where: list[sqlalchemy.ColumnElement[bool]], bought: list[tbls.CartProductTable]):
+        if self.__is_bought:
+            where.append(
+                tbls.ProductTable.product_id.in_([c.product_id for c in bought])
+            )
+
     async def select_products(
             self,
     ) -> list[tbls.ProductTable]:
+        bought = await self.__product_service.select_bought_cart_table()
         stmt = sqlalchemy.select(tbls.ProductTable)
         where = list[sqlalchemy.ColumnElement[bool]]()
         await self.name_query(where)
+        await self.__filter_bought(where, bought)
         stmt = await self.tag_query(stmt)
         stmt = await self.post_by_query(stmt)
         stmt = await self.following_query(stmt)
@@ -225,7 +235,7 @@ class __Service:
         result = list[ProductRes]()
 
         for product in products:
-            carts = await self.product_service.select_cart(product)
+            carts = await self.__product_service.select_cart(product)
             result.append(ProductRes(
                 product_description=product.product_description,
                 product_id=product.product_id,
