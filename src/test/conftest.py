@@ -14,7 +14,7 @@ from hew_back.creator.__body import PostCreatorBody
 from hew_back.creator.__result import CreatorResult
 from hew_back.db import BaseTable
 from hew_back.deps import JwtTokenDeps, UserDeps, ImageDeps
-from hew_back.user.__post_user import PostUserBody
+from hew_back.user.__post_user import UserBody
 from hew_back.user.__res import SelfUserRes
 from hew_back.user.__result import UserResult
 from hew_back.util import keycloak, tks
@@ -108,7 +108,7 @@ async def login_keycloak_profile(session) -> keycloak.KeycloakUserProfile:
 
 @pytest_asyncio.fixture
 async def login_user(session, login_keycloak_profile) -> SelfUserRes:
-    body = PostUserBody(
+    body = UserBody(
         user_name="user_login",
         user_icon_uuid=None,
     )
@@ -163,7 +163,7 @@ async def saved_user(session) -> SelfUserRes:
         preferred_username="post_chat_body",
         email="post_chat_body@example.com",
     )
-    body = PostUserBody(
+    body = UserBody(
         user_name="PostUserBody_user_name_saved",
         user_icon_uuid=None,
     )

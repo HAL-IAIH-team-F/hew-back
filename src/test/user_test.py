@@ -5,15 +5,15 @@ import pytest_asyncio
 import sqlalchemy
 
 from hew_back import tbls, mdls, ENV
-from hew_back.user.__post_user import PostUserBody
+from hew_back.user.__post_user import UserBody
 from hew_back.user.__res import SelfUserRes
 from hew_back.util import keycloak, tks
 from test.conftest import session
 
 
 @pytest.fixture
-def post_user_body(session) -> PostUserBody:
-    return PostUserBody(
+def post_user_body(session) -> UserBody:
+    return UserBody(
         user_name="PostUserBody_user_name",
         user_icon_uuid=None,
     )

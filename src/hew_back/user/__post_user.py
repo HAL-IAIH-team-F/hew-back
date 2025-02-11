@@ -1,29 +1,14 @@
-import uuid
-
 from fastapi import Depends
-from pydantic import field_serializer
-from pydantic.dataclasses import dataclass
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import deps, tbls, mdls
 from hew_back.tbls import UserTable
+from hew_back.user.__body import UserBody
 from hew_back.user.__result import UserResult
 
 
-@dataclass
-class PostUserBody:
-    user_name: str
-    user_icon_uuid: uuid.UUID | None
-
-    @field_serializer("user_icon_uuid")
-    def serialize_sub(self, user_icon_uuid: uuid.UUID) -> str | None:
-        if user_icon_uuid is None:
-            return None
-        return str(user_icon_uuid)
-
-
 async def __insert_user(
-        body: PostUserBody,
+        body: UserBody,
         session: AsyncSession = Depends(deps.DbDeps.session),
         token: deps.JwtTokenDeps = Depends(deps.JwtTokenDeps.get_access_token),
 ) -> UserTable:
@@ -42,7 +27,7 @@ async def __insert_user(
 
 
 async def __post_images(
-        body: PostUserBody,
+        body: UserBody,
         img_deps: deps.ImageDeps = Depends(deps.ImageDeps.get),
 ):
     if body.user_icon_uuid is not None:

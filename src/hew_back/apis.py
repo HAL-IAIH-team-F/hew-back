@@ -43,6 +43,8 @@ import hew_back.token.token_api
 # noinspection PyUnresolvedReferences
 import hew_back.user.user_api
 # noinspection PyUnresolvedReferences
+import hew_back.user.put_user
+# noinspection PyUnresolvedReferences
 import hew_back.timeline.get_timeline
 from hew_back import app
 
