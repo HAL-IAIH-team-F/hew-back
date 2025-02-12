@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tbls
-from hew_back.creator.__res import CreatorResponse
-from hew_back.mdls import UserRes
 
 
 @dataclass

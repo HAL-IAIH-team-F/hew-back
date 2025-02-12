@@ -6,7 +6,7 @@ from fastapi import Depends
 from hew_back import deps, app, tbls, mdls
 from hew_back.creator.__creator_service import CreatorService
 from hew_back.creator.__res import CreatorResponse
-from hew_back.mdls import UserRes
+from hew_back.mdls import UserData
 
 
 class __Service:
@@ -34,7 +34,7 @@ class __Service:
         return CreatorResponse(
             creator_id=creator.creator_id,
             contact_address=creator.contact_address,
-            user_data=UserRes(
+            user_data=UserData(
                 user_id=user.user_id,
                 name=user.user_name,
                 screen_id=user.user_screen_id,
