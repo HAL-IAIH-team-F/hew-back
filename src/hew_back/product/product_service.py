@@ -57,7 +57,7 @@ class ProductService:
             return []
         raw = await self.__session.execute(
             sqlalchemy.select(tbls.CartProductTable)
-            .join(tbls.CartTable)
+            .join(tbls.CartTable,tbls.CartProductTable.cart_id == tbls.CartTable.cart_id)
             .where(sqlalchemy.and_(
                 tbls.CartTable.user_id == self.__user.user_table.user_id,
                 tbls.CartTable.purchase_date != None,
