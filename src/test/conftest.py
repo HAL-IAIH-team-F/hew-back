@@ -11,12 +11,13 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from hew_back import main, ENV, deps, mdls, tbls
 from hew_back.creator.__body import PostCreatorBody
+from hew_back.creator.__creator_service import CreatorService
 from hew_back.creator.__result import CreatorResult
 from hew_back.db import BaseTable
 from hew_back.deps import JwtTokenDeps, UserDeps, ImageDeps
 from hew_back.user.__post_user import UserBody
 from hew_back.user.__res import SelfUserRes
-from hew_back.user.__result import UserResult
+from hew_back.user.__user_service import UserService
 from hew_back.util import keycloak, tks
 from test.base import Client
 
@@ -122,7 +123,10 @@ async def login_user(session, login_keycloak_profile) -> SelfUserRes:
     await user.save_new(session)
     await session.commit()
     await session.refresh(user)
-    return UserResult(user).to_self_user_res()
+    return UserService.create_user_res(
+        user,
+        CreatorService.create_creator_data(None)
+    )
 
 
 @pytest_asyncio.fixture
@@ -177,4 +181,7 @@ async def saved_user(session) -> SelfUserRes:
     await user.save_new(session)
     await session.commit()
     await session.refresh(user)
-    return UserResult(user).to_self_user_res()
+    return UserService.create_user_res(
+        user,
+        CreatorService.create_creator_data(None)
+    )

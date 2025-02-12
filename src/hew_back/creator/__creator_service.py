@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, Coroutine
 
 import sqlalchemy
@@ -12,14 +13,7 @@ class CreatorService:
             self,
             session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
     ):
-        self.session = session
-
-    async def select_user(self, creator: tbls.CreatorTable) -> tbls.UserTable:
-        row = await self.session.execute(
-            sqlalchemy.select(tbls.UserTable)
-            .where(tbls.UserTable.user_id == creator.user_id)
-        )
-        return row.scalar_one()
+        self.__session = session
 
     @staticmethod
     def create_user_data(user: tbls.UserTable) -> UserData:
@@ -32,3 +26,19 @@ class CreatorService:
                 token=None,
             ),
         )
+
+    @staticmethod
+    def create_creator_data(creator: tbls.CreatorTable | None) -> CreatorData | None:
+        if creator is None:
+            return None
+        return CreatorData(
+            creator_id=creator.creator_id,
+            contact_address=creator.contact_address,
+        )
+
+    async def select_creator_or_none(self,user_id: uuid.UUID) -> tbls.CreatorTable:
+        row = await self.__session.execute(
+            sqlalchemy.select(tbls.CreatorTable)
+            .where(tbls.CreatorTable.user_id == user_id)
+        )
+        return row.scalar_one_or_none()

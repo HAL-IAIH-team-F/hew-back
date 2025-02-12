@@ -1,21 +1,19 @@
 import dataclasses
 from typing import Union
 
+import sqlalchemy
+
 from hew_back import tbls
-from .__db_deps import *
-from .__img_deps import *
 from .__token_deps import *
+from .__db_deps import *
 from .__file_token_deps import *
+from .__img_deps import *
 from ..chat.__result import ChatsResult, ChatUsersResult
-from ..user.__res import SelfUserRes
 
 
 @dataclasses.dataclass
 class UserDeps:
     user_table: tbls.UserTable
-
-    def to_self_user_res(self) -> SelfUserRes:
-        return SelfUserRes.create_by_user_table(self.user_table)
 
     async def find_chats(self, session: AsyncSession) -> ChatsResult:
         chats = await tbls.ChatTable.find_all(session, self.user_table)
@@ -60,9 +58,32 @@ class UserDeps:
             await wait
 
 
-@dataclass
+async def _creator_table(
+        session: AsyncSession = Depends(DbDeps.session),
+        token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token),
+) -> tbls.CreatorTable | None:
+    res = await session.execute(
+        sqlalchemy.select(tbls.CreatorTable)
+        .where(tbls.CreatorTable.user_id == token.profile.sub)
+    )
+    return res.scalar_one_or_none()
+
+
+class CreatorOrNoneDeps:
+    creator_table: tbls.CreatorTable
+
+    def __init__(
+            self,
+            creator: tbls.CreatorTable | None = Depends(_creator_table)
+    ):
+        self.creator_table = creator
+
+
 class CreatorDeps:
     creator_table: tbls.CreatorTable
+
+    def __init__(self, creator: tbls.CreatorTable):
+        self.creator_table = creator
 
     @staticmethod
     async def get(
@@ -70,8 +91,4 @@ class CreatorDeps:
             token: JwtTokenDeps = Depends(JwtTokenDeps.get_access_token),
     ) -> 'CreatorDeps':
         table = await tbls.CreatorTable.find_one(session, token.profile.sub)
-        table.user_mail = token.profile.email
-        table.user_screen_id = token.profile.preferred_username
-        await session.flush()
-        await session.refresh(table)
         return CreatorDeps(table)

@@ -2,9 +2,11 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import deps, tbls, mdls
+from hew_back.creator.__creator_service import CreatorService
 from hew_back.tbls import UserTable
 from hew_back.user.__body import UserBody
-from hew_back.user.__result import UserResult
+from hew_back.user.__res import SelfUserRes
+from hew_back.user.__user_service import UserService
 
 
 async def __insert_user(
@@ -37,5 +39,8 @@ async def __post_images(
 async def post_user(
         _img=Depends(__post_images),
         user=Depends(__insert_user),
-) -> UserResult:
-    return UserResult(user)
+) -> SelfUserRes:
+    return UserService.create_user_res(
+        user,
+        CreatorService.create_creator_data(None)
+    )
