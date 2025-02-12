@@ -1,8 +1,10 @@
+from typing import Any, Coroutine
+
 import sqlalchemy
 from fastapi import Depends
 
 from hew_back import deps, tbls, mdls
-from hew_back.mdls import UserData
+from hew_back.mdls import  CreatorData, UserData
 
 
 class CreatorService:
@@ -19,7 +21,8 @@ class CreatorService:
         )
         return row.scalar_one()
 
-    def create_user_data(self, user: tbls.UserTable) -> UserData:
+    @staticmethod
+    def create_user_data(user: tbls.UserTable) -> UserData:
         return UserData(
             user_id=user.user_id,
             name=user.user_name,

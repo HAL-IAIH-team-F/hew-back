@@ -4,8 +4,13 @@ import pydantic
 from pydantic import field_serializer
 
 from hew_back import mdls, tbls
+from hew_back.mdls import CreatorData, UserData
 from hew_back.util.pydanticutl import Uuid
 
+
+@pydantic.dataclasses.dataclass
+class UserRes(UserData):
+    creator_data: CreatorData | None
 
 @pydantic.dataclasses.dataclass
 class SelfUserRes:
@@ -15,6 +20,7 @@ class SelfUserRes:
     user_icon: mdls.File | None
     user_date: datetime
     user_mail: str
+    creator_data: CreatorData | None
 
     @field_serializer("user_date")
     def serialize_sub(self, user_date: datetime) -> str:
@@ -37,3 +43,4 @@ class SelfUserRes:
             user_date=tbl.user_date,
             user_mail=tbl.user_mail,
         )
+

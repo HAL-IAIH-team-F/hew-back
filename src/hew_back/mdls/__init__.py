@@ -71,6 +71,12 @@ class File:
     image_uuid: Uuid
     token: str | None
 
+@pydantic.dataclasses.dataclass
+class CreatorData:
+    creator_id: Uuid
+    contact_address: str
+
+
 
 @pydantic.dataclasses.dataclass
 class UserData:

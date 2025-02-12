@@ -129,5 +129,5 @@ class __Service:
 @app.patch("/api/cart")
 async def pac(
         service: __Service = Depends(),
-):
+) -> CartPatchRes:
     return await service.process()

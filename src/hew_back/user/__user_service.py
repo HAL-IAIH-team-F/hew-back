@@ -1,6 +1,7 @@
 from fastapi import Depends
 
-from hew_back import mdls, deps
+from hew_back import mdls, deps, tbls
+from hew_back.mdls import CreatorData
 from hew_back.util.pydanticutl import Uuid
 
 
@@ -16,3 +17,10 @@ class UserService:
             icon_uuid: Uuid,
     ):
         self.__img_deps.crete(mdls.State.public).post_preference(icon_uuid)
+
+    @staticmethod
+    async def create_creator_data(creator: tbls.CreatorTable) -> CreatorData:
+        return CreatorData(
+            creator_id=creator.creator_id,
+            contact_address=creator.contact_address,
+        )
