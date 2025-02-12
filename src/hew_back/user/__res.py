@@ -1,13 +1,15 @@
-import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, field_serializer
+import pydantic
+from pydantic import field_serializer
 
 from hew_back import mdls, tbls
+from hew_back.util.pydanticutl import Uuid
 
 
-class SelfUserRes(BaseModel):
-    user_id: uuid.UUID
+@pydantic.dataclasses.dataclass
+class SelfUserRes:
+    user_id: Uuid
     user_name: str
     user_screen_id: str
     user_icon: mdls.File | None
@@ -19,24 +21,6 @@ class SelfUserRes(BaseModel):
         return user_date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     @staticmethod
-    def create(
-            user_id: uuid.UUID,
-            user_name: str,
-            user_screen_id: str,
-            user_icon: mdls.File | None,
-            user_date: datetime,
-            user_mail: str,
-    ):
-        return SelfUserRes(
-            user_id=user_id,
-            user_name=user_name,
-            user_screen_id=user_screen_id,
-            user_icon=user_icon,
-            user_date=user_date,
-            user_mail=user_mail,
-        )
-
-    @staticmethod
     def create_by_user_table(tbl: tbls.UserTable):
         if tbl.user_icon_uuid is None:
             user_icon = None
@@ -45,7 +29,7 @@ class SelfUserRes(BaseModel):
                 image_uuid=tbl.user_icon_uuid,
                 token=None,
             )
-        return SelfUserRes.create(
+        return SelfUserRes(
             user_id=tbl.user_id,
             user_name=tbl.user_name,
             user_screen_id=tbl.user_screen_id,
