@@ -4,7 +4,6 @@ import sqlalchemy.ext.asyncio
 from fastapi import Depends
 
 from hew_back import deps, app, tbls, mdls
-from hew_back.creator.__creator_service import CreatorService
 from hew_back.creator.__res import CreatorResponse
 from hew_back.mdls import UserData
 from hew_back.user.__user_service import UserService
