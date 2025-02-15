@@ -33,13 +33,13 @@ class UserService:
     def create_user_res(user: tbls.UserTable, creator_data: CreatorData) -> SelfUserRes:
         return SelfUserRes(
             user_id=user.user_id,
-            user_name=user.user_name,
-            user_screen_id=user.user_screen_id,
-            user_icon=None if user.user_icon_uuid is None else mdls.File(
+            name=user.user_name,
+            screen_id=user.user_screen_id,
+            icon=None if user.user_icon_uuid is None else mdls.File(
                 image_uuid=user.user_icon_uuid,
                 token=None,
             ),
-            user_date=user.user_date,
+            register_date=user.user_date,
             user_mail=user.user_mail,
             creator_data=creator_data,
         )

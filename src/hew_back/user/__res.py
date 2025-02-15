@@ -11,11 +11,7 @@ class UserRes(UserData):
 
 
 @pydantic.dataclasses.dataclass
-class SelfUserRes:
-    user_id: Uuid
-    user_name: str
-    user_screen_id: str
-    user_icon: mdls.File | None
-    user_date: Datetime
+class SelfUserRes(UserData):
+    register_date: Datetime
     user_mail: str
     creator_data: CreatorData | None

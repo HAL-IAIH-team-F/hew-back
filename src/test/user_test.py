@@ -69,4 +69,4 @@ async def test_get_self(client, login_access_token, session, login_user, login_k
     body = SelfUserRes(**body)
     assert body.user_id == login_keycloak_profile.sub
     assert body.user_mail == login_keycloak_profile.email
-    assert body.user_name == login_user.user_name
+    assert body.name == login_user.name
