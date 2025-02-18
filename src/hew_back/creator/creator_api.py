@@ -5,6 +5,7 @@ from hew_back import app, deps
 from hew_back.creator.__body import PostCreatorBody
 from hew_back.creator.__creator_service import CreatorService
 from hew_back.creator.__res import CreatorResponse
+from hew_back.user.__user_service import UserService
 
 
 # FastAPIアプリケーションを作成します
@@ -17,10 +18,11 @@ async def pc(
         user_deps: deps.UserDeps = Depends(deps.UserDeps.get),
         session: AsyncSession = Depends(deps.DbDeps.session),
         creator_service: CreatorService = Depends(),
+        user_service: UserService = Depends(),
 ) -> CreatorResponse:
     result = await body.save_new(user_deps, session)
     return CreatorResponse(
         creator_id=result.creator.creator_id,
         contact_address=result.creator.contact_address,
-        user_data=creator_service.create_user_data(await creator_service.select_user(result.creator))
+        user_data=creator_service.create_user_data(await user_service.select_user(result.creator))
     )
