@@ -22,10 +22,10 @@ class PostCollaboApproveBody:
 class __Service:
     def __init__(
             self,
-            name: Union[list[str], None] = Query(default=None,
-                                                 description="for_0_to_multiple_product_or_tag_name_post_by"),
+            name: Union[str, None] = Query(default=None,
+                                           description="for_0_to_multiple_product_or_tag_name_post_by"),
             tag: Union[list[str], None] = Query(default=None, description="tag_related_product"),
-            post_by: Union[list[str], None] = Query(default=None, description="created_by"),
+            post_by: Union[str, None] = Query(default=None, description="created_by"),
             start_datetime: Union[datetime, None] = Query(default=None, description="start_datetime"),
             end_datetime: Union[datetime, None] = Query(default=None, description="end_datetime"),
             following: Union[bool, None] = Query(default=None, description="user_following"),
@@ -64,7 +64,7 @@ class __Service:
         if self.name is not None and len(self.name) > 0:
             where.append(
                 sqlalchemy.and_(*[
-                    tbls.ProductTable.product_title.like(f"%{keyword}%") for keyword in self.name
+                    tbls.ProductTable.product_title.like(f"%{keyword}%") for keyword in self.name.split(" ")
                 ])
             )
 
@@ -104,25 +104,12 @@ class __Service:
             stmt = stmt.join(tag_subquery, tbls.ProductTable.product_id == tag_subquery.c.product_id)
         return stmt
 
-    async def post_by_query(
-            self, stmt: sqlalchemy.Select[tuple[tbls.ProductTable]]
+    async def __filter_post_by(
+            self, where: list[sqlalchemy.ColumnElement[bool]]
     ) -> sqlalchemy.Select[tuple[tbls.ProductTable]]:
         if self.post_by is not None and len(self.post_by) > 0:
             # noinspection PyTypeChecker
-            post_by_subquery = (
-                sqlalchemy.select(
-                    tbls.CreatorProductTable.product_id.label("product_id")
-                )
-                .join(tbls.CreatorTable, tbls.CreatorProductTable.creator_id == tbls.CreatorTable.creator_id)
-                .join(tbls.UserTable, tbls.UserTable.user_id == tbls.CreatorTable.user_id)
-                .where(tbls.UserTable.user_name.in_(self.post_by))
-                .group_by(tbls.CreatorProductTable.product_id)
-                .having(sqlalchemy.func.count(tbls.UserTable.user_name) == len(self.post_by))
-                .subquery()
-            )
-            stmt = stmt.join(post_by_subquery, tbls.ProductTable.product_id == post_by_subquery.c.product_id)
-
-        return stmt
+            where.append(tbls.CreatorProductTable.creator_id == self.post_by)
 
     async def following_query(
             self, stmt: sqlalchemy.Select[tuple[tbls.ProductTable]]
@@ -198,16 +185,24 @@ class __Service:
             self,
     ) -> list[tbls.ProductTable]:
         bought = await self.__product_service.select_bought_cart_table()
-        stmt = sqlalchemy.select(tbls.ProductTable)
+        sub_stmt = (
+            sqlalchemy.select(tbls.ProductTable)
+            .distinct()
+            .join(tbls.CreatorProductTable, tbls.ProductTable.product_id == tbls.CreatorProductTable.product_id)
+        )
         where = list[sqlalchemy.ColumnElement[bool]]()
         await self.name_query(where)
         await self.__filter_bought(where, bought)
-        stmt = await self.tag_query(stmt)
-        stmt = await self.post_by_query(stmt)
-        stmt = await self.following_query(stmt)
+        sub_stmt = await self.tag_query(sub_stmt)
+        await self.__filter_post_by(where)
+        sub_stmt = await self.following_query(sub_stmt)
         await self.start_datetime_query(where)
         await self.end_datetime_query(where)
-        stmt = stmt.where(*where)
+        sub_stmt = sub_stmt.where(*where)
+        stmt = (
+            sqlalchemy.select(tbls.ProductTable)
+            .where(tbls.ProductTable.product_id == sub_stmt.subquery().c.product_id)
+        )
         stmt = await self.limit_query(stmt)
         stmt = await self.time_order_query(stmt)
         stmt = await self.name_order_query(stmt)
@@ -216,7 +211,7 @@ class __Service:
         result = await self.session.execute(stmt)
 
         products = result.scalars().all()
-
+        print(sub_stmt, products)
         return [product for product in products]
 
     async def select_creator_products(
