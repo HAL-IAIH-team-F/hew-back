@@ -188,7 +188,7 @@ class __Service:
         sub_stmt = (
             sqlalchemy.select(tbls.ProductTable)
             .distinct()
-            .join(tbls.CreatorProductTable, tbls.ProductTable.product_id == tbls.CreatorProductTable.product_id)
+            .outerjoin(tbls.CreatorProductTable, tbls.ProductTable.product_id == tbls.CreatorProductTable.product_id)
         )
         where = list[sqlalchemy.ColumnElement[bool]]()
         await self.name_query(where)
@@ -211,7 +211,7 @@ class __Service:
         result = await self.session.execute(stmt)
 
         products = result.scalars().all()
-        print(sub_stmt, products)
+        print(stmt, products)
         return [product for product in products]
 
     async def select_creator_products(

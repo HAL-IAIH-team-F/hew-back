@@ -2,6 +2,7 @@ import dataclasses
 from typing import Union
 
 import sqlalchemy
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import tbls
 from .__token_deps import *

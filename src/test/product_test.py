@@ -91,7 +91,7 @@ async def test_read_products(client, session, product_table_saved):
         sqlalchemy.select(tbls.ProductTable).where()
     )
     records = records.scalars().all()
-    assert len(records) == len(body)
+    assert len(records) == len(body), f"\n{body}\n"
 
     for i in range(len(records)):
         record = records[i]
