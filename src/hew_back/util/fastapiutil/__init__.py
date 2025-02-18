@@ -8,14 +8,14 @@ from .. import err
 
 def handler(fastapi: FastAPI):
     @fastapi.exception_handler(err.ErrorIdException)
-    async def exception_handler(request, exc: err.ErrorIdException):
+    async def exception_handler(_, exc: err.ErrorIdException):
         return JSONResponse(
             content=exc.to_error_res().dict(),
             status_code=exc.error_id.value.status_code
         )
 
     @fastapi.exception_handler(Exception)
-    async def exception_handler(request, exc: Exception):
+    async def exception_handler(_, exc: Exception):
         print(traceback.format_exc())
         return JSONResponse(
             content=err.ErrorRes.create_by_exception(
@@ -25,7 +25,7 @@ def handler(fastapi: FastAPI):
         )
 
     @fastapi.exception_handler(401)
-    async def exception_handler(request, exc: Exception):
+    async def exception_handler(_, exc: Exception):
         return JSONResponse(
             content=err.ErrorRes.create_by_exception(
                 exc, error_ids=err.ErrorIds.UNAUTHORIZED

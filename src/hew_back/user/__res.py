@@ -1,8 +1,7 @@
 import pydantic
 
-from hew_back import mdls
 from hew_back.mdls import CreatorData, UserData
-from hew_back.util.pydanticutl import Uuid, Datetime
+from hew_back.util.pydanticutl import Datetime
 
 
 @pydantic.dataclasses.dataclass

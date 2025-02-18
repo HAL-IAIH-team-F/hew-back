@@ -27,7 +27,7 @@ class FileAccessTokenDeps:
         return self.jwt_token_data.file_uuid
 
     def renew_tokens(self) -> TokenInfo:
-        return self.jwt_token_data.new_token_info()
+        return self.jwt_token_data.new_token_info(ENV.token.img_secret_key)
 
     def __init__(self, token: str | None = Depends(oauth2_scheme)):
         if token is None:

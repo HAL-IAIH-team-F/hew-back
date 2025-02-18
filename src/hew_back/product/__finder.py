@@ -4,8 +4,7 @@ from typing import Union
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import tbls, deps
-from hew_back.chat.__result import MessageResult, ChatMessagesResult
+from hew_back import tbls
 from hew_back.product.__result import ProductsResult
 from hew_back.util import OrderDirection
 
@@ -26,7 +25,6 @@ class ProductFinder:
             like_order: OrderDirection,
             sort: list[str]
     ) -> ProductsResult:
-
         products = await tbls.ProductTable.find_products_or_null(
             session=session,
             name=name,

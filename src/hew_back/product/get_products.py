@@ -86,6 +86,7 @@ class __Service:
             self, stmt: sqlalchemy.Select[tuple[tbls.ProductTable]]
     ) -> sqlalchemy.Select[tuple[tbls.ProductTable]]:
         if self.tag is not None and len(self.tag) > 0:
+            # noinspection PyTypeChecker
             tag_subquery = (
                 sqlalchemy.select(
                     tbls.ProductTag.item_id.label("product_id")
@@ -107,6 +108,7 @@ class __Service:
             self, stmt: sqlalchemy.Select[tuple[tbls.ProductTable]]
     ) -> sqlalchemy.Select[tuple[tbls.ProductTable]]:
         if self.post_by is not None and len(self.post_by) > 0:
+            # noinspection PyTypeChecker
             post_by_subquery = (
                 sqlalchemy.select(
                     tbls.CreatorProductTable.product_id.label("product_id")
@@ -132,6 +134,7 @@ class __Service:
                 )
                 .subquery()
             )
+            # noinspection PyTypeChecker
             stmt = (
                 sqlalchemy.select(tbls.ProductTable)
                 .join(tbls.CreatorProductTable, tbls.ProductTable.product_id == tbls.CreatorProductTable.product_id)

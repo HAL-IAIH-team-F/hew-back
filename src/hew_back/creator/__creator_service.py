@@ -1,11 +1,10 @@
 import uuid
-from typing import Any, Coroutine
 
 import sqlalchemy
 from fastapi import Depends
 
 from hew_back import deps, tbls, mdls
-from hew_back.mdls import  CreatorData, UserData
+from hew_back.mdls import CreatorData, UserData
 
 
 class CreatorService:
@@ -36,9 +35,16 @@ class CreatorService:
             contact_address=creator.contact_address,
         )
 
-    async def select_creator_or_none(self,user_id: uuid.UUID) -> tbls.CreatorTable:
+    async def select_creator_or_none(self, user_id: uuid.UUID) -> tbls.CreatorTable:
         row = await self.__session.execute(
             sqlalchemy.select(tbls.CreatorTable)
             .where(tbls.CreatorTable.user_id == user_id)
         )
         return row.scalar_one_or_none()
+
+    async def select_creator(self, creator_id: uuid.UUID) -> tbls.CreatorTable:
+        row = await self.__session.execute(
+            sqlalchemy.select(tbls.CreatorTable)
+            .where(tbls.CreatorTable.creator_id == creator_id)
+        )
+        return row.scalar_one()

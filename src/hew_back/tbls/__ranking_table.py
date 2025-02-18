@@ -1,10 +1,11 @@
 import uuid
 
 from sqlalchemy import Column, String, ForeignKey, UUID
-# from asyncpg.pgproto.pgproto import UUID
-from sqlalchemy.ext.declarative import declarative_base
 
 from hew_back.db import BaseTable
+
+
+# from asyncpg.pgproto.pgproto import UUID
 
 
 class Ranking(BaseTable):

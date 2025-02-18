@@ -37,7 +37,7 @@ class KeycloakUserProfile(BaseModel):
                 .add_header("User-Agent", "Application")
                 .fetch()
                 .on_status_code(
-            401, lambda s: err.ErrorIds.INVALID_KEYCLOAK_TOKEN.to_exception(f"err: {s.body()}").raise_self()
+            401, lambda s: err.ErrorIds.INVALID_KEYCLOAK_TOKEN.to_exception(f"err: {s.__body()}").raise_self()
         )
                 .json_model(KeycloakUserProfile)
                 )

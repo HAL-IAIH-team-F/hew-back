@@ -1,10 +1,9 @@
-import uuid
 # noinspection PyUnresolvedReferences
 from dataclasses import dataclass
 from uuid import UUID
 
 import pydantic
-from pydantic import field_serializer, BaseModel
+from pydantic import field_serializer
 
 from .__token import *
 from ..util import pydanticutl
@@ -66,16 +65,17 @@ class State(str, Enum):
     public = "Public"
     private = "Private"
 
+
 @pydantic.dataclasses.dataclass
 class File:
     image_uuid: Uuid
     token: str | None
 
+
 @pydantic.dataclasses.dataclass
 class CreatorData:
     creator_id: Uuid
     contact_address: str
-
 
 
 @pydantic.dataclasses.dataclass

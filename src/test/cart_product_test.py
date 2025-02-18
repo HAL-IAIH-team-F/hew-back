@@ -136,7 +136,7 @@ async def test_cart_buy(
         token=login_access_token.token,
     )
     assert response.status_code == 200
-    response_data = response.json()
+    _ = response.json()
 
     # tbls.CartProductに書いてある場所をProductaに移動させて、その関数をfixtureに書く
     # returnされる型を明示的にする

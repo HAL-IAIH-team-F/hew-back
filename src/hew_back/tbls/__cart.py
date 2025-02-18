@@ -13,4 +13,4 @@ class CartTable(BaseTable):
     __tablename__ = 'TBL_CART'
     cart_id: Mapped[uuid.UUID] = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = Column(UUID(as_uuid=True), ForeignKey('TBL_USER.user_id'))
-    purchase_date: Mapped[datetime.datetime] = Column(DateTime, nullable=True)
+    purchase_date: Mapped[datetime.datetime | None] = Column(DateTime, nullable=True)

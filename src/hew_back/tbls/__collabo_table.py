@@ -36,6 +36,20 @@ class ColabRequestTable(BaseTable):
         UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False
     )
 
+@dataclasses.dataclass
+class ColabWantTable(BaseTable):
+    __tablename__ = 'TBL_COLAB_WANT'
+
+    colab_want_id: Mapped[uuid.UUID] = Column(
+        UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
+    )
+    sender_creator_id: Mapped[uuid.UUID] = Column(
+        UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False
+    )
+    receive_creator_id: Mapped[uuid.UUID] = Column(
+        UUID(as_uuid=True), ForeignKey('TBL_CREATOR.creator_id'), nullable=False
+    )
+
 
 @dataclasses.dataclass
 class ColabTable(BaseTable):

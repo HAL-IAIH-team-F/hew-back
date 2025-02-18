@@ -17,10 +17,11 @@ async def pc(
         user_deps: deps.UserDeps = Depends(deps.UserDeps.get),
         session: AsyncSession = Depends(deps.DbDeps.session),
         creator_service: CreatorService = Depends(),
+        user_service: UserService = Depends(),
 ) -> CreatorResponse:
     result = await body.save_new(user_deps, session)
     return CreatorResponse(
         creator_id=result.creator.creator_id,
         contact_address=result.creator.contact_address,
-        user_data=creator_service.create_user_data(await creator_service.select_user(result.creator))
+        user_data=creator_service.create_user_data(await user_service.select_user(result.creator))
     )

@@ -48,6 +48,7 @@ class ProductTable(BaseTable):
             )
 
         if tag is not None and len(tag) > 0:
+            # noinspection PyTypeChecker
             tag_subquery = (
                 select(
                     tbls.ProductTag.item_id.label("product_id")
@@ -73,6 +74,7 @@ class ProductTable(BaseTable):
             stmt = stmt.where(ProductTable.purchase_date <= end_datetime)
 
         if post_by is not None and len(post_by) > 0:
+            # noinspection PyTypeChecker
             post_by_subquery = (
                 select(
                     tbls.CreatorProductTable.product_id.label("product_id")
@@ -95,6 +97,7 @@ class ProductTable(BaseTable):
                 # .where(UserFollowTable.user_id == current_user.user_id) ←　ログイン機能実装後、ログインしているユーザーがフォローしているクリエイターのフィルタリングを行う処理をwhere句で実施していきたい
                 .subquery()
             )
+            # noinspection PyTypeChecker
             stmt = (
                 select(ProductTable)
                 .join(tbls.CreatorProductTable, ProductTable.product_id == tbls.CreatorProductTable.product_id)

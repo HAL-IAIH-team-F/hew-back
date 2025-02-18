@@ -1,10 +1,9 @@
 import uuid
 
-from sqlalchemy import Column, String, ForeignKey, UUID
+from sqlalchemy import Column, ForeignKey, UUID
 
 from hew_back.db import BaseTable
 
-from sqlalchemy.ext.asyncio import AsyncSession
 
 class UserFollowTable(BaseTable):
     __tablename__ = 'TBL_USER_FOLLOW'

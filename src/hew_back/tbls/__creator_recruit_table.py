@@ -1,10 +1,9 @@
+import uuid
+
+from sqlalchemy import Column, String, ForeignKey, UUID
+
 from hew_back.db import BaseTable
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from sqlalchemy import Column, String, ForeignKey, UUID, select
-
-import uuid
 
 class CreatorRecruitTable(BaseTable):
     __tablename__ = 'TBL_CREATOR_RECRUIT'  # テーブル名を修正

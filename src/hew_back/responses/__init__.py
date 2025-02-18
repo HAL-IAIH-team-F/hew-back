@@ -1,11 +1,9 @@
-import uuid
-from datetime import datetime
+from pydantic import BaseModel
 
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel
 
-from hew_back import tbls, mdls
+from hew_back import mdls
 from hew_back.util import tks
-
 
 
 class TokenRes(BaseModel):

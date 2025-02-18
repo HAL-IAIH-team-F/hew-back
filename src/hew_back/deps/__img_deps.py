@@ -25,12 +25,12 @@ class ImageDeps:
             (ENV.img_url.join_path(f"/preference/{img_uuid}")
              .to_request()
              .set_method(urls.HttpMethod.PUT)
-             .body(RootModel(self).model_dump_json().encode())
+             .__body(RootModel(self).model_dump_json().encode())
              .content_type(urls.ContentType.JSON)
              .fetch()
              .on_status_code(404,
                              lambda s: ErrorIds.CONTENT_IMAGE_NOT_FOUND.to_exception("img id not found").raise_self())
              .on(lambda s: s.status_code != 200,
-                 lambda s: ErrorIds.INTERNAL_API_ERROR.to_exception(f"{s.status_code}: {s.body()}").raise_self())
-             .body()
+                 lambda s: ErrorIds.INTERNAL_API_ERROR.to_exception(f"{s.status_code}: {s.__body()}").raise_self())
+             .__body()
              )
