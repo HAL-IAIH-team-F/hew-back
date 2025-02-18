@@ -30,8 +30,6 @@ class Service:
             self, colab_creators: list[Pair[tbls.ColabCreatorTable, tbls.CreatorTable]]
     ) -> tbls.ColabApproveTable:
         for colab_creator in colab_creators:
-            if colab_creator.first.creator_id == self.sender.creator_table.creator_id:
-                continue
             approve = tbls.ColabApproveTable(colab_creator_id=colab_creator.first.collabo_creator_id)
             self.session.add(approve)
             await self.session.flush()
@@ -87,16 +85,15 @@ class Service:
         for colab_creator in colab_creators:
             if colab_creator.first.collabo_creator_id not in approve_creator_colab_ids:
                 return None
-        print(colab_creators)
+        # print(colab_creators)
         await self.chat_service.create_chat([c.second.user_id for c in colab_creators])
 
     async def process(self):
         colab_creators = self.select_colab_creators__creator()
-        approves = self.select_approves()
+        approves = await self.select_approves()
         colab_creators = await  colab_creators
         approve = self.insert_colab_approve(colab_creators)
         approve = await approve
-        approves = await approves
         await self.insert_notification(approve)
         await self.insert_chat_if_everyone_approved([*approves, approve], colab_creators)
 

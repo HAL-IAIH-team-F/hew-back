@@ -92,6 +92,8 @@ class __Service:
     async def process(self):
         colab = await self.insert_colab()
         creators = await self.select_creators()
+        if not self.sender.creator_table in creators:
+            creators.append(self.sender.creator_table)
         await self.insert_colab_creators(creators, colab)
         await self.insert_notification(creators, colab)
 

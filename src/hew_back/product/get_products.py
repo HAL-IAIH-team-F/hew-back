@@ -106,7 +106,7 @@ class __Service:
 
     async def __filter_post_by(
             self, where: list[sqlalchemy.ColumnElement[bool]]
-    ) -> sqlalchemy.Select[tuple[tbls.ProductTable]]:
+    ):
         if self.post_by is not None and len(self.post_by) > 0:
             # noinspection PyTypeChecker
             where.append(tbls.CreatorProductTable.creator_id == self.post_by)
