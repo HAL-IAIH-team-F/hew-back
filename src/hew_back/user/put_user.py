@@ -18,6 +18,7 @@ class __Service:
             user: deps.UserDeps = Depends(deps.UserDeps.get),
             user_service: UserService = Depends(),
             creator_service: CreatorService = Depends(),
+            img_deps: deps.ImageDeps = Depends(deps.ImageDeps.get),
     ):
         self.__session = session
         self.__user = user
@@ -25,8 +26,11 @@ class __Service:
         self.__user_service = user_service
         self.__body = body
         self.__creator_service = creator_service
+        self.__img_deps = img_deps
 
     async def process(self) -> SelfUserRes:
+        if self.__body.user_icon_uuid is not None:
+            self.__img_deps.crete(mdls.State.public).post_preference(self.__body.user_icon_uuid)
         self.__user.user_table.user_icon_uuid = self.__body.user_icon_uuid
         self.__user.user_table.user_name = self.__body.user_name
         await self.__session.flush()
