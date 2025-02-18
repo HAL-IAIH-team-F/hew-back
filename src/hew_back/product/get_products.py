@@ -211,7 +211,7 @@ class __Service:
         result = await self.session.execute(stmt)
 
         products = result.scalars().all()
-        print(stmt, products)
+        # print(stmt, products)
         return [product for product in products]
 
     async def select_creator_products(

@@ -60,7 +60,7 @@ class Service:
         return colab_want
 
     async def process(self):
-        target_creator = await self.__creator_service.select_creator_or_none(self.__body.target_creator_id)
+        target_creator = await self.__creator_service.select_creator(self.__body.target_creator_id)
         colab_want = await self.insert_colab_want(target_creator)
         await self.insert_notification(target_creator, colab_want)
 

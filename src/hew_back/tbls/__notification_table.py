@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 import uuid
 
 import sqlalchemy
@@ -18,11 +19,12 @@ class NotificationTable(BaseTable):
         + CASE collabo_approve_id WHEN NULL THEN 0 ELSE 1 END 
         + CASE collabo_want_id WHEN NULL THEN 0 ELSE 1 END 
         = 1
-        ""","check_notification_children"),
+        """, "check_notification_children"),
     )
     notification_id: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), primary_key=True, autoincrement=False, default=uuid.uuid4
     )
+    receive_date: Mapped[datetime.datetime] = Column(sqlalchemy.DateTime, nullable=False, default=datetime.datetime.now)
     receive_user: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), sqlalchemy.ForeignKey('TBL_USER.user_id'), nullable=False
     )
@@ -40,7 +42,6 @@ class NotificationTable(BaseTable):
     collabo_want_id: Mapped[uuid.UUID] = Column(
         UUID(as_uuid=True), sqlalchemy.ForeignKey('TBL_COLAB_WANT.colab_want_id'), nullable=True
     )
-
 
 
 class NotificationPurchase(BaseTable):

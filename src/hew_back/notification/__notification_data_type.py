@@ -7,7 +7,7 @@ from sqlalchemy import ColumnElement
 from hew_back import tbls, deps
 from hew_back.db import BaseTable
 from hew_back.notification.__reses import NotificationData, ColabRequestNotificationData, NotificationType, \
-    ColabNotificationData, ColabApproveNotificationData
+    ColabNotificationData, ColabApproveNotificationData, ColabWantNotificationData
 from hew_back.tbls import ColabTable
 
 
@@ -122,3 +122,24 @@ class ColabApproveNotificationDataType(NotificationDataType[tbls.ColabApproveTab
 
     def table(self) -> type[tbls.ColabApproveTable]:
         return tbls.ColabApproveTable
+
+class ColabWantNotificationDataType(NotificationDataType[tbls.ColabWantTable]):
+
+    async def create_data(
+            self, notification: tbls.NotificationTable, notification_data_table: tbls.ColabWantTable
+    ) -> NotificationData:
+        return ColabWantNotificationData(
+            notification_type=NotificationType.COLAB_WANT,
+            from_creator_id=notification_data_table.sender_creator_id,
+            colab_want_id=notification_data_table.colab_want_id
+        )
+
+    def test_has_id(self, notification: tbls.NotificationTable) -> bool:
+        return notification.collabo_want_id is not None
+
+    def join_condition(self) -> ColumnElement[bool]:
+        return tbls.ColabWantTable.colab_want_id == tbls.NotificationTable.collabo_want_id
+
+    def table(self) -> type[tbls.ColabWantTable]:
+        return tbls.ColabWantTable
+

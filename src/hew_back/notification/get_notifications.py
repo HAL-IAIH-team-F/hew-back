@@ -6,7 +6,7 @@ from fastapi import Depends
 
 from hew_back import deps, app, tbls
 from hew_back.notification.__notification_data_type import ColabNotificationDataType, ColabRequestNotificationDataType, \
-    NotificationDataType, ColabApproveNotificationDataType
+    NotificationDataType, ColabApproveNotificationDataType, ColabWantNotificationDataType
 from hew_back.notification.__reses import NotificationRes, NotificationData
 from hew_back.util import err
 
@@ -24,11 +24,12 @@ class Service:
             colab_notification: ColabNotificationDataType = Depends(),
             colab_request_notification: ColabRequestNotificationDataType = Depends(),
             colab_approve_notification: ColabApproveNotificationDataType = Depends(),
+            colab_want_notification: ColabWantNotificationDataType = Depends(),
     ):
         self.session = session
         self.user = user
         self.notification_data_types: list[NotificationDataType] = [
-            colab_notification, colab_request_notification, colab_approve_notification,
+            colab_notification, colab_request_notification, colab_approve_notification, colab_want_notification,
         ]
 
     async def select_raw_notifications(self):
@@ -45,6 +46,7 @@ class Service:
 
         query = await self.session.execute(
             st.where(tbls.NotificationTable.receive_user == self.user.user_table.user_id)
+            .order_by(tbls.NotificationTable.receive_date.desc())
         )
         return query.all()
 
