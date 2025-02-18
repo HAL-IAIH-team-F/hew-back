@@ -1,7 +1,5 @@
 from pydantic import BaseModel
 
-from pydantic import BaseModel
-
 from hew_back import mdls
 from hew_back.util import tks
 

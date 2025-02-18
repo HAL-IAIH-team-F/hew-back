@@ -2,7 +2,7 @@ import fastapi
 import sqlalchemy
 from fastapi import Depends
 
-from hew_back import app, deps
+from hew_back import app, deps, mdls
 from hew_back.creator.__creator_service import CreatorService
 from hew_back.user.__body import UserBody
 from hew_back.user.__res import SelfUserRes

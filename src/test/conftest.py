@@ -73,6 +73,7 @@ async def img(engine, create, app):
             def post_preference(self, img_uuid: uuid.UUID):
                 pass
 
+    # noinspection PyUnresolvedReferences
     app.dependency_overrides[deps.ImageDeps.get] = ImageDepsOverride.get
 
 
