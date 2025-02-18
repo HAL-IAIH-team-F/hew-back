@@ -4,7 +4,8 @@ import pydantic.dataclasses
 import sqlalchemy.ext.asyncio
 from fastapi import Depends
 
-from hew_back import deps, app, tbls, chat
+from hew_back import deps, app, tbls
+from hew_back.chat.chat_service import ChatService
 from hew_back.util import err, Pair
 
 
@@ -19,7 +20,7 @@ class Service:
             body: PostColabApproveBody,
             session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
             sender: deps.CreatorDeps = Depends(deps.CreatorDeps.get),
-            chat_service: chat.ChatService = Depends(),
+            chat_service: ChatService = Depends(),
     ):
         self.session = session
         self.sender = sender

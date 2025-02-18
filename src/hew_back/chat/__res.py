@@ -1,5 +1,6 @@
 import uuid
 
+import pydantic.dataclasses
 from pydantic import BaseModel
 
 
@@ -18,28 +19,13 @@ class ChatRes(BaseModel):
         )
 
 
-class MessageRes(BaseModel):
+@pydantic.dataclasses.dataclass
+class MessageRes:
     chat_message_id: uuid.UUID
     index: int
     message: str
     images: list[uuid.UUID]
     post_user_id: uuid.UUID
-
-    @staticmethod
-    def create(
-            chat_message_id: uuid.UUID,
-            index: int,
-            message: str,
-            images: list[uuid.UUID],
-            post_user_id: uuid.UUID,
-    ):
-        return MessageRes(
-            chat_message_id=chat_message_id,
-            index=index,
-            message=message,
-            images=images,
-            post_user_id=post_user_id,
-        )
 
 
 class ChatMessagesRes(BaseModel):
@@ -54,28 +40,4 @@ class ChatMessagesRes(BaseModel):
         return ChatMessagesRes(
             chat_id=chat_id,
             messages=messages,
-        )
-
-
-class ChatMessageRes(BaseModel):
-    chat_id: uuid.UUID
-    chat_message_id: uuid.UUID
-    index: int
-    message: str
-    images: list[uuid.UUID]
-
-    @staticmethod
-    def create(
-            chat_id: uuid.UUID,
-            chat_message_id: uuid.UUID,
-            index: int,
-            message: str,
-            images: list[uuid.UUID],
-    ):
-        return ChatMessageRes(
-            chat_id=chat_id,
-            chat_message_id=chat_message_id,
-            index=index,
-            message=message,
-            images=images,
         )

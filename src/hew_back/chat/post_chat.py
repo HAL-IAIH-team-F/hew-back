@@ -5,8 +5,9 @@ import sqlalchemy
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from hew_back import app, deps, chat, tbls
+from hew_back import app, deps, tbls
 from hew_back.chat.__res import ChatRes
+from hew_back.chat.chat_service import ChatService
 
 
 @pydantic.dataclasses.dataclass
@@ -19,7 +20,7 @@ class __Service:
             self,
             body: PostChatBody,
             session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
-            chat_service: chat.ChatService = Depends(),
+            chat_service: ChatService = Depends(),
             user: deps.UserDeps = Depends(deps.UserDeps.get),
     ):
         self.__session = session

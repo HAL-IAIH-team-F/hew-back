@@ -4,7 +4,7 @@ import sqlalchemy
 
 from hew_back import tbls
 from hew_back.chat.__body import PostChatMessageBody
-from hew_back.chat.__res import ChatMessageRes, ChatRes, ChatMessagesRes
+from hew_back.chat.__res import ChatRes, ChatMessagesRes, MessageRes
 from hew_back.chat.__result import ChatMessageResult, ChatUsersResult
 from hew_back.chat.post_chat import PostChatBody
 
@@ -160,7 +160,7 @@ async def test_post_message(
     assert response.status_code == 200, f"invalid status code {response.json()}"
     body = response.json()
     assert body is not None
-    message = ChatMessageRes(**body)
+    message = MessageRes(**body)
 
     result = await session.execute(
         sqlalchemy.select(tbls.ChatMessageTable)
@@ -168,7 +168,6 @@ async def test_post_message(
     )
     record: tbls.ChatMessageTable = result.scalar_one()
 
-    assert record.chat_id == message.chat_id
     assert record.chat_message_id == message.chat_message_id
     assert record.message == message.message
     assert record.index == message.index
