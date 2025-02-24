@@ -29,6 +29,7 @@ class CartService:
                 tbls.CartTable.user_id == self.__user.user_table.user_id,
                 tbls.CartTable.purchase_date == None,
             ))
+            .with_for_update()
         )
         return raw.scalar_one_or_none()
 
