@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from hew_back import app, deps, tbls
 from hew_back.cart.cart_service import CartService
+from hew_back.product.product_service import ProductService
 
 
 @pydantic.dataclasses.dataclass
@@ -29,6 +30,7 @@ class PatchCartBody:
 @pydantic.dataclasses.dataclass
 class CartPatchRes:
     new_products_filtered: list[uuid.UUID]
+    bought_products_filtered: list[uuid.UUID]
     rm_products_filtered: list[uuid.UUID]
 
 
@@ -39,11 +41,13 @@ class __Service:
             session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
             user: deps.UserDeps = Depends(deps.UserDeps.get),
             cart_service: CartService = Depends(),
+            product_service: ProductService = Depends(),
     ):
         self.__session: AsyncSession = session
         self.__user = user
         self.__body = body
         self.__cart_service = cart_service
+        self.__product_service = product_service
 
     async def __insert_cart(self) -> tbls.CartTable:
         cart = tbls.CartTable(
@@ -112,6 +116,17 @@ class __Service:
         else:
             return []
 
+    @staticmethod
+    async def __sort_unregistered_product_ids(unregistered: list[uuid.UUID], bought_tbl: list[tbls.CartProductTable]):
+        non_bought = list[uuid.UUID](unregistered)
+        bought = list[uuid.UUID]()
+        for product in bought_tbl:
+            if product.product_id in non_bought:
+                non_bought.remove(product.product_id)
+            else:
+                bought.append(product.product_id)
+        return non_bought, bought
+
     async def process(self):
         cart = await self.__cart_service.select_or_insert_cart()
         registered_cart_products = await self.__cart_service.select_cart_product(cart)
@@ -119,10 +134,14 @@ class __Service:
         unregistered_new_product_ids, registered_new_product_ids = await self.__cart_service.sort_new_product_ids(
             registered_cart_products, self.__body.new_products
         )
-        await self.__insert_cart_products(cart, unregistered_new_product_ids)
+        bought = await self.__product_service.select_bought_cart_table()
+        non_bought_new_product_ids, bought_new_product_ids = await self.__sort_unregistered_product_ids(
+            unregistered_new_product_ids, bought)
+        await self.__insert_cart_products(cart, non_bought_new_product_ids)
         return CartPatchRes(
             new_products_filtered=registered_new_product_ids,
             rm_products_filtered=unregistered_rm_product_ids,
+            bought_products_filtered=bought_new_product_ids,
         )
 
 
