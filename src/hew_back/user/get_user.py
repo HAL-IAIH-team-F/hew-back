@@ -14,7 +14,7 @@ class __Service:
             self,
             user_id: uuid.UUID,
             session: sqlalchemy.ext.asyncio.AsyncSession = Depends(deps.DbDeps.session),
-            user: deps.UserDeps = Depends(deps.UserDeps.get),
+            user: deps.UserDeps | None = Depends(deps.UserDeps.get_or_none),
             user_service: UserService = Depends(),
             creator_service: CreatorService = Depends(),
     ):
@@ -34,7 +34,7 @@ class __Service:
     async def process(self) -> SelfUserRes | UserRes:
         await self.__session.flush()
         creator = await self.__creator_service.select_creator_or_none(self.__user_id)
-        if self.__user_id == self.__user.user_table.user_id:
+        if self.__user is not None and self.__user_id == self.__user.user_table.user_id:
             return UserService.create_user_res(
                 self.__user.user_table,
                 CreatorService.create_creator_data(creator),
