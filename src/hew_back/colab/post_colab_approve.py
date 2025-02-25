@@ -31,6 +31,8 @@ class Service:
             self, colab_creators: list[Pair[tbls.ColabCreatorTable, tbls.CreatorTable]]
     ) -> tbls.ColabApproveTable:
         for colab_creator in colab_creators:
+            if self.sender.creator_table.creator_id != colab_creator.first.creator_id:
+                continue
             approve = tbls.ColabApproveTable(colab_creator_id=colab_creator.first.collabo_creator_id)
             self.session.add(approve)
             await self.session.flush()
@@ -82,6 +84,7 @@ class Service:
             self, approves: list[tbls.ColabApproveTable],
             colab_creators: list[Pair[tbls.ColabCreatorTable, tbls.CreatorTable]]
     ):
+        print(approves,colab_creators)
         approve_creator_colab_ids = [a.colab_creator_id for a in approves]
         for colab_creator in colab_creators:
             if colab_creator.first.collabo_creator_id not in approve_creator_colab_ids:
