@@ -16,7 +16,7 @@ class ChatMessageTable(BaseTable):
     chat_message_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     chat_id = Column(UUID(as_uuid=True), ForeignKey('TBL_CHAT.chat_id'), nullable=False)
     post_user_id = Column(UUID(as_uuid=True), ForeignKey('TBL_USER.user_id'), nullable=False)
-    index = Column(sqlalchemy.Integer, nullable=False, unique=True)
+    index = Column(sqlalchemy.Integer, nullable=False)
     message = Column(sqlalchemy.Text, nullable=False)
 
     @staticmethod
