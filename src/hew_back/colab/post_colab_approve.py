@@ -48,10 +48,10 @@ class Service:
         )
         return raw.scalar_one()
 
-    async def insert_notification(self, approve: tbls.ColabApproveTable):
-        owner = await self.select_owner()
+    async def __insert_notification(self, approve: tbls.ColabApproveTable, receive_user: tbls.CreatorTable):
+
         notification = tbls.NotificationTable(
-            receive_user=owner.user_id,
+            receive_user=receive_user.user_id,
             collabo_approve_id=approve.collabo_approve_id,
         )
         self.session.add(notification)
@@ -84,7 +84,7 @@ class Service:
             self, approves: list[tbls.ColabApproveTable],
             colab_creators: list[Pair[tbls.ColabCreatorTable, tbls.CreatorTable]]
     ):
-        print(approves,colab_creators)
+        print(approves, colab_creators)
         approve_creator_colab_ids = [a.colab_creator_id for a in approves]
         for colab_creator in colab_creators:
             if colab_creator.first.collabo_creator_id not in approve_creator_colab_ids:
@@ -98,7 +98,9 @@ class Service:
         colab_creators = await  colab_creators
         approve = self.insert_colab_approve(colab_creators)
         approve = await approve
-        await self.insert_notification(approve)
+        owner = await self.select_owner()
+        await self.__insert_notification(approve, owner)
+        await self.__insert_notification(approve, self.sender.creator_table)
         await self.insert_chat_if_everyone_approved([*approves, approve], colab_creators)
 
 
