@@ -37,7 +37,7 @@ class PurchaseInfo:
 
 
 @pydantic.dataclasses.dataclass
-class ProductRes:
+class ProductData:
     product_id: uuid.UUID
     product_price: int
     product_title: str
@@ -46,3 +46,8 @@ class ProductRes:
     purchase_date: datetime
     creator_ids: list[uuid.UUID]
     purchase_info: PurchaseInfo | None
+
+
+@pydantic.dataclasses.dataclass
+class ProductRes(ProductData):
+    pass
