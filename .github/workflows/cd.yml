@@ -11,46 +11,59 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     strategy:
       matrix:
-        conf:
-          - name: hew-back
-            dockerFile: Dockerfile
+        branch:
+          - ref: "refs/heads/develop"
             manifestFile: ./hew-dev/back/backend.yml
-            repository: HAL-IAIH-team-F/k8s-hew
+            name: hew-front
+            keycloakBaseUrl: "https://user.kigawa.net"
+            keycloakRealms: "develop"
+            siteUrl: "https://hew-dev.kigawa.net"
+            baseUrl: "https://hew-dev-api.kigawa.net/"
+            imgBaseUrl: "https://hew-dev-image.kigawa.net/"
+          - ref: "refs/heads/main"
+            manifestFile: ./diver/back/backend.yml
+            name: diver
+            keycloakBaseUrl: "https://user.kigawa.net"
+            keycloakRealms: "diver"
+            siteUrl: "https://diver.kigawa.net"
+            baseUrl: "https://diver-api.kigawa.net/"
+            imgBaseUrl: "https://diver-image.kigawa.net/"
     runs-on: ubuntu-latest
     env:
+      preDockerBuildCmd: ""
+      repository: HAL-IAIH-team-F/k8s-hew
+      manifestFile: ${{ matrix.branch.manifestFile }}
+      dockerFile: Dockerfile
+      name: ${{ matrix.branch.name }}
       harborUser: robot$hew
       dir: "./"
     steps:
       # checkout
+      - run: echo ${{ github.ref }} ${{ github.ref == matrix.branch.ref }}
       - uses: actions/checkout@v4
+        if: github.ref == matrix.branch.ref
       - name: preBuild
-        if: ${{ matrix.conf.preDockerBuildCmd }}
-        run: ${{ matrix.conf.preDockerBuildCmd }}
+        if: github.ref == matrix.branch.ref && env.preDockerBuildCmd
+        run: ${{ env.preDockerBuildCmd }}
 
       # docker
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        if: github.ref == matrix.branch.ref
       - uses: docker/login-action@v3
+        if: github.ref == matrix.branch.ref
         with:
           registry: harbor.kigawa.net
           username: ${{ env.harborUser }}
           password: ${{ secrets.HARBOR_PASS }}
 
-#      - name: BuildAndPushImageOnHarbor
-#        run: |
-#          ${{ matrix.conf.preDockerBuildCmd }}
-#          docker build -t harbor.kigawa.net/private/${{ matrix.conf.name }}:${{ github.ref_name }}-${{ github.sha }} \
-#           -f ${{ matrix.conf.dockerFile }} \
-#          ${{ matrix.conf.dockerOpt }} \
-#          ./
-#          docker push harbor.kigawa.net/private/${{ matrix.conf.name }}:${{ github.ref_name }}-${{ github.sha }}
-
       - uses: docker/build-push-action@v5
+        if: github.ref == matrix.branch.ref
         with:
           context: ${{ env.dir }}
-          file: ${{ matrix.conf.dockerFile }}
+          file: ${{ env.dir }}/${{ env.dockerFile }}
           push: true
-          tags: harbor.kigawa.net/private/${{ matrix.conf.name }}:${{ github.ref_name }}-${{ github.sha }}
+          tags: harbor.kigawa.net/private/${{ env.name }}:${{ github.ref_name }}-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: ${{ env.dockerArg }}
@@ -59,17 +72,20 @@ jobs:
       # argo
       - name: checkout manifest repository
         uses: actions/checkout@v3
+        if: github.ref == matrix.branch.ref
         with:
-          repository: ${{ matrix.conf.repository }}
+          repository: ${{ env.repository }}
           ref: main
           token: ${{ secrets.GIT_TOKEN }}
 
       - name: Update YAML File
+        if: github.ref == matrix.branch.ref
         run: |
-          yq -i '.spec.template.spec.containers[0].image = "harbor.kigawa.net/private/${{ matrix.conf.name }}:${{ github.ref_name }}-${{ github.sha }}"' \
-          ${{ matrix.conf.manifestFile }}
+          yq -i '.spec.template.spec.containers[0].image = "harbor.kigawa.net/private/${{ env.name }}:${{ github.ref_name }}-${{ github.sha }}"' \
+          ${{ env.manifestFile }}
 
       - name: push
+        if: github.ref == matrix.branch.ref
         run: |
           git config user.name githubActions
           git config user.email bot@kigawa.net
