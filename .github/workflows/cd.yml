@@ -14,7 +14,7 @@ jobs:
         branch:
           - ref: "refs/heads/develop"
             manifestFile: ./hew-dev/back/backend.yml
-            name: hew-front
+            name: hew-back
             keycloakBaseUrl: "https://user.kigawa.net"
             keycloakRealms: "develop"
             siteUrl: "https://hew-dev.kigawa.net"
@@ -22,7 +22,7 @@ jobs:
             imgBaseUrl: "https://hew-dev-image.kigawa.net/"
           - ref: "refs/heads/main"
             manifestFile: ./diver/back/backend.yml
-            name: diver
+            name: hew-back
             keycloakBaseUrl: "https://user.kigawa.net"
             keycloakRealms: "diver"
             siteUrl: "https://diver.kigawa.net"
